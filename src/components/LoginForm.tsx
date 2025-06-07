@@ -1,8 +1,10 @@
 import { FormEvent, useState } from "react";
 import api from "@/utils/api";
 import {AxiosError, isAxiosError} from "axios";
+import { saveUserInfo } from "@/utils/authentication";
 
 export default function LoginForm() {
+    const [errorMsg, setErrorMsgState] = useState<string>("");
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -14,6 +16,7 @@ export default function LoginForm() {
             ...prev,
             [name]: value,
         }));
+        setErrorMsgState("");
     };
 
     async function handleSubmit(event: FormEvent) {
@@ -28,11 +31,14 @@ export default function LoginForm() {
                 "password": password.value,
             });
 
+            saveUserInfo(response.data);
 
         } catch (e: unknown) {
-            const axiosError = isAxiosError(e) && e as AxiosError;
-
-            console.log(axiosError && axiosError.status);
+            if (isAxiosError(e)) {
+                console.log(e as AxiosError);
+                setErrorMsgState(e.response?.data.message);
+            }
+            console.error(e);
         }
 
     }
@@ -40,7 +46,7 @@ export default function LoginForm() {
     return (
         <div className="flex items-center justify-center min-h-screen border-solid bg-foreground">
             <form onSubmit={handleSubmit}
-                  className="relative flex flex-col items-center gap-2 p-6 border border-gray-400 rounded-md bg-white shadow-md w-[350px] h-[450px]">
+                  className="relative flex flex-col items-center gap-2 p-6 border border-gray-400 rounded-md bg-white shadow-md w-[400px] h-[450px]">
                 <h1
                     className="text-3xl font-bold text-base text-center mb-4 mt-4 text-black"
                 >
@@ -66,12 +72,18 @@ export default function LoginForm() {
                     onChange={handleChange}
                     value={formData.password}
                 />
+                {
+                    errorMsg &&
+                    <text className="text-base text-center text-red-400">
+                        {errorMsg}
+                    </text>
+                }
                 <br/>
                 <a
                     className="text-blue-300 block mx-auto mb-4 text-center"
                     href='register'
                 >
-                    Don't have an account?
+                    Don&apos;t have an account?
                 </a>
                 <br/>
                 <br/>
