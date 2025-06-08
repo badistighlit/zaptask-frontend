@@ -13,7 +13,9 @@ export default function LoginForm() {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<LoginFormData>();
+    } = useForm<LoginFormData>({
+        reValidateMode: "onChange"
+    });
 
     async function onSubmit({ email, password }: LoginFormData) {
         try {
@@ -69,7 +71,7 @@ export default function LoginForm() {
                 <br/>
                 <button
                     type="submit"
-                    className="absolute bottom-10 right-10 ml-auto rounded border-solid border-transparent transition-colors flex items-center justify-center  bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
+                    className="absolute bottom-10 right-10 ml-auto rounded border-solid border-transparent transition-colors flex items-center justify-center  bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] cursor-pointer font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
                 >
                     Login
                 </button>
