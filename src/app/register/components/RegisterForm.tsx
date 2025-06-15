@@ -1,16 +1,14 @@
-import api from "@/utils/api";
+"use client";
+
+
 import {AxiosError, isAxiosError} from "axios";
 import { saveUserInfo } from "@/utils/authentication";
 import { useForm } from "react-hook-form";
 import * as Yup from "yup";
 import { yupResolver } from '@hookform/resolvers/yup';
+import {register as registerUser} from "@/services/auth";
+import { RegisterData } from "@/types/auth";
 
-interface RegisterFormData {
-    fullName: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
-}
 
 const validationSchema = Yup.object().shape({
     fullName: Yup.string().required('Name is required'),
@@ -30,19 +28,14 @@ export default function RegisterForm() {
         handleSubmit,
         formState: { errors },
         clearErrors,
-    } = useForm<RegisterFormData>({
+    } = useForm<RegisterData>({
         reValidateMode: "onSubmit",
         resolver: yupResolver(validationSchema),
     });
 
-    async function onSubmit({ fullName, email, password, confirmPassword }: RegisterFormData) {
+    async function onSubmit(data : RegisterData) {
         try {
-            const response = await api.post('/register', {
-                "name": fullName,
-                "email": email,
-                "password": password,
-                "password_confirmation": confirmPassword,
-            });
+            const response = await registerUser(data);
 
             saveUserInfo(response.data)
 
@@ -52,7 +45,7 @@ export default function RegisterForm() {
     }
 
     const handleErrors = (e: React.ChangeEvent<HTMLInputElement>) => {
-        clearErrors(e.target.name as keyof RegisterFormData);
+        clearErrors(e.target.name as keyof RegisterData);
     }
 
     return (

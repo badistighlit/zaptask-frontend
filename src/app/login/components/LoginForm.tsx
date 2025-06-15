@@ -1,28 +1,24 @@
-import api from "@/utils/api";
+"use client";
 import {AxiosError, isAxiosError} from "axios";
 import { saveUserInfo } from "@/utils/authentication";
 import { useForm } from "react-hook-form";
+import { LoginData } from "@/types/auth";
+import { login } from "@/services/auth";
 
-interface LoginFormData {
-    email: string,
-    password: string,
-}
+
 
 export default function LoginForm() {
     const {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<LoginFormData>({
+    } = useForm<LoginData>({
         reValidateMode: "onChange"
     });
 
-    async function onSubmit({ email, password }: LoginFormData) {
+    async function onSubmit(data : LoginData) {
         try {
-            const response = await api.post('/me', {
-                "email": email,
-                "password": password,
-            });
+            const response = await login(data);
 
             saveUserInfo(response.data);
 
