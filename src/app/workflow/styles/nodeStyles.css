@@ -1,0 +1,46 @@
+
+.custom-node {
+  padding: 12px;
+  border: 2px solid #333;
+  border-radius: 10px;
+  background: #74D0F1;
+  cursor: pointer;
+  text-align: center;
+  min-width: 170px;
+  max-width: 220px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+   color: #000;
+}
+
+/* Jaune pour trigger */
+
+.trigger-node {
+  background-color: #fff3b0;
+}
+
+/* Bleu clair pour action */
+.action-node {
+  background-color: #d0f0fd;
+}
+
+.custom-node .label {
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.custom-node .info {
+  font-size: 13px;
+}
+
+
+.type-badge {
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  color: #000;
+  background: rgba(0, 0, 0, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+}
