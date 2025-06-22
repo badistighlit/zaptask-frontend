@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState, ChangeEvent, FormEvent } from "react";
+import React, { useCallback, useEffect, useState, ChangeEvent, FormEvent, /*FormEvent*/ } from "react";
 import ReactFlow, {
   useNodesState,
   useEdgesState,
@@ -17,15 +17,14 @@ import Sidebar from "./Sidebar";
 
 import CustomNode, { CustomNodeData } from "./CustomNode";
 
-import { fetchServices, fetchTriggersByService, fetchActionsByService } from "../../../services/workflow"; 
-import { Action, Service } from "@/types/workflow";
+import { fetchActionsByService, fetchServices, fetchTriggersByService } from "../../../services/workflow"; 
+import {  Action, Service } from "@/types/workflow";
 
 const nodeTypes = {
   custom: CustomNode,
 };
 
 const initialNodes: Node<CustomNodeData>[] = [];
-
 const initialEdges: Edge[] = [];
 
 const CustomFlow = () => {
@@ -39,13 +38,29 @@ const CustomFlow = () => {
 
   // state pour la sidebar
   const [services, setServices] = useState<Service[]>([]);
+
   const [triggers, setTriggers] = useState<Action[]>([]);
   const [actions, setActions] = useState<Action[]>([]);
 
+
+
+  // state pour l'insertion de noeuds
+  //const [insertingIndex, setInsertingIndex] = useState<number | null>(null);
+
+
   const [selectedService, setSelectedService] = useState("");
+
   const [selectedTrigger, setSelectedTrigger] = useState("");
   const [selectedAction, setSelectedAction] = useState("");
   const [details, setDetails] = useState("");
+
+
+
+  // insert bouton
+ 
+
+
+
 
   
 
@@ -135,9 +150,11 @@ const CustomFlow = () => {
     setDetails("");
   };
 
+
   return (
     <div style={{ display: "flex", width: "100%", height: "100vh" }}>
-      <Sidebar
+      
+        <Sidebar
         services={services}
         triggers={triggers}
         actions={actions}
@@ -167,9 +184,14 @@ const CustomFlow = () => {
           <Controls />
           <Background color="#e0f7fa"  />
         </ReactFlow>
+
+
+
       </div>
     </div>
   );
 };
+
+
 
 export default CustomFlow;

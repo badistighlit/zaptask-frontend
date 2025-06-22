@@ -114,10 +114,14 @@ const CustomNode: React.FC<CustomNodeProps> = ({ id, data }) => {
         onChange={handleConfigChange}
         onSave={(selectedId) => {
             if (!selectedId) return;
-            const updatedData =
-              data.type === "trigger"
-                ? { ...data, trigger: selectedId }
-                : { ...data, action: selectedId };
+                const updatedData = {
+                  ...data,
+                  config: formConfig,
+                  configured: true,
+                  ...(data.type === "trigger"
+                    ? { trigger: selectedId }
+                    : { action: selectedId }),
+                };
 
             setNodes((nds) =>
               nds.map((n) =>

@@ -61,12 +61,24 @@ export async function fetchWorkflowsByUser(userId: string) {
 
 
 // partie relation user-workflow/services
-export async function isConnectedService(serviceId: string,TriggerId:string,userId:string): Promise<boolean> {
+export async function isConnectedService(serviceId: string, TriggerId: string, userId: string): Promise<boolean> {
+  try {
+    const response = await api.get(`/services/${serviceId}/${TriggerId}/${userId}/is-connected`);
+    return response.data.isConnected; 
+  } catch (error) {
+    console.error(`Error checking connection for service ${serviceId}:`, error);
+    throw error;
+  }
+}
+
+
+
+export async function connectService(serviceId: string, TriggerId:string,userId:string): Promise<void> {
     try {
-        const response = await api.get(`/services/${serviceId}/${TriggerId}/${userId}/is-connected`);
-        return response.data.connected;
+        const response = await  api.post(`/services/${serviceId}/${TriggerId}/${userId}/connect`);
+        return response.data.status
     } catch (error) {
-        console.error(`Error checking connection for service ${serviceId}:`, error);
+        console.error(`Error connecting service ${serviceId}:`, error);
         throw error;
     }
 }
