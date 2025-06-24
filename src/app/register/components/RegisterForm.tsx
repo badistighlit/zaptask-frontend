@@ -37,7 +37,7 @@ export default function RegisterForm() {
         try {
             const response = await registerUser(data);
 
-            saveUserInfo(response.data)
+            saveUserInfo(response)
 
         } catch (e: unknown) {
             console.log(isAxiosError(e) && e as AxiosError);
