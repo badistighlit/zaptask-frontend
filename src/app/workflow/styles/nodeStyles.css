@@ -1,46 +1,90 @@
-
 .custom-node {
-  padding: 12px;
-  border: 2px solid #333;
-  border-radius: 10px;
-  background: #74D0F1;
+  width: 220px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: #f9fafb; /* Très clair, presque blanc */
+  color: #333;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.07);
   cursor: pointer;
   text-align: center;
-  min-width: 170px;
-  max-width: 220px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-   color: #000;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  user-select: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  border: 1.5px solid transparent;
 }
 
-/* Jaune pour trigger */
-
-.trigger-node {
-  background-color: #fff3b0;
+.custom-node:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 6px 12px rgba(0, 0, 0, 0.10);
+  border-color: #cbd5e1; /* couleur très douce au survol */
 }
 
-/* Bleu clair pour action */
-.action-node {
-  background-color: #d0f0fd;
+/* Badge type */
+.type-badge {
+  display: inline-block;
+  background-color: #e2e8f0; /* gris bleu très clair */
+  color: #475569; /* bleu gris foncé */
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+  letter-spacing: 0.05em;
+  box-shadow: none;
 }
 
+/* Label */
 .custom-node .label {
-  font-weight: bold;
-  margin-bottom: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1e293b; /* gris foncé */
 }
 
+/* Info text */
 .custom-node .info {
   font-size: 13px;
+  color: #64748b; /* gris moyen */
+  line-height: 1.4;
+}
+
+/* Trigger node style */
+.trigger-node {
+  background-color: #fffaf0; /* beige très clair */
+  border-color: #fcd34d; /* jaune doux */
+  color: #78350f; /* brun doux */
+  box-shadow:
+    0 2px 8px rgba(252, 211, 77, 0.2);
+}
+
+.trigger-node .type-badge {
+  background-color: #fef3c7; /* jaune pastel */
+  color: #92400e; /* orange doux foncé */
+}
+
+/* Action node style */
+.action-node {
+  background-color: #f0f9ff; /* bleu très clair */
+  border-color: #60a5fa; /* bleu moyen */
+  color: #1e40af; /* bleu foncé */
+  box-shadow:
+    0 2px 8px rgba(96, 165, 250, 0.2);
+}
+
+.action-node .type-badge {
+  background-color: #dbeafe; /* bleu pastel */
+  color: #1e3a8a; /* bleu foncé */
 }
 
 
-.type-badge {
-  font-size: 12px;
-  font-weight: bold;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-  color: #000;
-  background: rgba(0, 0, 0, 0.1);
-  padding: 2px 6px;
-  border-radius: 4px;
-  display: inline-block;
+.react-flow__edge-path {
+  transition: stroke 0.3s ease;
+}
+
+.react-flow__edge-path {
+  filter: drop-shadow(0 0 4px #E2A1F7);
+  transition: filter 0.3s ease;
 }

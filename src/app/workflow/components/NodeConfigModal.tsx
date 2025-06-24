@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Action, ConfigSchema, Service, Trigger } from "@/types/workflow";
-import { isConnectedService,connectService } from "@/services/workflow";
+import { Action, ConfigSchema, ConfigValue, Service, Trigger } from "@/types/workflow";
+import { isConnectedService, connectService } from "@/services/workflow";
+import ConfigInputField from "./ConfigInputField";
+
 
 interface NodeConfigModalProps {
   isOpen: boolean;
   onClose: () => void;
-  config: Record<string, string>;
+  config: Record<string, ConfigValue>;
   trigger?: Trigger;
   action?: Action;
   service?: Service;
   configSchema: ConfigSchema;
   type: "trigger" | "action";
-  onChange: (key: string, value: string) => void;
+  onChange: (key: string, value: ConfigValue) => void;
   onSave: (selectedId?: string) => void;
   triggerOptions: Trigger[];
   actionOptions: Action[];
@@ -21,7 +23,6 @@ const NodeConfigModal: React.FC<NodeConfigModalProps> = ({
   isOpen,
   onClose,
   config,
-  //configSchema,
   onChange,
   onSave,
   trigger,
@@ -31,48 +32,40 @@ const NodeConfigModal: React.FC<NodeConfigModalProps> = ({
   triggerOptions,
   actionOptions,
 }) => {
+  const userId: string = "user123";
 
-  //user A MODIFIER !!!!
-  const userId: string = "user123"; 
-
- // service 
   const [selectedId, setSelectedId] = useState<string>(
     trigger?.id || action?.id || ""
   );
+
+  const [localSchema, setLocalSchema] = useState<ConfigSchema>({});
+  const [isConnected, setIsConnected] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const inputStyle = {
+    width: "100%",
+    padding: 10,
+    border: "1px solid #ccc",
+    borderRadius: 6,
+    fontSize: 14,
+    backgroundColor: "#f8f9fc",
+  };
+
   useEffect(() => {
-    const selected = type === "trigger"
-      ? triggerOptions.find((t) => t.id === selectedId)
-      : actionOptions.find((a) => a.id === selectedId);
+    const selected =
+      type === "trigger"
+        ? triggerOptions.find((t) => t.id === selectedId)
+        : actionOptions.find((a) => a.id === selectedId);
+
     setLocalSchema(selected?.config_schema || {});
   }, [selectedId, triggerOptions, actionOptions, type]);
 
-
-
-//config schema
-const [localSchema, setLocalSchema] = useState<ConfigSchema>({});
-
-useEffect(() => {
-  const selected =
-    type === "trigger"
-      ? triggerOptions.find((t) => t.id === selectedId)
-      : actionOptions.find((a) => a.id === selectedId);
-
-  setLocalSchema(selected?.config_schema || {});
-}, [selectedId, triggerOptions, actionOptions, type]);
-
-
-
-// Vérification de la connexion
-const [isConnected, setIsConnected] = useState<boolean>(true);
-const [loading, setLoading] = useState<boolean>(false);
-
-
-
   useEffect(() => {
     const checkConnection = async () => {
-      const selected = type === "trigger"
-        ? triggerOptions.find((t) => t.id === selectedId)
-        : actionOptions.find((a) => a.id === selectedId);
+      const selected =
+        type === "trigger"
+          ? triggerOptions.find((t) => t.id === selectedId)
+          : actionOptions.find((a) => a.id === selectedId);
 
       if (selected && service && userId) {
         try {
@@ -87,16 +80,9 @@ const [loading, setLoading] = useState<boolean>(false);
     checkConnection();
   }, [selectedId, service, type, triggerOptions, actionOptions, userId]);
 
-
-
-
-   if (!isOpen) return null;
   const handleSaveClick = () => {
-    onSave(selectedId); 
+    onSave(selectedId);
   };
-
-
-
 
   const handleConnectClick = async () => {
     if (!service || !selectedId || !userId) return;
@@ -113,10 +99,7 @@ const [loading, setLoading] = useState<boolean>(false);
 
   if (!isOpen) return null;
 
-
-
-
-return (
+  return (
     <div
       onClick={onClose}
       style={{
@@ -154,7 +137,7 @@ return (
           Configurer le nœud
         </h3>
 
-        {/* Choix Trigger ou Action */}
+        {/* Choix de l'action/trigger */}
         <div style={{ marginBottom: 16 }}>
           <label style={{ fontWeight: "bold", display: "block", marginBottom: 4 }}>
             {type === "trigger" ? "Choisir un Trigger" : "Choisir une Action"}
@@ -162,14 +145,7 @@ return (
           <select
             value={selectedId}
             onChange={(e) => setSelectedId(e.target.value)}
-            style={{
-              width: "100%",
-              padding: 10,
-              border: "1px solid #ccc",
-              borderRadius: 6,
-              fontSize: 14,
-              backgroundColor: "#f8f9fc",
-            }}
+            style={inputStyle}
           >
             <option value="" disabled>-- Sélectionner --</option>
             {(type === "trigger" ? triggerOptions : actionOptions).map((opt) => (
@@ -180,10 +156,10 @@ return (
           </select>
         </div>
 
-        {/* Si non connecté */}
+        {/* Connexion service */}
         {!isConnected ? (
           <div style={{ textAlign: "center", marginTop: 20 }}>
-            <p style={{ color: "#666" }}>Ce service n est pas encore connecté.</p>
+            <p style={{ color: "#666" }}>Ce service n'est pas encore connecté.</p>
             <button
               onClick={handleConnectClick}
               disabled={loading}
@@ -202,37 +178,17 @@ return (
           </div>
         ) : (
           <>
-            {/* Formulaire de configuration */}
-            {Object.keys(localSchema).length === 0 ? (
-              <p style={{ color: "#555" }}>Aucune configuration nécessaire</p>
-            ) : (
-              Object.entries(localSchema).map(([key, field]) => (
-                <div key={key} style={{ marginBottom: 16 }}>
-                  <label style={{ fontWeight: "bold", marginBottom: 4, display: "block" }}>
-                    {key}
-                    {field.description && (
-                      <span style={{ fontWeight: "normal", color: "#777" }}>
-                        {" "}({field.description})
-                      </span>
-                    )}
-                  </label>
-                  <input
-                    type="text"
-                    value={config[key] || ""}
-                    onChange={(e) => onChange(key, e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: 10,
-                      border: "1px solid #ccc",
-                      borderRadius: 6,
-                      fontSize: 14,
-                      backgroundColor: "#f8f9fc",
-                    }}
-                  />
-                </div>
-              ))
-            )}
+           {Object.entries(localSchema).map(([key, field]) => (
+           <ConfigInputField
+             key={key}
+            name={key}
+            field={field}
+           value={config[key]}
+             onChange={onChange}
+            />
+))}
 
+            {/* Boutons */}
             <div
               style={{
                 display: "flex",

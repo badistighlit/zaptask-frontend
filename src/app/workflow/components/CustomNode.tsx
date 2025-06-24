@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Handle, Position, useReactFlow } from "reactflow";
 import { fetchServices, fetchTriggersByService, fetchActionsByService } from "../../../services/workflow";
-import { Service, Trigger, Action, ConfigSchema } from "@/types/workflow";
+import { Service, Trigger, Action, ConfigSchema, ConfigValue } from "@/types/workflow";
 import NodeConfigModal from "./NodeConfigModal";
 import "../styles/nodeStyles.css"
 
@@ -20,6 +20,7 @@ export interface CustomNodeData {
 type CustomNodeProps = {
   id: string;
   data: CustomNodeData;
+  
 };
 
 const CustomNode: React.FC<CustomNodeProps> = ({ id, data }) => {
@@ -31,7 +32,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({ id, data }) => {
 
 
 
-  const [formConfig, setFormConfig] = useState<Record<string, string>>(data.config || {});
+const [formConfig, setFormConfig] = useState<Record<string, ConfigValue>>(data.config || {});
 
 
 
@@ -60,28 +61,11 @@ const CustomNode: React.FC<CustomNodeProps> = ({ id, data }) => {
     setIsModalOpen(true);
   };
 
-  const handleConfigChange = (key: string, value: string) => {
-    setFormConfig((prev) => ({ ...prev, [key]: value }));
-  };
+const handleConfigChange = (key: string, value: ConfigValue) => {
+  setFormConfig((prev) => ({ ...prev, [key]: value }));
+};
 
-  /*const handleSave = () => {
-    setNodes((nds) =>
-      nds.map((n) =>
-        n.id === id
-          ? {
-              ...n,
-              data: {
-                ...n.data,
-                config: formConfig,
-                configured: true,
-              },
-            }
-          : n
-      )
-    );
-    setIsModalOpen(false);
-  };
-*/
+
   const handleCancel = () => setIsModalOpen(false);
 
   return (
@@ -95,8 +79,8 @@ const CustomNode: React.FC<CustomNodeProps> = ({ id, data }) => {
           <div className="info">Service: {serviceObj?.name || data.service}</div>
           <div className="info">Trigger: {triggerObj?.name || data.trigger}</div>
           <div className="info">Action: {actionObj?.name || data.action}</div>
-          <Handle type="target" position={Position.Left} />
-          <Handle type="source" position={Position.Right} />
+          <Handle type="target" position={Position.Top} />
+          <Handle type="source" position={Position.Bottom} />
         </div>
 
 

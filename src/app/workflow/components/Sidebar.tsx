@@ -21,21 +21,12 @@ interface SidebarProps {
 
 export default function Sidebar({
   services,
-  //triggers,
-  //actions,
   selectedService,
-  //selectedTrigger,
-  //selectedAction,
-  //details,
-  //setSelectedService,
-  //setSelectedTrigger,
-  //setSelectedAction,
-  //setDetails,
   onServiceChange,
   addStep,
 }: SidebarProps) {
   return (
-    <aside className="w-80 bg-white border-r border-gray-300 p-6 overflow-y-auto text-gray-800">
+<aside className="w-80 bg-white border-l border-gray-300 p-6 overflow-y-auto text-gray-800 sticky top-0 h-screen">
       <h2 className="text-xl font-bold mb-6">Ajouter une étape</h2>
 
       <form onSubmit={addStep} className="space-y-4">
