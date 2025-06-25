@@ -261,15 +261,14 @@ return (
        workflow={buildWorkflowFromNodes(nodes, workflowName, userId)}
       onPush={handleSave}
       />
-      </div>
 
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-50">
-
-       <TestWorkflowButton
-       workflow={buildWorkflowFromNodes(nodes, workflowName, userId)}
+      <TestWorkflowButton
+      workflow={buildWorkflowFromNodes(nodes, workflowName, userId)}
       onPush={handleTest}
       />
       </div>
+
+   
 
     </div>
 
