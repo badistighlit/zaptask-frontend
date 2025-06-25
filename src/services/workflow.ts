@@ -71,7 +71,7 @@ export async function isConnectedService(serviceId: string): Promise<boolean> {
   try {
     const response = await api.get(`/subscriptions/${serviceId}`);
 
-    if (response.status === 302) {
+    if (response.status == 200) {
       return true;
     }
 
