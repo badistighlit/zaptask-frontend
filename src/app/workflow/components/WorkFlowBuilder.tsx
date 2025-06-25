@@ -21,10 +21,11 @@ import Sidebar from "./Sidebar";
 import CustomNode, { CustomNodeData } from "./CustomNode";
 import {edgeOptions}   from "./EdgesConfig";
 
-import { createWorkflow, fetchActionsByService, fetchServices, fetchTriggersByService } from "../../../services/workflow"; 
+import { createWorkflow, fetchActionsByService, fetchServices, fetchTriggersByService,  testWorkflow } from "../../../services/workflow"; 
 import {  ActionOrTrigger, Service, WorkflowData, WorkflowStepInput } from "@/types/workflow";
 import AddNodeButton from "./addNodeBoutton";
 import SaveWorkflowButton from "./SaveWorkflowButton";
+import TestWorkflowButton from "./TestWorkflowButton";
 
 const nodeTypes = {
   custom: CustomNode,
@@ -79,6 +80,16 @@ const handleSave = async (workflow: WorkflowData) => {
     console.log("Workflow created successfully:", res);
   } catch (error) {
     console.error("Error during workflow submission:", error);
+  }
+};
+
+
+const handleTest = async (workflow: WorkflowData) => {
+  try {
+    const res = await testWorkflow(workflow);
+    console.log("Workflow tested successfully:", res);
+  } catch (error) {
+    console.error("Error during workflow testing:", error);
   }
 };
 
@@ -245,9 +256,18 @@ return (
       />
 
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-50">
+
        <SaveWorkflowButton
        workflow={buildWorkflowFromNodes(nodes, workflowName, userId)}
       onPush={handleSave}
+      />
+      </div>
+
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-50">
+
+       <TestWorkflowButton
+       workflow={buildWorkflowFromNodes(nodes, workflowName, userId)}
+      onPush={handleTest}
       />
       </div>
 

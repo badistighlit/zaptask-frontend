@@ -1,7 +1,7 @@
 import { ActionOrTrigger,  WorkflowData,Service } from "@/types/workflow";
 import api from "@/utils/api";
 import { AxiosError } from "axios";
-import { cp } from "fs";
+//import { cp } from "fs";
 
 //get
 
@@ -53,6 +53,50 @@ export async function fetchActionsByService(serviceId: string): Promise<ActionOr
     }   
 }
 
+
+  export async function fetchWorkflowsByUser () : Promise <WorkflowData []> {
+    try{
+      const response = await api.get('/workflowsByUser');
+      return response.data as WorkflowData[]
+    }
+    catch(error)
+    {
+      console.error("Error while fetching workflows by user",error);
+      return [];
+    }
+  }
+
+
+  export async function testWorkflow (workflow: WorkflowData) : Promise <boolean> {
+    try {
+      const response = await api.post('/testWorkflow',workflow)
+      return response.data.isOk as boolean
+
+    } catch (error) {
+      console.error("Error while testing the workflow ")
+      throw error;
+      //return false;
+      
+    }
+
+  }
+
+
+    export async function testActionOrtriggerForWorkflow (actionOrTrigger:ActionOrTrigger) : Promise <boolean> {
+    try {
+      const response = await api.post('/testActionOrTriggerForWorkflow',actionOrTrigger)
+      return response.data.isOk as boolean
+
+    } catch (error) {
+      console.error("Error while testing the action ")
+      throw error;
+      //return false;
+      
+    }
+
+
+  }
+
 /*
 export async function fetchWorkflowById(workflowId: string) {
     return true;
@@ -61,6 +105,8 @@ export async function fetchWorkflowById(workflowId: string) {
 export async function fetchWorkflowsByUser(userId: string) {
     return true;
 }*/
+
+
 
 
 
