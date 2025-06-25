@@ -47,24 +47,19 @@ export function validateConfig(
 
 //Action,service,trigger
 
-export interface Action {
-  id: string;
+export interface ActionOrTrigger {
+  identifier: string;
   name: string;
-  service_id: string;
+  type: "trigger" | "action";
   config_schema: ConfigSchema; 
+  parameters: { [key: string]: unknown }[]; // temporairement permissif
+
 }
 
-export interface Trigger {
-  id: string;
-  name: string;
-  service_id: string;
-  config_schema: ConfigSchema; 
-}
 
 export interface Service {
-  id: string;
-  name: string;
-  description?: string;
+  identifier: string;
+  name?: string;
 }
 
 

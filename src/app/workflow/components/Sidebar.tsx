@@ -1,12 +1,12 @@
 "use client";
 
 import { ChangeEvent, FormEvent } from "react";
-import { Service, Action } from "@/types/workflow";
+import { Service, ActionOrTrigger } from "@/types/workflow";
 
 interface SidebarProps {
   services: Service[];
-  triggers: Action[];
-  actions: Action[];
+  triggers: ActionOrTrigger[];
+  actions: ActionOrTrigger[];
   selectedService: string;
   selectedTrigger: string;
   selectedAction: string;
@@ -42,8 +42,8 @@ export default function Sidebar({
             required
           >
             <option value="">Choisir un service</option>
-            {services.map((s) => (
-              <option key={s.id} value={s.id}>
+            {Array.isArray(services) &&services.map((s) => (
+              <option key={s.identifier} value={s.identifier}>
                 {s.name}
               </option>
             ))}

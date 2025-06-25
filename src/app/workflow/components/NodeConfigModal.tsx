@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Action, ConfigSchema, ConfigValue, Service, Trigger } from "@/types/workflow";
+import { ActionOrTrigger, ConfigSchema, ConfigValue, Service } from "@/types/workflow";
 import { isConnectedService, connectService } from "@/services/workflow";
 import ConfigInputField from "./ConfigInputField";
 
@@ -8,15 +8,15 @@ interface NodeConfigModalProps {
   isOpen: boolean;
   onClose: () => void;
   config: Record<string, ConfigValue>;
-  trigger?: Trigger;
-  action?: Action;
+  trigger?: ActionOrTrigger;
+  action?: ActionOrTrigger;
   service?: Service;
   configSchema: ConfigSchema;
   type: "trigger" | "action";
   onChange: (key: string, value: ConfigValue) => void;
   onSave: (selectedId?: string) => void;
-  triggerOptions: Trigger[];
-  actionOptions: Action[];
+  triggerOptions: ActionOrTrigger[];
+  actionOptions: ActionOrTrigger[];
 }
 
 const NodeConfigModal: React.FC<NodeConfigModalProps> = ({
@@ -32,12 +32,13 @@ const NodeConfigModal: React.FC<NodeConfigModalProps> = ({
   triggerOptions,
   actionOptions,
 }) => {
-  const userId: string = "user123";
+  
 
   const [selectedId, setSelectedId] = useState<string>(
-    trigger?.id || action?.id || ""
+    trigger?.identifier || action?.identifier || ""
   );
-
+  
+  const userId: string = "user123";
   const [localSchema, setLocalSchema] = useState<ConfigSchema>({});
   const [isConnected, setIsConnected] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
@@ -54,8 +55,8 @@ const NodeConfigModal: React.FC<NodeConfigModalProps> = ({
   useEffect(() => {
     const selected =
       type === "trigger"
-        ? triggerOptions.find((t) => t.id === selectedId)
-        : actionOptions.find((a) => a.id === selectedId);
+        ? triggerOptions.find((t) => t.identifier === selectedId)
+        : actionOptions.find((a) => a.identifier === selectedId);
 
     setLocalSchema(selected?.config_schema || {});
   }, [selectedId, triggerOptions, actionOptions, type]);
@@ -64,12 +65,12 @@ const NodeConfigModal: React.FC<NodeConfigModalProps> = ({
     const checkConnection = async () => {
       const selected =
         type === "trigger"
-          ? triggerOptions.find((t) => t.id === selectedId)
-          : actionOptions.find((a) => a.id === selectedId);
+          ? triggerOptions.find((t) => t.identifier === selectedId)
+          : actionOptions.find((a) => a.identifier === selectedId);
 
-      if (selected && service && userId) {
+      if (selected && service ) {
         try {
-          const connected = await isConnectedService(service.id, selected.id, userId);
+          const connected = await isConnectedService(service.identifier, selected.identifier);
           setIsConnected(connected);
         } catch (error) {
           console.error("Erreur de connexion au service", error);
@@ -88,7 +89,7 @@ const NodeConfigModal: React.FC<NodeConfigModalProps> = ({
     if (!service || !selectedId || !userId) return;
     try {
       setLoading(true);
-      await connectService(service.id, selectedId, userId);
+      await connectService(service.identifier);
       setIsConnected(true);
     } catch (error) {
       console.error("Échec de la connexion au service :", error);
@@ -149,7 +150,7 @@ const NodeConfigModal: React.FC<NodeConfigModalProps> = ({
           >
             <option value="" disabled>-- Sélectionner --</option>
             {(type === "trigger" ? triggerOptions : actionOptions).map((opt) => (
-              <option key={opt.id} value={opt.id}>
+              <option key={opt.identifier} value={opt.identifier}>
                 {opt.name}
               </option>
             ))}
@@ -159,7 +160,7 @@ const NodeConfigModal: React.FC<NodeConfigModalProps> = ({
         {/* Connexion service */}
         {!isConnected ? (
           <div style={{ textAlign: "center", marginTop: 20 }}>
-            <p style={{ color: "#666" }}>Ce service n'est pas encore connecté.</p>
+            <p style={{ color: "#666" }}>Ce service n est pas encore connecté.</p>
             <button
               onClick={handleConnectClick}
               disabled={loading}

@@ -1,9 +1,9 @@
 import api from "@/utils/api";
 import { LoginData, RegisterData } from "../types/auth";
 
-export const login = (data: LoginData) => api.post("/me", data);
+export const login = async (data: LoginData) => await api.post("/me", data);
 
-export const register = (data: RegisterData) => { 
+export const register = async (data: RegisterData) => { 
     console.log(data)
     const req = {
         "name":data.fullName,
@@ -11,6 +11,7 @@ export const register = (data: RegisterData) => {
         "password":data.password,
         "password_confirmation":data.confirmPassword
     }
-    api.post("/register", req )
+   const response =  await api.post("/register", req )
+   return response.data;
 
 };

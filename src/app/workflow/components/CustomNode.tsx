@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Handle, Position, useReactFlow } from "reactflow";
 import { fetchServices, fetchTriggersByService, fetchActionsByService } from "../../../services/workflow";
-import { Service, Trigger, Action, ConfigSchema, ConfigValue } from "@/types/workflow";
+import { Service,  ActionOrTrigger, ConfigSchema, ConfigValue } from "@/types/workflow";
 import NodeConfigModal from "./NodeConfigModal";
 import "../styles/nodeStyles.css"
 
@@ -27,8 +27,8 @@ const CustomNode: React.FC<CustomNodeProps> = ({ id, data }) => {
   const { setNodes } = useReactFlow();
 
   const [services, setServices] = useState<Service[]>([]);
-  const [triggers, setTriggers] = useState<Trigger[]>([]);
-  const [actions, setActions] = useState<Action[]>([]);
+  const [triggers, setTriggers] = useState<ActionOrTrigger[]>([]);
+  const [actions, setActions] = useState<ActionOrTrigger[]>([]);
 
 
 
@@ -49,9 +49,9 @@ const [formConfig, setFormConfig] = useState<Record<string, ConfigValue>>(data.c
     }
   }, [data.service]);
 
-  const serviceObj = services.find((s) => s.id === data.service);
-  const triggerObj = triggers.find((t) => t.id === data.trigger);
-  const actionObj = actions.find((a) => a.id === data.action);
+  const serviceObj = services.find((s) => s.identifier === data.service);
+  const triggerObj = triggers.find((t) => t.identifier === data.trigger);
+  const actionObj = actions.find((a) => a.identifier === data.action);
 
   const configSchema: ConfigSchema = triggerObj?.config_schema || actionObj?.config_schema || {};
 

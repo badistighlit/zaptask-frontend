@@ -22,7 +22,7 @@ import CustomNode, { CustomNodeData } from "./CustomNode";
 import {edgeOptions}   from "./EdgesConfig";
 
 import { createWorkflow, fetchActionsByService, fetchServices, fetchTriggersByService } from "../../../services/workflow"; 
-import {  Action, Service, WorkflowData, WorkflowStepInput } from "@/types/workflow";
+import {  ActionOrTrigger, Service, WorkflowData, WorkflowStepInput } from "@/types/workflow";
 import AddNodeButton from "./addNodeBoutton";
 import SaveWorkflowButton from "./SaveWorkflowButton";
 
@@ -51,8 +51,8 @@ const CustomFlow = () => {
   // state pour la sidebar
   const [services, setServices] = useState<Service[]>([]);
 
-  const [triggers, setTriggers] = useState<Action[]>([]);
-  const [actions, setActions] = useState<Action[]>([]);
+  const [triggers, setTriggers] = useState<ActionOrTrigger[]>([]);
+  const [actions, setActions] = useState<ActionOrTrigger[]>([]);
 
 
 
@@ -70,7 +70,7 @@ const CustomFlow = () => {
 
 //state pour le workflow
 
-const [workflow,setWorkflow] = useState<WorkflowData>();
+//const [workflow,setWorkflow] = useState<WorkflowData>();
 const [workflowName, setWorkflowName] = useState("");
 
 const handleSave = async (workflow: WorkflowData) => {
@@ -87,11 +87,14 @@ const handleSave = async (workflow: WorkflowData) => {
   
 
   //chargement des données 
-  useEffect(() => {
-    fetchServices()
-      .then((data) => setServices(data))
-      .catch((err) => console.error(err));
-  }, []);
+useEffect(() => {
+  fetchServices()
+    .then((data) => {
+      console.log("fetchServices returned:", data);
+      setServices(data);
+    })
+    .catch((err) => console.error(err));
+}, []);
 
 
 
