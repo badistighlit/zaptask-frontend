@@ -16,6 +16,49 @@ export interface WorkflowData {
 }
 
 //configuration parametres
+export type parametreType =
+  | "button"
+  | "checkbox"
+  | "color"
+  | "date"
+  | "datetime-local"
+  | "email"
+  | "file"
+  | "hidden"
+  | "image"
+  | "month"
+  | "number"
+  | "password"
+  | "radio"
+  | "range"
+  | "reset"
+  | "search"
+  | "submit"
+  | "tel"
+  | "text"
+  | "time"
+  | "url"
+  | "week";
+
+
+//export type httpRequestParametreType = "body" |"query" |"url";
+
+export interface parametreField  {
+  name : string;
+  type : parametreType;
+ // httpRequestParametre : httpRequestParametreType;
+  options ? : string[]
+
+}
+
+export type parametersSchema = Record <string,parametreField>;
+
+
+
+
+//old version configuration
+
+
 export type ConfigValue = string | number | boolean | Date;
 
 export interface ConfigSchemaField {
@@ -39,7 +82,7 @@ export function validateConfig(
       case "string": return typeof value === "string";
       case "number": return typeof value === "number";
       case "boolean": return typeof value === "boolean";
-      case "date": return value instanceof Date || typeof value === "string"; // string acceptable si ISO date
+      case "date": return value instanceof Date || typeof value === "string"; 
       default: return true;
     }
   });
@@ -52,7 +95,7 @@ export interface ActionOrTrigger {
   name: string;
   type: "trigger" | "action";
   config_schema: ConfigSchema; 
-  parameters: { [key: string]: unknown }[]; // temporairement permissif
+  parameters: parametersSchema; 
 
 }
 

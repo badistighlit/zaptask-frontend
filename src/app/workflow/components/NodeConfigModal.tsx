@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { ActionOrTrigger, ConfigSchema, ConfigValue, Service } from "@/types/workflow";
+import { ActionOrTrigger, ConfigSchema, ConfigValue, parametersSchema, Service } from "@/types/workflow";
 import { isConnectedService, connectService } from "@/services/workflow";
 import ConfigInputField from "./ConfigInputField";
+
+
 
 
 interface NodeConfigModalProps {
@@ -11,7 +13,9 @@ interface NodeConfigModalProps {
   trigger?: ActionOrTrigger;
   action?: ActionOrTrigger;
   service?: Service;
-  configSchema: ConfigSchema;
+  //configSchema: ConfigSchema;
+  configSchema: parametersSchema;
+
   type: "trigger" | "action";
   onChange: (key: string, value: ConfigValue) => void;
   onSave: (selectedId?: string) => void;
@@ -39,7 +43,7 @@ const NodeConfigModal: React.FC<NodeConfigModalProps> = ({
   );
   
   const userId: string = "user123";
-  const [localSchema, setLocalSchema] = useState<ConfigSchema>({});
+  const [localSchema, setLocalSchema] = useState<parametersSchema>({});
   const [isConnected, setIsConnected] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -58,7 +62,7 @@ const NodeConfigModal: React.FC<NodeConfigModalProps> = ({
         ? triggerOptions.find((t) => t.identifier === selectedId)
         : actionOptions.find((a) => a.identifier === selectedId);
 
-    setLocalSchema(selected?.config_schema || {});
+    setLocalSchema(selected?.parameters || {});
   }, [selectedId, triggerOptions, actionOptions, type]);
 
   useEffect(() => {
@@ -180,13 +184,14 @@ const NodeConfigModal: React.FC<NodeConfigModalProps> = ({
         ) : (
           <>
            {Object.entries(localSchema).map(([key, field]) => (
-           <ConfigInputField
-             key={key}
-            name={key}
-            field={field}
-           value={config[key]}
-             onChange={onChange}
-            />
+              <ConfigInputField
+                key={key}
+                name={key}
+                type={field.type}
+                options={field.options}
+                value={config[key]}
+                onChange={onChange}
+              />
 ))}
 
             {/* Boutons */}

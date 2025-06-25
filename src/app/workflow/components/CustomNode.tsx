@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Handle, Position, useReactFlow } from "reactflow";
 import { fetchServices, fetchTriggersByService, fetchActionsByService } from "../../../services/workflow";
-import { Service,  ActionOrTrigger, ConfigSchema, ConfigValue } from "@/types/workflow";
+import { Service,  ActionOrTrigger, ConfigSchema, ConfigValue, parametersSchema } from "@/types/workflow";
 import NodeConfigModal from "./NodeConfigModal";
 import "../styles/nodeStyles.css"
 
@@ -53,7 +53,9 @@ const [formConfig, setFormConfig] = useState<Record<string, ConfigValue>>(data.c
   const triggerObj = triggers.find((t) => t.identifier === data.trigger);
   const actionObj = actions.find((a) => a.identifier === data.action);
 
-  const configSchema: ConfigSchema = triggerObj?.config_schema || actionObj?.config_schema || {};
+ // const configSchema: ConfigSchema = triggerObj?.config_schema || actionObj?.config_schema || {};
+
+  const configSchema: parametersSchema = triggerObj?.parameters || actionObj?.parameters || {};
 
   const handleNodeClick = (e: React.MouseEvent) => {
     e.stopPropagation();

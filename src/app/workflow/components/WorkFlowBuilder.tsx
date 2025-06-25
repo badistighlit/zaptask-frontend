@@ -225,6 +225,13 @@ return (
         className="workflow-name-input"
       />
     </div>
+<div className="absolute top-4 left-4 z-50">
+    <TestWorkflowButton
+    workflow={buildWorkflowFromNodes(nodes, workflowName, userId)}
+    onPush={handleTest}
+      />
+    </div>
+
 
       <ReactFlow
         nodes={nodes}
@@ -262,10 +269,7 @@ return (
       onPush={handleSave}
       />
 
-      <TestWorkflowButton
-      workflow={buildWorkflowFromNodes(nodes, workflowName, userId)}
-      onPush={handleTest}
-      />
+   
       </div>
 
    
