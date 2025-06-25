@@ -1,6 +1,7 @@
 import { ActionOrTrigger,  WorkflowData,Service } from "@/types/workflow";
 import api from "@/utils/api";
 import { AxiosError } from "axios";
+import { cp } from "fs";
 
 //get
 
@@ -66,7 +67,7 @@ export async function fetchWorkflowsByUser(userId: string) {
 // partie relation user-workflow/services
 
 
-export async function isConnectedService(serviceId: string, triggerId: string): Promise<boolean> {
+export async function isConnectedService(serviceId: string): Promise<boolean> {
   try {
     const response = await api.get(`/subscriptions/${serviceId}`);
 
@@ -106,16 +107,21 @@ export async function isConnectedService(serviceId: string, triggerId: string): 
 
 export async function connectService(serviceId: string): Promise<void> {
   try {
-    const response = await api.get(
+   /* const response = await api.get(
       `/${serviceId}/redirect`,
       {
         maxRedirects: 0,
         validateStatus: (status) => status >= 200 && status < 400,
       }
-    );
+    );*/
 
-    if (response.status === 302) {
-      const redirectUrl = response.headers.location;
+
+    const response = await api.get(
+      `/${serviceId}/redirect`)
+
+      console.log(response.data)
+    if (response.status === 200) {
+      const redirectUrl = response.data.url;
 
       if (!redirectUrl) {
         console.error("Redirection 302 reçue sans header 'location'.");
@@ -123,7 +129,7 @@ export async function connectService(serviceId: string): Promise<void> {
       }
 
       openOAuthPopup(redirectUrl);
-    } else {
+    } else { 
       console.log("Réponse reçue sans redirection :", response.status);
     }
 

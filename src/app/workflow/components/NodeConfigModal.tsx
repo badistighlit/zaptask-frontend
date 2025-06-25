@@ -70,7 +70,7 @@ const NodeConfigModal: React.FC<NodeConfigModalProps> = ({
 
       if (selected && service ) {
         try {
-          const connected = await isConnectedService(service.identifier, selected.identifier);
+          const connected = await isConnectedService(service.identifier);
           setIsConnected(connected);
         } catch (error) {
           console.error("Erreur de connexion au service", error);
