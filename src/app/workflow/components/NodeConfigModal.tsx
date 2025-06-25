@@ -37,6 +37,7 @@ const NodeConfigModal: React.FC<NodeConfigModalProps> = ({
   actionOptions,
 }) => {
   
+  
 
   const [selectedId, setSelectedId] = useState<string>(
     trigger?.identifier || action?.identifier || ""

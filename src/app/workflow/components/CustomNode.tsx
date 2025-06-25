@@ -4,6 +4,7 @@ import { fetchServices, fetchTriggersByService, fetchActionsByService } from "..
 import { Service,  ActionOrTrigger, ConfigSchema, ConfigValue, parametersSchema } from "@/types/workflow";
 import NodeConfigModal from "./NodeConfigModal";
 import "../styles/nodeStyles.css"
+import TestNodeConfigModal from "./testNodeConfigModal";
 
 
 export interface CustomNodeData {
@@ -85,7 +86,16 @@ const handleConfigChange = (key: string, value: ConfigValue) => {
           <Handle type="source" position={Position.Bottom} />
         </div>
 
+      <TestNodeConfigModal></TestNodeConfigModal>
 
+
+
+    </>
+  );
+};
+
+export default CustomNode;
+/*
       <NodeConfigModal
         isOpen={isModalOpen}
         onClose={handleCancel}
@@ -118,10 +128,4 @@ const handleConfigChange = (key: string, value: ConfigValue) => {
           }}
          // onSave={handleSave}
       />
-
-
-    </>
-  );
-};
-
-export default CustomNode;
+      */
