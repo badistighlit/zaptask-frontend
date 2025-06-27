@@ -43,6 +43,19 @@ export async function fetchActionsByService(serviceId: string): Promise<ActionOr
 
     //partie workflow
 
+export async function createEmptyWorkflow(name: string): Promise<{ id: string; status: string; name: string }> {
+  try {
+    const response = await api.put("/workflows", { name });
+    return response.data;
+  } catch (error) {
+    console.error("Erreur lors de la création du workflow vide :", error);
+    throw error;
+  }
+}
+
+
+  
+
     export async function createWorkflow(workflowData: WorkflowData) {
     try {
         const response = await api.post("/workflows", workflowData);
@@ -51,6 +64,22 @@ export async function fetchActionsByService(serviceId: string): Promise<ActionOr
         console.error("Error creating workflow:", error);
         throw error;
     }   
+}
+
+export async function updateWorkflow(workflowData: WorkflowData) {
+  if (!workflowData.id) {
+    throw new Error("Workflow ID is required to update.");
+  }
+
+  const payload = buildUpdatePayload(workflowData);
+
+  try {
+    const response = await api.put(`/workflows/${workflowData.id}`, payload);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating workflow:", error);
+    throw error;
+  }
 }
 
 
@@ -219,3 +248,7 @@ function openOAuthPopup(url: string): void {
     }
   }, 500);
 }
+function buildUpdatePayload(workflowData: WorkflowData) {
+  throw new Error("Function not implemented.");
+}
+

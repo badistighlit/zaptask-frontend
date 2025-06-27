@@ -1,6 +1,8 @@
 //workflow
 export interface WorkflowStepInput {
   id: string; 
+  workflow_id : string;
+
   type: "trigger" | "action";
   service:string;
   ref_id: string; 
@@ -9,6 +11,7 @@ export interface WorkflowStepInput {
 }
 
 export interface WorkflowData {
+  id? : string;
   name: string;
   is_active?: boolean;
   userId : string;
@@ -46,12 +49,15 @@ export type parametreType =
 export interface parametreField  {
   name : string;
   type : parametreType;
+  value?: string;
+  key : string;
+  
  // httpRequestParametre : httpRequestParametreType;
   options ? : string[]
 
 }
 
-export type parametersSchema = Record <string,parametreField>;
+export type parametersSchema = parametreField[];
 
 
 
@@ -92,6 +98,7 @@ export function validateConfig(
 
 export interface ActionOrTrigger {
   identifier: string;
+  service_id : string;
   name: string;
   type: "trigger" | "action";
   config_schema: ConfigSchema; 

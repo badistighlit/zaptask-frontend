@@ -2,16 +2,17 @@
 import { WorkflowData } from "@/types/workflow";
 import { FlaskConical } from "lucide-react"; 
 export interface PushWorkflowButtonProps {
-  workflow: WorkflowData;
+  //workflow: WorkflowData;
   onPush: (workflow: WorkflowData) => void;
 }
 
-export default function TestWorkflowButton({ workflow, onPush }: PushWorkflowButtonProps) {
+export default function TestWorkflowButton({  onPush }: PushWorkflowButtonProps) {
   const handlePush = () => {
-    onPush(workflow);
+    //onPush(workflow);
   };
 
-  const isDisabled = !workflow?.steps?.length;
+ // const isDisabled = !workflow?.steps?.length;
+  const isDisabled = false;
 
   return (
     <button
