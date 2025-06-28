@@ -14,6 +14,7 @@ import {
 import NodeConfigModal from "./NodeConfigModal";
 
 import "../styles/nodeStyles.css";
+import TestNodeConfigModal from "./testNodeConfigModal";
 
 export interface CustomNodeData {
   id: string;
@@ -118,7 +119,7 @@ const handleSave = (selectedId?: string) => {
         <Handle type="source" position={Position.Bottom} />
       </div>
 
-      <NodeConfigModal
+           <NodeConfigModal
         isOpen={isModalOpen}
         onClose={handleCancel}
         config={formConfig}
