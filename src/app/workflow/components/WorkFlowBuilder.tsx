@@ -71,15 +71,7 @@ const CustomFlow = () => {
   const [workflowName, setWorkflowName] = useState("");
   const [workflowId, setWorkflowId] = useState<string | null>(null);
 
-  const handleWorkflowNameSubmit = async (name: string) => {
-    try {
-      const res = await createEmptyWorkflow(name);
-      setWorkflowName(res.name);
-      setWorkflowId(res.id);
-    } catch (err) {
-      console.error("Erreur lors de la création du workflow :", err);
-    }
-  };
+
 
   const handleSave = async (workflow: WorkflowData) => {
     try {
@@ -106,6 +98,28 @@ const CustomFlow = () => {
       })
       .catch((err) => console.error(err));
   }, []);
+
+
+  useEffect(() => {
+  const createDraftWorkflow = async () => {
+    try {
+      const now = new Date();
+      const formattedDate = now.toISOString().replace(/[:.]/g, "-");
+      const draftName = `draft-${formattedDate}`;
+
+      const res = await createEmptyWorkflow(draftName);
+      setWorkflowName(res.name);
+      setWorkflowId(res.id);
+    } catch (err) {
+      console.error("Erreur lors de la création du workflow draft :", err);
+    }
+  };
+
+  createDraftWorkflow();
+}, []);
+
+
+
 
   useEffect(() => {
     if (!selectedService) {
@@ -193,12 +207,19 @@ const CustomFlow = () => {
     setDetails("");
   };
 
-  // popup si workflowid nest pas defini
+  
   if (!workflowId) {
-    return <WorkflowNameModal onSubmit={handleWorkflowNameSubmit} />;
-  }
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <p className="text-xl font-semibold">Création du workflow en cours...</p>
+    </div>
+  );
+}
+
+
 
   return (
+    
     <div className="flex h-screen w-full">
       <div className="flex-grow relative">
         <div className="workflow-header">
