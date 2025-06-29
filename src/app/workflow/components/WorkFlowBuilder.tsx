@@ -1,5 +1,5 @@
 "use client";
-
+import { useRouter } from "next/navigation";
 import React, {
   useCallback,
   useEffect,
@@ -48,12 +48,21 @@ const nodeTypes = {
   custom: CustomNode,
 };
 
+type Props = {
+  existingWorkflow?: WorkflowData;
+};
+
+
+
 const initialNodes: Node<CustomNodeData>[] = [];
 const initialEdges: Edge[] = [];
 
 const userId = "user123"; // TODO: Remplacer avec auth
 
-const CustomFlow = () => {
+const CustomFlow = ({ existingWorkflow }: Props) => {
+
+  const router = useRouter();
+
   const [rfTransform, setRfTransform] = useState({ x: 0, y: 0, zoom: 0.8 });
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -100,7 +109,9 @@ const CustomFlow = () => {
   }, []);
 
 
-  useEffect(() => {
+
+
+useEffect(() => {
   const createDraftWorkflow = async () => {
     try {
       const now = new Date();
@@ -110,6 +121,8 @@ const CustomFlow = () => {
       const res = await createEmptyWorkflow(draftName);
       setWorkflowName(res.name);
       setWorkflowId(res.id);
+
+     // router.push(`/workflow/${res.id}`);
     } catch (err) {
       console.error("Erreur lors de la création du workflow draft :", err);
     }
@@ -117,6 +130,9 @@ const CustomFlow = () => {
 
   createDraftWorkflow();
 }, []);
+
+
+
 
 
 
@@ -207,7 +223,7 @@ const CustomFlow = () => {
     setDetails("");
   };
 
-  
+
   if (!workflowId) {
   return (
     <div className="flex items-center justify-center h-screen">
@@ -286,6 +302,14 @@ const CustomFlow = () => {
     </div>
   );
 };
+
+
+
+
+
+
+
+
 
 // build du workflow à partir des noeuds
 function buildWorkflowFromNodes(
