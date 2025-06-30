@@ -13,6 +13,7 @@ export interface WorkflowStepInput {
 export interface WorkflowData {
   id? : string;
   name: string;
+  status: "draft" | "deployed" | "error";
   is_active?: boolean;
   userId : string;
   steps: WorkflowStepInput[];

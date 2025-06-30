@@ -8,7 +8,7 @@ import clsx from "clsx";
 const navItems = [
   { name: "Accueil", href: "/", icon: Home },
   { name: "Build workflow", href: "/workflow", icon: Workflow },
-  { name: "Mes workflows", href: "/myworkflows", icon: List },
+  { name: "Mes workflows", href: "/myWorkflows", icon: List },
   { name: "Mes services", href: "/services", icon: Server },
   { name: "Logs", href: "/logs", icon: FileText },
   { name: "Paramètres", href: "/settings", icon: Settings },

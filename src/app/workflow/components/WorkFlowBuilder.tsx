@@ -111,25 +111,7 @@ const CustomFlow = ({ existingWorkflow }: Props) => {
 
 
 
-useEffect(() => {
-  const createDraftWorkflow = async () => {
-    try {
-      const now = new Date();
-      const formattedDate = now.toISOString().replace(/[:.]/g, "-");
-      const draftName = `draft-${formattedDate}`;
 
-      const res = await createEmptyWorkflow(draftName);
-      setWorkflowName(res.name);
-      setWorkflowId(res.id);
-
-     // router.push(`/workflow/${res.id}`);
-    } catch (err) {
-      console.error("Erreur lors de la création du workflow draft :", err);
-    }
-  };
-
-  createDraftWorkflow();
-}, []);
 
 
 

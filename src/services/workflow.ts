@@ -1,6 +1,7 @@
 import { ActionOrTrigger,  WorkflowData,Service } from "@/types/workflow";
 import api from "@/utils/api";
 import { AxiosError } from "axios";
+
 //import { cp } from "fs";
 
 //get
@@ -83,17 +84,7 @@ export async function updateWorkflow(workflowData: WorkflowData) {
 }
 
 
-  export async function fetchWorkflowsByUser () : Promise <WorkflowData []> {
-    try{
-      const response = await api.get('/workflowsByUser');
-      return response.data as WorkflowData[]
-    }
-    catch(error)
-    {
-      console.error("Error while fetching workflows by user",error);
-      return [];
-    }
-  }
+
 
 
   export async function testWorkflow (workflow: WorkflowData) : Promise <boolean> {
@@ -126,14 +117,58 @@ export async function updateWorkflow(workflowData: WorkflowData) {
 
   }
 
-/*
+
 export async function fetchWorkflowById(workflowId: string) {
-    return true;
+  try {
+    const response = await api.get(`/workflows/${workflowId}`);
+    if (response.status === 200) {
+      console.log("Workflow fetched successfully:", response.data);
+
+      return response.data as WorkflowData;
+    } else {
+
+      console.error(`Unexpected status code ${response.status} while fetching workflow.`);
+      return null;
+    }
+
+
+  } catch (error) {
+    if ((error as AxiosError).isAxiosError) {
+      const axiosError = error as AxiosError;
+      console.error(`Error fetching workflow by ID ${workflowId}:`, axiosError.response?.data);
+    } else {
+      console.error("Unexpected error:", error);
+    }
+    return null;
+  }
 
 }
-export async function fetchWorkflowsByUser(userId: string) {
-    return true;
-}*/
+export async function fetchWorkflowsByUser()  : Promise<WorkflowData[] | null> {
+  try {
+    const response = await api.get(`/workflows/`);
+    if (response.status === 200) {
+      console.log("Workflow fetched successfully:", response.data);
+
+      return response.data as WorkflowData [];
+    } else {
+
+      console.error(`Unexpected status code ${response.status} while fetching workflow.`);
+      return null;
+    }
+
+
+  } catch (error) {
+    if ((error as AxiosError).isAxiosError) {
+      const axiosError = error as AxiosError;
+      console.error(`Error fetching workflow by user}:`, axiosError.response?.data);
+    } else {
+      console.error("Unexpected error:", error);
+    }
+    return null;
+  }
+
+}
+
 
 
 
