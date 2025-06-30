@@ -37,7 +37,7 @@ const NodeConfigModal: React.FC<NodeConfigModalProps> = ({
   trigger,
   action,
   service,
-  configSchema,
+  
   type,
   onChange,
   onSave,

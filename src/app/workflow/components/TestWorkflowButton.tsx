@@ -6,7 +6,7 @@ export interface PushWorkflowButtonProps {
   onPush: (workflow: WorkflowData) => void;
 }
 
-export default function TestWorkflowButton({  onPush }: PushWorkflowButtonProps) {
+export default function TestWorkflowButton({   }: PushWorkflowButtonProps) {
   const handlePush = () => {
     //onPush(workflow);
   };

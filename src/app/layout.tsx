@@ -12,7 +12,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="flex bg-white text-[#1a1a1a]">
         <DashboardSidebar />
         <main className="ml-64 w-full">
-          {children}
+            <div className="p-4">
+              {children}
+            </div>
         </main>
       </body>
     </html>

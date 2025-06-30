@@ -1,3 +1,6 @@
+import {  setCookie } from "./cookies";
+import { deleteCookie } from "cookies-next";
+
 export interface PersonalAccessToken {
     token?: string|null,
     tokenable_id?: string|null,
@@ -9,10 +12,16 @@ export interface PersonalAccessToken {
 }
 
 function saveUserInfo({ tokenable_id, token }: PersonalAccessToken): void {
+      if (!token || !tokenable_id) return;
+
     localStorage.setItem('user', JSON.stringify({
         id: tokenable_id,
         token: token,
     }));
+
+    setCookie("token", token); 
+
+    
 }
 
 function loadUserInfo(): PersonalAccessToken|undefined {
@@ -23,6 +32,7 @@ function loadUserInfo(): PersonalAccessToken|undefined {
     }
 
     const savedUserInfo = JSON.parse(user);
+    
 
 
     return {
@@ -31,4 +41,9 @@ function loadUserInfo(): PersonalAccessToken|undefined {
     };
 }
 
-export { saveUserInfo, loadUserInfo };
+function deleteUserInfo(): void {
+    localStorage.removeItem('user');
+    deleteCookie("token");
+}
+
+export { saveUserInfo, loadUserInfo,deleteUserInfo };
