@@ -2,22 +2,24 @@
 export interface WorkflowStepInput {
   id: string; 
   workflow_id : string;
-
   type: "trigger" | "action";
-  service:string;
-  ref_id: string; 
-  config: Record<string, ConfigValue>;
+  status : "draft" | "deployed" | "error";
+  service_id:string;
+  lastExecution?: Date;
+  config: parametersSchema;
   order: number;
+
+  trigger?: string;  
+  action?: string; 
 }
 
 export interface WorkflowData {
   id? : string;
   name: string;
   status: "draft" | "deployed" | "error";
-  is_active?: boolean;
-  userId : string;
   steps: WorkflowStepInput[];
 }
+
 
 //configuration parametres
 export type parametreType =
@@ -64,7 +66,7 @@ export type parametersSchema = parametreField[];
 
 
 //old version configuration
-
+/*
 
 export type ConfigValue = string | number | boolean | Date;
 
@@ -73,6 +75,7 @@ export interface ConfigSchemaField {
   type: "string" | "number" | "boolean" | "date";
   required?: boolean;
 }
+
 export type ConfigSchema = Record<string, ConfigSchemaField>;
 
 
@@ -95,6 +98,8 @@ export function validateConfig(
   });
 }
 
+*/
+
 //Action,service,trigger
 
 export interface ActionOrTrigger {
@@ -102,7 +107,6 @@ export interface ActionOrTrigger {
   service_id : string;
   name: string;
   type: "trigger" | "action";
-  config_schema: ConfigSchema; 
   parameters: parametersSchema; 
 
 }

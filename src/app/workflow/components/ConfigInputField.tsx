@@ -1,12 +1,12 @@
 import React from "react";
-import { ConfigValue, parametreType } from "@/types/workflow";
+import { parametreType } from "@/types/workflow";
 
 interface ConfigInputFieldProps {
   name: string;
   type: parametreType;
-  value: ConfigValue;
+  value?: string;  
   options?: string[];
-  onChange: (key: string, value: ConfigValue) => void;
+  onChange: (key: string, value: string) => void; 
 }
 
 const inputStyle: React.CSSProperties = {
@@ -25,25 +25,23 @@ const ConfigInputField: React.FC<ConfigInputFieldProps> = ({
   options,
   onChange,
 }) => {
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    if (type === "checkbox") {
-      onChange(name, (e as React.ChangeEvent<HTMLInputElement>).target.checked);
-    } else if (type === "number" || type === "range") {
-      onChange(name, Number(e.target.value));
-    } else if (type === "date" || type === "datetime-local") {
-      onChange(name, new Date(e.target.value));
-    } else {
-      onChange(name, e.target.value);
-    }
-  };
+
+
+const handleChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+) => {
+  if (type === "checkbox") {
+    const target = e.target as HTMLInputElement;
+    onChange(name, target.checked ? "true" : "false");
+  } else {
+    onChange(name, e.target.value);
+  }
+};
 
   const renderInput = () => {
-    // Si options sont présentes → <select>
     if (options && options.length > 0) {
       return (
-        <select value={String(value)} onChange={handleChange} style={inputStyle}>
+        <select value={value || ""} onChange={handleChange} style={inputStyle}>
           {options.map((opt) => (
             <option key={opt} value={opt}>
               {opt}
@@ -53,30 +51,24 @@ const ConfigInputField: React.FC<ConfigInputFieldProps> = ({
       );
     }
 
-    // Sinon → input standard avec le type HTML donné
     if (type === "checkbox") {
       return (
         <input
           type="checkbox"
-          checked={Boolean(value)}
+          checked={value === "true"}
           onChange={handleChange}
           style={{ transform: "scale(1.2)", marginTop: 6 }}
         />
       );
     }
 
-    let inputValue: string = "";
-
-    if (value instanceof Date) {
-      inputValue = value.toISOString().substring(0, 16);
-    } else if (typeof value === "string" || typeof value === "number") {
-      inputValue = String(value);
-    }
+    // Pour les dates, datetime-local, on suppose que la value est une string ISO valide
+    // Pour number/range, c'est une string numérique
 
     return (
       <input
         type={type}
-        value={inputValue}
+        value={value || ""}
         onChange={handleChange}
         style={inputStyle}
       />

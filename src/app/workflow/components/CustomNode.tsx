@@ -8,13 +8,12 @@ import {
 import {
   Service,
   ActionOrTrigger,
-  ConfigValue,
+  
   parametersSchema,
 } from "@/types/workflow";
 import NodeConfigModal from "./NodeConfigModal";
 
 import "../styles/nodeStyles.css";
-import TestNodeConfigModal from "./testNodeConfigModal";
 
 export interface CustomNodeData {
   id: string;
@@ -24,7 +23,7 @@ export interface CustomNodeData {
   trigger: string;
   action: string;
   configured: boolean;
-  config: Record<string, ConfigValue>;
+  config: parametersSchema;
 }
 
 type CustomNodeProps = {
@@ -38,8 +37,8 @@ const CustomNode: React.FC<CustomNodeProps> = ({ id, data }) => {
   const [services, setServices] = useState<Service[]>([]);
   const [triggers, setTriggers] = useState<ActionOrTrigger[]>([]);
   const [actions, setActions] = useState<ActionOrTrigger[]>([]);
-  const [formConfig, setFormConfig] = useState<Record<string, ConfigValue>>(
-    data.config || {}
+  const [formConfig, setFormConfig] = useState<parametersSchema>(
+    data.config || []
   );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -72,9 +71,14 @@ const CustomNode: React.FC<CustomNodeProps> = ({ id, data }) => {
     setIsModalOpen(true);
   };
 
-  const handleConfigChange = (key: string, value: ConfigValue) => {
-    setFormConfig((prev) => ({ ...prev, [key]: value }));
-  };
+const handleConfigChange = (key: string, value: string) => {
+  setFormConfig(prev =>
+    prev.map(param =>
+      param.key === key ? { ...param, value } : param
+    )
+  );
+};
+
 
   const handleCancel = () => setIsModalOpen(false);
 

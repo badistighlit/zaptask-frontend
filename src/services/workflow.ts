@@ -1,3 +1,4 @@
+import { BackendAction, BackendWorkflow } from "@/types/BackTypes";
 import { ActionOrTrigger,  WorkflowData,Service } from "@/types/workflow";
 import api from "@/utils/api";
 import { AxiosError } from "axios";
@@ -283,7 +284,35 @@ function openOAuthPopup(url: string): void {
     }
   }, 500);
 }
-function buildUpdatePayload(workflowData: WorkflowData) {
-  throw new Error("Function not implemented.");
-}
 
+
+
+
+export function buildUpdatePayload(workflowData: WorkflowData): BackendWorkflow {
+  if (!workflowData.id) {
+    throw new Error("Workflow ID is required");
+  }
+
+  // mappe chaque étape en BackendAction
+  const actions: BackendAction[] = workflowData.steps.map((step, idx) => ({
+    id: step.id,
+    workflow_id: workflowData.id!,
+    status: step.status,
+    execution_order: step.order,
+    url: "", // si tu as une url, sinon vide ou à compléter
+    parameters: step.config.map(param => ({
+      parameter_name: param.name,
+      parameter_key: param.key,
+      parameter_type: param.type,
+      options: param.options,
+    })),
+    last_executed_at: step.lastExecution ? step.lastExecution.toISOString() : undefined,
+  }));
+
+  return {
+    id: workflowData.id,
+    name: workflowData.name,
+    status: workflowData.status,
+    actions,
+  };
+}

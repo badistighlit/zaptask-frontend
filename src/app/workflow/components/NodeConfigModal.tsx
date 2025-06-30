@@ -79,7 +79,7 @@ const NodeConfigModal: React.FC<NodeConfigModalProps> = ({
   const validateConfig = (): boolean => {
     return localSchema.every((field) => {
       const val = config[field.key];
-      if (field.type === "checkbox") return typeof val === "boolean";
+      if (field.type === "checkbox") return typeof val === "string" && (val === "true" || val === "false");
       if (field.type === "number" || field.type === "range") return val !== undefined && !isNaN(Number(val));
       return val !== undefined && val !== null && String(val).trim() !== "";
     });

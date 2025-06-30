@@ -36,6 +36,7 @@ import {
   fetchTriggersByService,
   fetchActionsByService,
   createEmptyWorkflow,
+  updateWorkflow,
 } from "../../../services/workflow";
 import {
   ActionOrTrigger,
@@ -60,6 +61,7 @@ const initialEdges: Edge[] = [];
 const userId = "user123"; // TODO: Remplacer avec auth
 
 const CustomFlow = ({ existingWorkflow }: Props) => {
+  console.log("Existing Workflow:", existingWorkflow);
 
   const router = useRouter();
 
@@ -80,6 +82,19 @@ const CustomFlow = ({ existingWorkflow }: Props) => {
   const [workflowName, setWorkflowName] = useState("");
   const [workflowId, setWorkflowId] = useState<string | null>(null);
 
+
+  // Chargement du workflow existant
+  useEffect(() => {
+  if (!existingWorkflow) return;
+
+  setWorkflowName(existingWorkflow.name);
+  setWorkflowId(existingWorkflow.id || null);
+
+  const { nodes, edges } = buildWorkflowFromData(existingWorkflow);
+
+  setNodes(nodes);
+  setEdges(edges);
+}, [existingWorkflow]);
 
 
   const handleSave = async (workflow: WorkflowData) => {
@@ -171,7 +186,7 @@ const CustomFlow = ({ existingWorkflow }: Props) => {
         type: nodes.length === 0 ? "trigger" : "action",
         action: selectedAction,
         configured: true,
-        config: {},
+        config: [],
       },
       draggable: false,
       sourcePosition: Position.Bottom,
@@ -236,10 +251,25 @@ const CustomFlow = ({ existingWorkflow }: Props) => {
           <TestWorkflowButton
             onPush={() =>
               handleTest(
-                buildWorkflowFromNodes(nodes, workflowName, userId,workflowId)
+                buildWorkflowFromNodes(nodes, workflowName, workflowId)
               )
             }
           />
+          
+        </div>
+
+        <div className="absolute top-4 right-4 z-50">
+          <SaveWorkflowButton 
+                workflow={buildWorkflowFromNodes(nodes, workflowName,  workflowId!)} 
+                onPush={async (wf) => {
+                  try {
+                    const updated = await updateWorkflow(wf);
+                    console.log("Workflow updated:", updated);
+                  } catch (e) {
+                    console.error("Erreur update workflow:", e);
+                  }
+                }} 
+              />
         </div>
 
         <ReactFlow
@@ -297,25 +327,66 @@ const CustomFlow = ({ existingWorkflow }: Props) => {
 function buildWorkflowFromNodes(
   nodes: Node<CustomNodeData>[],
   workflowName: string,
-  userId: string,
   workflowId: string
 ): WorkflowData {
   const steps: WorkflowStepInput[] = nodes.map((node, index) => ({
     id: node.id,
     workflow_id: workflowId, 
     type: node.data.type as "trigger" | "action",
-    service: node.data.service,
+    service_id: node.data.service,
+    status: "draft",
     ref_id: node.data.action || node.data.trigger || "",
     config: node.data.config || {},
     order: index,
   }));
 
   return {
+    id : workflowId,
     name: workflowName,
-    userId,
-    is_active: false,
+    status: "draft", 
     steps,
   };
+}
+
+
+
+
+
+//$**** BUILDING WORKFLOW FROM DATA ****$
+function buildWorkflowFromData(data: WorkflowData) {
+  if (!data.steps || data.steps.length === 0) {
+    return { nodes: [], edges: [] };
+  }
+
+  const nodes: Node<CustomNodeData>[] = data.steps.map((step, index) => {
+    return {
+      id: step.id,
+      type: "custom",
+      position: { x: 400, y: index * 280 },
+      data: {
+        id: step.id,
+        label: step.service_id,
+        service: step.service_id,
+        trigger: step.type === "trigger" ? (step.trigger || "") : "",
+        action: step.type === "action" ? (step.action || "") : "",
+        type: step.type,
+        configured: true,
+        config: step.config || [],
+      },
+      draggable: false,
+      sourcePosition: Position.Bottom,
+      targetPosition: Position.Top,
+    };
+  });
+
+  const edges: Edge[] = nodes.slice(1).map((node, idx) => ({
+    id: `e${nodes[idx].id}-${node.id}`,
+    source: nodes[idx].id,
+    target: node.id,
+    ...edgeOptions,
+  }));
+
+  return { nodes, edges };
 }
 
 export default CustomFlow;

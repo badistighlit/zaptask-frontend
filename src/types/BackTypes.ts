@@ -1,39 +1,28 @@
-import { parametersSchema, parametreType, parametreField, WorkflowData } from "./workflow";
+import { WorkflowData, WorkflowStepInput, parametersSchema, parametreField, parametreType } from "./workflow";
 
-interface BackendParam {
+export interface BackendParam {
   parameter_name: string;
   parameter_key: string;
   parameter_type: parametreType;
   options?: string[];
 }
 
-interface UpdateAction {
-  id?: string;
-  service_action_id: string;
+export interface BackendAction {
+  id: string;
   workflow_id: string;
-  parameters: Record<string, any>;
+  status: "draft" | "deployed" | "error";
   execution_order: number;
+  url: string;
+  parameters: BackendParam[];
+  last_executed_at?: string; 
 }
 
-interface UpdateWorkflowPayload {
+export interface BackendWorkflow {
+  id: string;
   name: string;
-  actions: UpdateAction[];
+  status: "draft" | "deployed" | "error";
+  actions: BackendAction[];
 }
-
-function buildUpdatePayload(workflow: WorkflowData): UpdateWorkflowPayload {
-  return {
-    name: workflow.name,
-    actions: workflow.steps.map(step => ({
-      id: step.id,
-      service_action_id: step.ref_id, 
-      workflow_id: step.workflow_id,
-      parameters: step.config,
-      execution_order: step.order,
-    }))
-  };
-}
-
-
 
 export function mapBackendParams(params: BackendParam[]): parametersSchema {
   return params.map((p): parametreField => ({
@@ -41,5 +30,28 @@ export function mapBackendParams(params: BackendParam[]): parametersSchema {
     key: p.parameter_key,
     type: p.parameter_type,
     options: p.options,
+    value: undefined 
   }));
+}
+
+export function mapBackendActionToStep(action: BackendAction): WorkflowStepInput {
+  return {
+    id: action.id,
+    workflow_id: action.workflow_id,
+    type: "action", 
+    service_id: "", 
+    status: action.status,
+    order: action.execution_order,
+    lastExecution: action.last_executed_at ? new Date(action.last_executed_at) : undefined,
+    config: mapBackendParams(action.parameters),
+  };
+}
+
+export function mapBackendWorkflow(data: BackendWorkflow): WorkflowData {
+  return {
+    id: data.id,
+    name: data.name,
+    status: data.status,
+    steps: data.actions.map(mapBackendActionToStep),
+  };
 }
