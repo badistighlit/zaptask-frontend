@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { parametersSchema } from "@/types/workflow";
+import { ParametersSchema , ConfigValue} from "@/types/workflow";
 import ConfigInputField from "./ConfigInputField";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./NodeConfigTabs";
-import { isConnectedService, connectService } from "@/services/workflow"; // ✅ Import
+import { isConnectedService, connectService } from "@/services/workflow";
 
 interface ActionOrTrigger {
   identifier: string;
   name: string;
   type: "trigger" | "action";
-  parameters: parametersSchema;
+  parameters: ParametersSchema;
 }
 
 interface Service {
@@ -18,13 +18,13 @@ interface Service {
 interface NodeConfigModalProps {
   isOpen: boolean;
   onClose: () => void;
-  config: Record<string, any>;
+  config: Record<string, ConfigValue>;
   trigger?: ActionOrTrigger;
   action?: ActionOrTrigger;
   service?: Service;
-  configSchema: parametersSchema;
+  configSchema: ParametersSchema;
   type: "trigger" | "action";
-  onChange: (key: string, value: any) => void;
+  onChange: (key: string, value: ConfigValue) => void;
   onSave: (selectedId?: string) => void;
   triggerOptions: ActionOrTrigger[];
   actionOptions: ActionOrTrigger[];
@@ -37,7 +37,6 @@ const NodeConfigModal: React.FC<NodeConfigModalProps> = ({
   trigger,
   action,
   service,
-  
   type,
   onChange,
   onSave,
@@ -45,31 +44,31 @@ const NodeConfigModal: React.FC<NodeConfigModalProps> = ({
   actionOptions,
 }) => {
   const [selectedId, setSelectedId] = useState<string>(trigger?.identifier || action?.identifier || "");
-  const [localSchema, setLocalSchema] = useState<parametersSchema>([]);
+  const [localSchema, setLocalSchema] = useState<ParametersSchema>([]);
   const [tab, setTab] = useState("config");
-  const [isServiceConnected, setIsServiceConnected] = useState<boolean>(true); // ✅ new state
+  const [isServiceConnected, setIsServiceConnected] = useState<boolean>(true);
   const [checkingConnection, setCheckingConnection] = useState(false);
 
-  // Fetch schema based on selection
   useEffect(() => {
-    const selected = (type === "trigger" ? triggerOptions : actionOptions).find(t => t.identifier === selectedId);
+    const selected = (type === "trigger" ? triggerOptions : actionOptions).find(
+      (t) => t.identifier === selectedId
+    );
     setLocalSchema(selected?.parameters || []);
   }, [selectedId, triggerOptions, actionOptions, type]);
 
-  // Check service connection
   useEffect(() => {
     const checkConnection = async () => {
-      if (service?.identifier) {
-        setCheckingConnection(true);
-        try {
-          const connected = await isConnectedService(service.identifier);
-          setIsServiceConnected(connected);
-        } catch (e) {
-          console.error("Erreur lors de la vérification de la connexion au service :", e);
-          setIsServiceConnected(false);
-        } finally {
-          setCheckingConnection(false);
-        }
+      if (!service?.identifier) return;
+
+      setCheckingConnection(true);
+      try {
+        const connected = await isConnectedService(service.identifier);
+        setIsServiceConnected(connected);
+      } catch (e) {
+        console.error("Erreur lors de la vérification de la connexion au service :", e);
+        setIsServiceConnected(false);
+      } finally {
+        setCheckingConnection(false);
       }
     };
 
@@ -79,39 +78,36 @@ const NodeConfigModal: React.FC<NodeConfigModalProps> = ({
   const validateConfig = (): boolean => {
     return localSchema.every((field) => {
       const val = config[field.key];
-      if (field.type === "checkbox") return typeof val === "string" && (val === "true" || val === "false");
+      if (field.type === "checkbox") return val === "true" || val === "false";
       if (field.type === "number" || field.type === "range") return val !== undefined && !isNaN(Number(val));
       return val !== undefined && val !== null && String(val).trim() !== "";
     });
   };
 
-  const isValid = validateConfig();
-
   const handleSave = () => {
     onSave(selectedId);
   };
 
-const handleConnectClick = async () => {
-  if (!service?.identifier) return;
-  try {
-    await connectService(service.identifier);
+  const handleConnectClick = async () => {
+    if (!service?.identifier) return;
+    try {
+      await connectService(service.identifier);
 
-    const interval = setInterval(async () => {
-      try {
-        const connected = await isConnectedService(service.identifier!);
-        if (connected) {
-          clearInterval(interval);
-          setIsServiceConnected(true);
+      const interval = setInterval(async () => {
+        try {
+          const connected = await isConnectedService(service.identifier);
+          if (connected) {
+            clearInterval(interval);
+            setIsServiceConnected(true);
+          }
+        } catch (err) {
+          console.error("Erreur lors du polling de connexion au service", err);
         }
-      } catch (err) {
-        console.error("Erreur lors du polling de connexion au service", err);
-      }
-    }, 1000); // Vérifie toutes les 1 sec
-  } catch (e) {
-    console.error("Erreur lors de la tentative de connexion au service :", e);
-  }
-};
-
+      }, 1000);
+    } catch (e) {
+      console.error("Erreur lors de la tentative de connexion au service :", e);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -147,7 +143,7 @@ const handleConnectClick = async () => {
         ) : !isServiceConnected ? (
           <div style={{ marginBottom: 16 }}>
             <p style={{ color: "red", marginBottom: 8 }}>
-              Vous n'êtes pas connecté à ce service.
+              Vous n&apos;êtes pas connecté à ce service.
             </p>
             <button
               onClick={handleConnectClick}
@@ -166,7 +162,7 @@ const handleConnectClick = async () => {
           <Tabs value={tab} onValueChange={setTab}>
             <TabsList>
               <TabsTrigger value="config">Configuration</TabsTrigger>
-              <TabsTrigger value="test" disabled={!isValid}>
+              <TabsTrigger value="test" disabled={!validateConfig()}>
                 Tester
               </TabsTrigger>
             </TabsList>
@@ -198,12 +194,12 @@ const handleConnectClick = async () => {
                   name={field.name}
                   type={field.type}
                   options={field.options}
-                  value={config[field.key]}
+                  value={String(config[field.key] ?? "")}
                   onChange={onChange}
                 />
               ))}
 
-              {!isValid && (
+              {!validateConfig() && (
                 <p style={{ color: "red", fontSize: 12, marginTop: 8 }}>
                   Veuillez remplir tous les champs requis.
                 </p>

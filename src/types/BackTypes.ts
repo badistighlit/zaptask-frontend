@@ -1,9 +1,9 @@
-import { WorkflowData, WorkflowStepInput, parametersSchema, parametreField, parametreType } from "./workflow";
+import { ParametersSchema, WorkflowData, WorkflowStepInput,  ParameterField, ParameterType } from "./workflow";
 
 export interface BackendParam {
   parameter_name: string;
   parameter_key: string;
-  parameter_type: parametreType;
+  parameter_type: ParameterType;
   options?: string[];
 }
 
@@ -24,8 +24,8 @@ export interface BackendWorkflow {
   actions: BackendAction[];
 }
 
-export function mapBackendParams(params: BackendParam[]): parametersSchema {
-  return params.map((p): parametreField => ({
+export function mapBackendParams(params: BackendParam[]): ParametersSchema {
+  return params.map((p): ParameterField => ({
     name: p.parameter_name,
     key: p.parameter_key,
     type: p.parameter_type,

@@ -9,7 +9,8 @@ import {
   Service,
   ActionOrTrigger,
   
-  parametersSchema,
+  ParametersSchema,
+  ConfigValue,
 } from "@/types/workflow";
 import NodeConfigModal from "./NodeConfigModal";
 
@@ -23,7 +24,7 @@ export interface CustomNodeData {
   trigger: string;
   action: string;
   configured: boolean;
-  config: parametersSchema;
+  config: ParametersSchema;
 }
 
 type CustomNodeProps = {
@@ -37,7 +38,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({ id, data }) => {
   const [services, setServices] = useState<Service[]>([]);
   const [triggers, setTriggers] = useState<ActionOrTrigger[]>([]);
   const [actions, setActions] = useState<ActionOrTrigger[]>([]);
-  const [formConfig, setFormConfig] = useState<parametersSchema>(
+  const [formConfig, setFormConfig] = useState<ParametersSchema>(
     data.config || []
   );
 
@@ -62,7 +63,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({ id, data }) => {
   const triggerObj = triggers.find((t) => t.identifier === data.trigger);
   const actionObj = actions.find((a) => a.identifier === data.action);
 
-  const configSchema: parametersSchema =
+  const configSchema: ParametersSchema =
     triggerObj?.parameters || actionObj?.parameters || [];
 
   const handleNodeClick = (e: React.MouseEvent) => {
@@ -71,13 +72,14 @@ const CustomNode: React.FC<CustomNodeProps> = ({ id, data }) => {
     setIsModalOpen(true);
   };
 
-const handleConfigChange = (key: string, value: string) => {
+const handleConfigChange = (key: string, value: ConfigValue) => {
   setFormConfig(prev =>
-    prev.map(param =>
-      param.key === key ? { ...param, value } : param
-    )
+    prev.map(p => (p.key === key ? { ...p, value } : p))
   );
+  
 };
+
+
 
 
   const handleCancel = () => setIsModalOpen(false);
@@ -126,7 +128,10 @@ const handleSave = (selectedId?: string) => {
            <NodeConfigModal
         isOpen={isModalOpen}
         onClose={handleCancel}
-        config={formConfig}
+          config={Object.fromEntries(
+                   formConfig.map(p => [p.key, p.value ?? ""])
+                        )}
+                        
         configSchema={configSchema}
         trigger={triggerObj}
         action={actionObj}

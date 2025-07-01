@@ -1,9 +1,9 @@
 import React from "react";
-import { parametreType } from "@/types/workflow";
+import { ParameterType } from "@/types/workflow";
 
 interface ConfigInputFieldProps {
   name: string;
-  type: parametreType;
+  type: ParameterType;
   value?: string;  
   options?: string[];
   onChange: (key: string, value: string) => void; 

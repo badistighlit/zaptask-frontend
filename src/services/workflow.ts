@@ -294,12 +294,12 @@ export function buildUpdatePayload(workflowData: WorkflowData): BackendWorkflow 
   }
 
   // mappe chaque étape en BackendAction
-  const actions: BackendAction[] = workflowData.steps.map((step, idx) => ({
+  const actions: BackendAction[] = workflowData.steps.map((step) => ({
     id: step.id,
     workflow_id: workflowData.id!,
     status: step.status,
     execution_order: step.order,
-    url: "", // si tu as une url, sinon vide ou à compléter
+    url: "", 
     parameters: step.config.map(param => ({
       parameter_name: param.name,
       parameter_key: param.key,

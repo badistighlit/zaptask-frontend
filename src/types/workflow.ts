@@ -1,28 +1,32 @@
 //workflow
-export interface WorkflowStepInput {
-  id: string; 
-  workflow_id : string;
-  type: "trigger" | "action";
-  status : "draft" | "deployed" | "error";
-  service_id:string;
-  lastExecution?: Date;
-  config: parametersSchema;
-  order: number;
+export type WorkflowStatus = "draft" | "deployed" | "error";
+export type WorkflowStepType = "trigger" | "action";
 
-  trigger?: string;  
-  action?: string; 
+export interface WorkflowStepInput {
+  id: string;
+  workflow_id: string;
+  type: WorkflowStepType;
+  status: WorkflowStatus;
+  service_id: string;
+  lastExecution?: Date;
+  config: ParametersSchema;
+  order: number;
+  trigger?: string;
+  action?: string;
 }
 
 export interface WorkflowData {
-  id? : string;
+  id?: string;
   name: string;
-  status: "draft" | "deployed" | "error";
+  status: WorkflowStatus;
   steps: WorkflowStepInput[];
 }
 
 
 //configuration parametres
-export type parametreType =
+export type ConfigValue = string | number | boolean | undefined;
+
+export type ParameterType =
   | "button"
   | "checkbox"
   | "color"
@@ -49,18 +53,17 @@ export type parametreType =
 
 //export type httpRequestParametreType = "body" |"query" |"url";
 
-export interface parametreField  {
-  name : string;
-  type : parametreType;
-  value?: string;
-  key : string;
-  
- // httpRequestParametre : httpRequestParametreType;
-  options ? : string[]
-
+export interface ParameterField {
+  name: string;
+  key: string;
+  type: ParameterType;
+  value?: ConfigValue;
+  options?: string[];
+  required?: boolean;
+  description?: string;
 }
 
-export type parametersSchema = parametreField[];
+export type ParametersSchema = ParameterField[];
 
 
 
@@ -107,7 +110,7 @@ export interface ActionOrTrigger {
   service_id : string;
   name: string;
   type: "trigger" | "action";
-  parameters: parametersSchema; 
+  parameters: ParametersSchema; 
 
 }
 

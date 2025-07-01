@@ -1,5 +1,5 @@
 "use client";
-import { useRouter } from "next/navigation";
+
 import React, {
   useCallback,
   useEffect,
@@ -7,6 +7,7 @@ import React, {
   ChangeEvent,
   FormEvent,
 } from "react";
+
 import ReactFlow, {
   useNodesState,
   useEdgesState,
@@ -18,6 +19,7 @@ import ReactFlow, {
   Edge,
   Position,
 } from "reactflow";
+
 import "reactflow/dist/style.css";
 import "@/app/workflow/styles/Flow.css";
 
@@ -27,17 +29,17 @@ import SaveWorkflowButton from "./SaveWorkflowButton";
 import TestWorkflowButton from "./TestWorkflowButton";
 import CustomNode, { CustomNodeData } from "./CustomNode";
 import { edgeOptions } from "./EdgesConfig";
-import WorkflowNameModal from "./WorkflowNameModal";
+//import WorkflowNameModal from "./WorkflowNameModal";
 
 import {
-  createWorkflow,
+  
   testWorkflow,
   fetchServices,
   fetchTriggersByService,
   fetchActionsByService,
-  createEmptyWorkflow,
   updateWorkflow,
 } from "../../../services/workflow";
+
 import {
   ActionOrTrigger,
   Service,
@@ -53,20 +55,15 @@ type Props = {
   existingWorkflow?: WorkflowData;
 };
 
-
-
 const initialNodes: Node<CustomNodeData>[] = [];
 const initialEdges: Edge[] = [];
 
-const userId = "user123"; // TODO: Remplacer avec auth
+//const userId = "user123"; // TODO: Remplacer avec auth
 
 const CustomFlow = ({ existingWorkflow }: Props) => {
-  console.log("Existing Workflow:", existingWorkflow);
-
-  const router = useRouter();
+ // const router = useRouter();
 
   const [rfTransform, setRfTransform] = useState({ x: 0, y: 0, zoom: 0.8 });
-
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
@@ -82,57 +79,24 @@ const CustomFlow = ({ existingWorkflow }: Props) => {
   const [workflowName, setWorkflowName] = useState("");
   const [workflowId, setWorkflowId] = useState<string | null>(null);
 
-
   // Chargement du workflow existant
   useEffect(() => {
-  if (!existingWorkflow) return;
+    if (!existingWorkflow) return;
 
-  setWorkflowName(existingWorkflow.name);
-  setWorkflowId(existingWorkflow.id || null);
+    setWorkflowName(existingWorkflow.name);
+    setWorkflowId(existingWorkflow.id || null);
 
-  const { nodes, edges } = buildWorkflowFromData(existingWorkflow);
+    const { nodes, edges } = buildWorkflowFromData(existingWorkflow);
 
-  setNodes(nodes);
-  setEdges(edges);
-}, [existingWorkflow]);
-
-
-  const handleSave = async (workflow: WorkflowData) => {
-    try {
-      const res = await createWorkflow(workflow);
-      console.log("Workflow created successfully:", res);
-    } catch (error) {
-      console.error("Error during workflow submission:", error);
-    }
-  };
-
-  const handleTest = async (workflow: WorkflowData) => {
-    try {
-      const res = await testWorkflow(workflow);
-      console.log("Workflow tested successfully:", res);
-    } catch (error) {
-      console.error("Error during workflow testing:", error);
-    }
-  };
+    setNodes(nodes);
+    setEdges(edges);
+  }, [existingWorkflow, setNodes, setEdges]);
 
   useEffect(() => {
     fetchServices()
-      .then((data) => {
-        setServices(data);
-      })
-      .catch((err) => console.error(err));
+      .then((data) => setServices(data))
+      .catch((err) => console.error("Erreur fetch services:", err));
   }, []);
-
-
-
-
-
-
-
-
-
-
-
 
   useEffect(() => {
     if (!selectedService) {
@@ -144,12 +108,12 @@ const CustomFlow = ({ existingWorkflow }: Props) => {
     }
 
     fetchTriggersByService(selectedService)
-      .then((data) => setTriggers(data))
-      .catch((err) => console.error(err));
+      .then(setTriggers)
+      .catch((err) => console.error("Erreur fetch triggers:", err));
 
     fetchActionsByService(selectedService)
-      .then((data) => setActions(data))
-      .catch((err) => console.error(err));
+      .then(setActions)
+      .catch((err) => console.error("Erreur fetch actions:", err));
   }, [selectedService]);
 
   const onConnect = useCallback(
@@ -168,7 +132,6 @@ const CustomFlow = ({ existingWorkflow }: Props) => {
     const fixedHeight = 200;
     const spacing = 80;
     const centerX = 400;
-
     const newNodeId = (nodes.length + 1).toString();
 
     const newNode: Node<CustomNodeData> = {
@@ -193,15 +156,15 @@ const CustomFlow = ({ existingWorkflow }: Props) => {
       targetPosition: Position.Top,
     };
 
-    setNodes((nds) => {
-      const updatedNodes = [...nds, newNode];
+    setNodes((prev) => {
+      const updatedNodes = [...prev, newNode];
 
       if (updatedNodes.length > 1) {
         const sourceId = updatedNodes[updatedNodes.length - 2].id;
         const targetId = newNodeId;
 
-        setEdges((eds) => [
-          ...eds,
+        setEdges((prevEdges) => [
+          ...prevEdges,
           {
             id: `e${sourceId}-${targetId}`,
             source: sourceId,
@@ -220,19 +183,32 @@ const CustomFlow = ({ existingWorkflow }: Props) => {
     setDetails("");
   };
 
+  const handleTest = async (workflow: WorkflowData) => {
+    try {
+      await testWorkflow(workflow);
+    } catch (error) {
+      console.error("Erreur test workflow:", error);
+    }
+  };
+/*
+  const handleSave = async (workflow: WorkflowData) => {
+    try {
+      await createWorkflow(workflow);
+    } catch (error) {
+      console.error("Erreur création workflow:", error);
+    }
+  };
+  */
 
   if (!workflowId) {
-  return (
-    <div className="flex items-center justify-center h-screen">
-      <p className="text-xl font-semibold">Création du workflow en cours...</p>
-    </div>
-  );
-}
-
-
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-xl font-semibold">Création du workflow en cours...</p>
+      </div>
+    );
+  }
 
   return (
-    
     <div className="flex h-screen w-full">
       <div className="flex-grow relative">
         <div className="workflow-header">
@@ -250,26 +226,22 @@ const CustomFlow = ({ existingWorkflow }: Props) => {
         <div className="absolute top-4 left-4 z-50">
           <TestWorkflowButton
             onPush={() =>
-              handleTest(
-                buildWorkflowFromNodes(nodes, workflowName, workflowId)
-              )
+              handleTest(buildWorkflowFromNodes(nodes, workflowName, workflowId))
             }
           />
-          
         </div>
 
         <div className="absolute top-4 right-4 z-50">
-          <SaveWorkflowButton 
-                workflow={buildWorkflowFromNodes(nodes, workflowName,  workflowId!)} 
-                onPush={async (wf) => {
-                  try {
-                    const updated = await updateWorkflow(wf);
-                    console.log("Workflow updated:", updated);
-                  } catch (e) {
-                    console.error("Erreur update workflow:", e);
-                  }
-                }} 
-              />
+          <SaveWorkflowButton
+            workflow={buildWorkflowFromNodes(nodes, workflowName, workflowId)}
+            onPush={async (wf) => {
+              try {
+                await updateWorkflow(wf);
+              } catch (e) {
+                console.error("Erreur update workflow:", e);
+              }
+            }}
+          />
         </div>
 
         <ReactFlow
@@ -282,8 +254,8 @@ const CustomFlow = ({ existingWorkflow }: Props) => {
           defaultEdgeOptions={edgeOptions}
           zoomOnScroll={false}
           zoomOnPinch={false}
-          panOnScroll={true}
-          onMove={(e, viewport) => setRfTransform(viewport)}
+          panOnScroll
+          onMove={(_, viewport) => setRfTransform(viewport)}
           fitView={false}
           fitViewOptions={{ padding: 0.2 }}
           defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
@@ -315,15 +287,7 @@ const CustomFlow = ({ existingWorkflow }: Props) => {
   );
 };
 
-
-
-
-
-
-
-
-
-// build du workflow à partir des noeuds
+// Build workflow à partir des noeuds
 function buildWorkflowFromNodes(
   nodes: Node<CustomNodeData>[],
   workflowName: string,
@@ -331,7 +295,7 @@ function buildWorkflowFromNodes(
 ): WorkflowData {
   const steps: WorkflowStepInput[] = nodes.map((node, index) => ({
     id: node.id,
-    workflow_id: workflowId, 
+    workflow_id: workflowId,
     type: node.data.type as "trigger" | "action",
     service_id: node.data.service,
     status: "draft",
@@ -341,43 +305,37 @@ function buildWorkflowFromNodes(
   }));
 
   return {
-    id : workflowId,
+    id: workflowId,
     name: workflowName,
-    status: "draft", 
+    status: "draft",
     steps,
   };
 }
 
-
-
-
-
-//$**** BUILDING WORKFLOW FROM DATA ****$
+// Reconstruction des nodes/edges depuis un workflow existant
 function buildWorkflowFromData(data: WorkflowData) {
   if (!data.steps || data.steps.length === 0) {
     return { nodes: [], edges: [] };
   }
 
-  const nodes: Node<CustomNodeData>[] = data.steps.map((step, index) => {
-    return {
+  const nodes: Node<CustomNodeData>[] = data.steps.map((step, index) => ({
+    id: step.id,
+    type: "custom",
+    position: { x: 400, y: index * 280 },
+    data: {
       id: step.id,
-      type: "custom",
-      position: { x: 400, y: index * 280 },
-      data: {
-        id: step.id,
-        label: step.service_id,
-        service: step.service_id,
-        trigger: step.type === "trigger" ? (step.trigger || "") : "",
-        action: step.type === "action" ? (step.action || "") : "",
-        type: step.type,
-        configured: true,
-        config: step.config || [],
-      },
-      draggable: false,
-      sourcePosition: Position.Bottom,
-      targetPosition: Position.Top,
-    };
-  });
+      label: step.service_id,
+      service: step.service_id,
+      trigger: step.type === "trigger" ? step.id : "",   // TODO à confirmer le type avec le backend
+      action: step.type === "action" ? step.id : "",      // TODO à confirmer par la suite
+      type: step.type,
+      configured: true,
+      config: step.config || [],
+    },
+    draggable: false,
+    sourcePosition: Position.Bottom,
+    targetPosition: Position.Top,
+  }));
 
   const edges: Edge[] = nodes.slice(1).map((node, idx) => ({
     id: `e${nodes[idx].id}-${node.id}`,
