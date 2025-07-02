@@ -20,26 +20,38 @@ export default function DashboardPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="p-6 text-center text-lg">Loading...</div>;
+  if (loading)
+    return (
+      <div className="p-6 text-center text-lg text-indigo-600 font-semibold">
+        Chargement...
+      </div>
+    );
 
   return (
-    <div className="p-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+    <div className="p-8 max-w-7xl mx-auto">
+      <h1 className="text-4xl font-extrabold mb-10 text-gray-900 select-none">
+        Tableau de bord
+      </h1>
+
+      <div className="grid grid-cols-2 grid-rows-2 gap-8">
         {/* Brouillons */}
         <div
           tabIndex={0}
           role="button"
           onClick={() => router.push("/myworkflows")}
           onKeyDown={(e) => e.key === "Enter" && router.push("/myworkflows")}
-          className="cursor-pointer rounded-xl border border-gray-300 p-6 flex flex-col shadow-md
-                     hover:shadow-xl hover:scale-[1.03] transition-transform duration-200 ease-in-out
-                     focus:outline-none focus:ring-4 focus:ring-blue-300"
+          className="cursor-pointer rounded-2xl border border-indigo-300 p-6 flex flex-col shadow-md
+                     hover:shadow-2xl hover:scale-105 transition-transform duration-300 ease-in-out
+                     focus:outline-none focus:ring-4 focus:ring-indigo-400 bg-gradient-to-tr from-indigo-50 to-white"
+          aria-label="Accéder aux brouillons"
         >
-          <div className="flex items-center space-x-4 mb-4">
-            <Edit size={40} className="text-blue-600" />
+          <div className="flex items-center space-x-5 mb-5">
+            <Edit size={44} className="text-indigo-600" />
             <div>
-              <h3 className="text-xl font-semibold">Brouillons</h3>
-              <p className="text-gray-600">
+              <h3 className="text-2xl font-semibold text-indigo-900 select-text">
+                Brouillons
+              </h3>
+              <p className="text-indigo-700 font-medium mt-1 select-text">
                 {workflows.filter((wf) => wf.status === "draft").length} brouillon(s)
               </p>
             </div>
@@ -53,15 +65,18 @@ export default function DashboardPage() {
           role="button"
           onClick={() => router.push("/myworkflows")}
           onKeyDown={(e) => e.key === "Enter" && router.push("/myworkflows")}
-          className="cursor-pointer rounded-xl border border-gray-300 p-6 flex flex-col shadow-md
-                     hover:shadow-xl hover:scale-[1.03] transition-transform duration-200 ease-in-out
-                     focus:outline-none focus:ring-4 focus:ring-green-300"
+          className="cursor-pointer rounded-2xl border border-green-300 p-6 flex flex-col shadow-md
+                     hover:shadow-2xl hover:scale-105 transition-transform duration-300 ease-in-out
+                     focus:outline-none focus:ring-4 focus:ring-green-400 bg-gradient-to-tr from-green-50 to-white"
+          aria-label="Accéder aux workflows déployés"
         >
-          <div className="flex items-center space-x-4 mb-4">
-            <PlayCircle size={40} className="text-green-600" />
+          <div className="flex items-center space-x-5 mb-5">
+            <PlayCircle size={44} className="text-green-600" />
             <div>
-              <h3 className="text-xl font-semibold">Déployés</h3>
-              <p className="text-gray-600">
+              <h3 className="text-2xl font-semibold text-green-900 select-text">
+                Déployés
+              </h3>
+              <p className="text-green-700 font-medium mt-1 select-text">
                 {workflows.filter((wf) => wf.status === "deployed").length} workflow(s) déployé(s)
               </p>
             </div>
@@ -75,15 +90,20 @@ export default function DashboardPage() {
           role="button"
           onClick={() => router.push("/logs")}
           onKeyDown={(e) => e.key === "Enter" && router.push("/logs")}
-          className="cursor-pointer rounded-xl border border-gray-300 p-6 flex flex-col shadow-md
-                     hover:shadow-xl hover:scale-[1.03] transition-transform duration-200 ease-in-out
-                     focus:outline-none focus:ring-4 focus:ring-gray-400"
+          className="cursor-pointer rounded-2xl border border-gray-400 p-6 flex flex-col shadow-md
+                     hover:shadow-2xl hover:scale-105 transition-transform duration-300 ease-in-out
+                     focus:outline-none focus:ring-4 focus:ring-gray-500 bg-gradient-to-tr from-gray-100 to-white"
+          aria-label="Accéder aux logs des workflows"
         >
-          <div className="flex items-center space-x-4 mb-4">
-            <FileText size={40} className="text-gray-700" />
+          <div className="flex items-center space-x-5 mb-5">
+            <FileText size={44} className="text-gray-700" />
             <div>
-              <h3 className="text-xl font-semibold">Logs</h3>
-              <p className="text-gray-600">Voir les logs des workflows</p>
+              <h3 className="text-2xl font-semibold text-gray-800 select-text">
+                Logs
+              </h3>
+              <p className="text-gray-600 font-medium mt-1 select-text">
+                Voir les logs des workflows
+              </p>
             </div>
           </div>
           <WorkflowLogs workflows={workflows} />
@@ -95,14 +115,19 @@ export default function DashboardPage() {
           role="button"
           onClick={() => router.push("/workflow")}
           onKeyDown={(e) => e.key === "Enter" && router.push("/workflow")}
-          className="cursor-pointer rounded-xl border border-gray-300 p-6 flex flex-col
+          className="cursor-pointer rounded-2xl border border-purple-300 p-6 flex flex-col
                      items-center justify-center text-center shadow-md
-                     hover:shadow-xl hover:scale-[1.03] transition-transform duration-200 ease-in-out
-                     focus:outline-none focus:ring-4 focus:ring-purple-300"
+                     hover:shadow-2xl hover:scale-105 transition-transform duration-300 ease-in-out
+                     focus:outline-none focus:ring-4 focus:ring-purple-400 bg-gradient-to-tr from-purple-50 to-white"
+          aria-label="Créer un nouveau workflow"
         >
-          <PlusCircle size={40} className="text-purple-600 mb-4" />
-          <h3 className="text-xl font-semibold">Créer un workflow</h3>
-          <p className="text-gray-600 mt-2">Démarrer un nouveau workflow</p>
+          <PlusCircle size={48} className="text-purple-600 mb-5" />
+          <h3 className="text-2xl font-semibold text-purple-900 select-text">
+            Créer un workflow
+          </h3>
+          <p className="text-purple-700 font-medium mt-2 select-text">
+            Démarrer un nouveau workflow
+          </p>
         </div>
       </div>
     </div>
