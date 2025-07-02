@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
     const router = useRouter();
-    
+
     const {
         register,
         handleSubmit,
@@ -26,7 +26,7 @@ export default function LoginForm() {
 
             saveUserInfo(response.data);
 
-            router.push('/dashboard');
+             window.location.href = "/dashboard"; 
 
         } catch (e: unknown) {
             if (isAxiosError(e)) {
