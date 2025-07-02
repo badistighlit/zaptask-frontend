@@ -4,10 +4,14 @@ import { saveUserInfo } from "@/utils/authentication";
 import { useForm } from "react-hook-form";
 import { LoginData } from "@/types/auth";
 import { login } from "@/services/auth";
+import { useRouter } from "next/navigation";
+
 
 
 
 export default function LoginForm() {
+    const router = useRouter();
+    
     const {
         register,
         handleSubmit,
@@ -21,6 +25,8 @@ export default function LoginForm() {
             const response = await login(data);
 
             saveUserInfo(response.data);
+
+            router.push('/dashboard');
 
         } catch (e: unknown) {
             if (isAxiosError(e)) {
