@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import clsx from "clsx";
 import { deleteUserInfo } from "@/utils/authentication";
-import { useRouter } from "next/navigation";
 
 const navItems = [
   { name: "Accueil", href: "/", icon: Home },
@@ -29,7 +28,6 @@ const navItems = [
 
 export default function DashboardSidebar() {
   const [collapsed, setCollapsed] = useState(false);
-  const router = useRouter();
 
   function handleLogout() {
     deleteUserInfo();

@@ -4,13 +4,11 @@ import { saveUserInfo } from "@/utils/authentication";
 import { useForm } from "react-hook-form";
 import { LoginData } from "@/types/auth";
 import { login } from "@/services/auth";
-import { useRouter } from "next/navigation";
 
 
 
 
 export default function LoginForm() {
-    const router = useRouter();
 
     const {
         register,
@@ -37,7 +35,7 @@ export default function LoginForm() {
     }
 
     return (
-        <div className="flex items-center justify-center min-h-screen border-solid bg-foreground">
+        <div className="flex items-center justify-center min-h-screen border-solid bg-background">
             <form onSubmit={handleSubmit(onSubmit)}
                   className="relative flex flex-col items-center gap-2 p-6 border border-gray-400 rounded-md bg-white shadow-md w-[400px] h-[450px]">
                 <h1
@@ -50,7 +48,7 @@ export default function LoginForm() {
                     type="email"
                     required
                     {...register('email', { required: 'Email is required' })}
-                    className="rounded border-transparent transition-colors block w-64 mb-2 bg-foreground text-background text-center hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+                    className="bg-white text-black border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="example@email.com"
                 />
                 {errors.email && <p className="text-red-400">{errors.email.message as string}</p>}
@@ -58,7 +56,7 @@ export default function LoginForm() {
                 <input
                     type="password"
                     {...register('password', { required: 'Password is required' })}
-                    className="rounded border-transparent transition-colors block w-64 mb-2 bg-foreground text-background text-center hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+                     className="bg-white text-black border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="password"
                 />
                 {errors.password && <p className="text-red-400">{errors.password.message as string}</p>}

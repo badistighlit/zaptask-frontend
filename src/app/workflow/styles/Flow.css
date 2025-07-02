@@ -11,7 +11,7 @@
 }
 
 .react-flow__viewport {
-  background-color: transparent !important; /* on laisse la couleur au parent */
+  background-color: transparent ; /* on laisse la couleur au parent */
 }
 
 .react-flow__background {

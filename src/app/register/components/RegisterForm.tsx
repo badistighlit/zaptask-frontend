@@ -49,7 +49,7 @@ export default function RegisterForm() {
     }
 
     return (
-        <div className="flex items-center justify-center min-h-screen border-solid bg-foreground">
+<div className="flex items-center justify-center min-h-screen border-solid bg-background">
             <form onSubmit={handleSubmit(onSubmit)}
                   className="relative flex flex-col items-center gap-2 p-6 border border-gray-400 rounded-md bg-white shadow-md w-[400px] h-[650px]">
                 <h1
@@ -61,7 +61,7 @@ export default function RegisterForm() {
                 <input
                     type="text"
                     {...register('fullName')}
-                    className="rounded border-transparent transition-colors block w-64 mb-0 bg-foreground text-background text-center hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+                    className="bg-white text-black border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Abdelkrim Brahmi"
                     onChange={handleErrors}
                 />
@@ -69,7 +69,7 @@ export default function RegisterForm() {
                 <br/>
                 <input
                     type="email"
-                    className="rounded border-transparent transition-colors block w-64 mb-0 bg-foreground text-background text-center hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+                    className="bg-white text-black border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="example@email.com"
                     {...register('email')}
                     onChange={handleErrors}
@@ -78,7 +78,7 @@ export default function RegisterForm() {
                 <br/>
                 <input
                     type="password"
-                    className="rounded border-transparent transition-colors block w-64 mb-0 bg-foreground text-background text-center hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+                    className="bg-white text-black border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Password"
                     {...register('password')}
                     onChange={handleErrors}
@@ -87,7 +87,7 @@ export default function RegisterForm() {
                 <br/>
                 <input
                     type="password"
-                    className="rounded border-transparent transition-colors block w-64 mb-0 bg-foreground text-background text-center hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+                   className="bg-white text-black border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Confirm Password"
                     {...register('confirmPassword')}
                     onChange={handleErrors}
