@@ -29,10 +29,8 @@ import SaveWorkflowButton from "./SaveWorkflowButton";
 import TestWorkflowButton from "./TestWorkflowButton";
 import CustomNode, { CustomNodeData } from "./CustomNode";
 import { edgeOptions } from "./EdgesConfig";
-//import WorkflowNameModal from "./WorkflowNameModal";
 
 import {
-  
   testWorkflow,
   fetchServices,
   fetchTriggersByService,
@@ -58,11 +56,7 @@ type Props = {
 const initialNodes: Node<CustomNodeData>[] = [];
 const initialEdges: Edge[] = [];
 
-//const userId = "user123"; // TODO: Remplacer avec auth
-
 const CustomFlow = ({ existingWorkflow }: Props) => {
- // const router = useRouter();
-
   const [rfTransform, setRfTransform] = useState({ x: 0, y: 0, zoom: 0.8 });
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -86,18 +80,22 @@ const CustomFlow = ({ existingWorkflow }: Props) => {
     setWorkflowName(existingWorkflow.name);
     setWorkflowId(existingWorkflow.id || null);
 
-    const { nodes, edges } = buildWorkflowFromData(existingWorkflow);
+    // TODO: Implémenter buildWorkflowFromData si besoin pour charger nodes/edges depuis existingWorkflow
+    // const { nodes, edges } = buildWorkflowFromData(existingWorkflow);
 
-    setNodes(nodes);
-    setEdges(edges);
+    // Pour l'instant on ne charge pas, mais tu peux décommenter ci-dessus
+    setNodes(initialNodes);
+    setEdges(initialEdges);
   }, [existingWorkflow, setNodes, setEdges]);
 
+  // Charger la liste des services au montage
   useEffect(() => {
     fetchServices()
       .then((data) => setServices(data))
       .catch((err) => console.error("Erreur fetch services:", err));
   }, []);
 
+  // Quand on change de service, charger triggers et actions
   useEffect(() => {
     if (!selectedService) {
       setTriggers([]);
@@ -116,18 +114,59 @@ const CustomFlow = ({ existingWorkflow }: Props) => {
       .catch((err) => console.error("Erreur fetch actions:", err));
   }, [selectedService]);
 
+  // Auto-selection du trigger si la liste change et que rien n'est sélectionné
+  useEffect(() => {
+    if (triggers.length > 0 && !selectedTrigger) {
+      setSelectedTrigger(triggers[0].identifier);
+    } else if (triggers.length === 0) {
+      setSelectedTrigger("");
+    }
+  }, [triggers]);
+
+  // Auto-selection de l'action si la liste change et que rien n'est sélectionné
+  useEffect(() => {
+    if (actions.length > 0 && !selectedAction) {
+      setSelectedAction(actions[0].identifier);
+    } else if (actions.length === 0) {
+      setSelectedAction("");
+    }
+  }, [actions]);
+
   const onConnect = useCallback(
     (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
 
   const onServiceChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedService(e.target.value);
+    const newService = e.target.value;
+    setSelectedService(newService);
+    setSelectedTrigger("");
+    setSelectedAction("");
   };
 
   const addStep = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!selectedService) return;
+
+    if (!selectedService) {
+      alert("Veuillez sélectionner un service.");
+      return;
+    }
+
+    const isTrigger = nodes.length === 0;
+    const selectedId = isTrigger ? selectedTrigger : selectedAction;
+    const sourceList = isTrigger ? triggers : actions;
+/*
+    if (!selectedId) {
+      alert(`Veuillez sélectionner un ${isTrigger ? "trigger" : "action"}.`);
+      return;
+    }*/
+
+    const selectedItem = sourceList.find((item) => item.identifier === selectedId);
+    if (!selectedItem) {
+      console.error("Action/Trigger introuvable pour l'identifiant:", selectedId);
+      alert("L'élément sélectionné est introuvable. Veuillez choisir un autre.");
+      return;
+    }
 
     const fixedHeight = 200;
     const spacing = 80;
@@ -143,11 +182,12 @@ const CustomFlow = ({ existingWorkflow }: Props) => {
       },
       data: {
         id: newNodeId,
-        label: details || `${selectedService} - ${selectedTrigger}`,
+        label: details || `${selectedService} - ${selectedItem.name}`,
+        serviceActionId: selectedItem.serviceActionId,
         service: selectedService,
-        trigger: selectedTrigger,
-        type: nodes.length === 0 ? "trigger" : "action",
-        action: selectedAction,
+        trigger: isTrigger ? selectedItem.identifier : "", 
+        action: !isTrigger ?  selectedItem.identifier : "",
+        type: selectedItem.type,
         configured: true,
         config: [],
       },
@@ -177,7 +217,7 @@ const CustomFlow = ({ existingWorkflow }: Props) => {
       return updatedNodes;
     });
 
-    setSelectedService("");
+    // Reset uniquement les sélections de triggers/actions et details, garder selectedService
     setSelectedTrigger("");
     setSelectedAction("");
     setDetails("");
@@ -190,15 +230,6 @@ const CustomFlow = ({ existingWorkflow }: Props) => {
       console.error("Erreur test workflow:", error);
     }
   };
-/*
-  const handleSave = async (workflow: WorkflowData) => {
-    try {
-      await createWorkflow(workflow);
-    } catch (error) {
-      console.error("Erreur création workflow:", error);
-    }
-  };
-  */
 
   if (!workflowId) {
     return (
@@ -295,11 +326,14 @@ function buildWorkflowFromNodes(
 ): WorkflowData {
   const steps: WorkflowStepInput[] = nodes.map((node, index) => ({
     id: node.id,
+    name: node.data.label,
+    service: node.data.service,
+    serviceActionId: node.data.serviceActionId,
     workflow_id: workflowId,
     type: node.data.type as "trigger" | "action",
     service_id: node.data.service,
     status: "draft",
-    ref_id: node.data.action || node.data.trigger || "",
+    ref_id: node.data.type === "trigger" ? node.data.trigger : node.data.action,
     config: node.data.config || {},
     order: index,
   }));
@@ -310,41 +344,6 @@ function buildWorkflowFromNodes(
     status: "draft",
     steps,
   };
-}
-
-// Reconstruction des nodes/edges depuis un workflow existant
-function buildWorkflowFromData(data: WorkflowData) {
-  if (!data.steps || data.steps.length === 0) {
-    return { nodes: [], edges: [] };
-  }
-
-  const nodes: Node<CustomNodeData>[] = data.steps.map((step, index) => ({
-    id: step.id,
-    type: "custom",
-    position: { x: 400, y: index * 280 },
-    data: {
-      id: step.id,
-      label: step.service_id,
-      service: step.service_id,
-      trigger: step.type === "trigger" ? step.id : "",   // TODO à confirmer le type avec le backend
-      action: step.type === "action" ? step.id : "",      // TODO à confirmer par la suite
-      type: step.type,
-      configured: true,
-      config: step.config || [],
-    },
-    draggable: false,
-    sourcePosition: Position.Bottom,
-    targetPosition: Position.Top,
-  }));
-
-  const edges: Edge[] = nodes.slice(1).map((node, idx) => ({
-    id: `e${nodes[idx].id}-${node.id}`,
-    source: nodes[idx].id,
-    target: node.id,
-    ...edgeOptions,
-  }));
-
-  return { nodes, edges };
 }
 
 export default CustomFlow;

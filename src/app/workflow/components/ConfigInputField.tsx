@@ -1,88 +1,155 @@
 import React from "react";
-import { ParameterType } from "@/types/workflow";
+import { ParameterField, ConfigValue } from "@/types/workflow";
 
 interface ConfigInputFieldProps {
+  keyProp: string;
   name: string;
-  type: ParameterType;
-  value?: string;  
+  type: ParameterField["type"];
+  value: string;
   options?: string[];
-  onChange: (key: string, value: string) => void; 
+  onChange: (key: string, value: ConfigValue) => void;
 }
 
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: 10,
-  border: "1px solid #ccc",
-  borderRadius: 6,
-  fontSize: 14,
-  backgroundColor: "#f8f9fc",
-};
-
 const ConfigInputField: React.FC<ConfigInputFieldProps> = ({
+  keyProp,
   name,
   type,
   value,
   options,
   onChange,
 }) => {
+const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  let val: ConfigValue;
 
-
-const handleChange = (
-  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-) => {
   if (type === "checkbox") {
-    const target = e.target as HTMLInputElement;
-    onChange(name, target.checked ? "true" : "false");
+    const target = e.target as HTMLInputElement;  // cast ici
+    val = target.checked ? "true" : "false";
+  } else if (type === "number" || type === "range") {
+    val = e.target.value === "" ? "" : Number(e.target.value);
   } else {
-    onChange(name, e.target.value);
+    val = e.target.value;
   }
+
+  onChange(keyProp, val);
 };
 
-  const renderInput = () => {
-    if (options && options.length > 0) {
-      return (
-        <select value={value || ""} onChange={handleChange} style={inputStyle}>
-          {options.map((opt) => (
+
+
+
+  // Gestion des types qui utilisent select (options)
+  if (options && options.length > 0) {
+    return (
+      <div style={{ marginBottom: 12 }}>
+        <label htmlFor={keyProp} style={{ display: "block", marginBottom: 4 }}>
+          {name}
+        </label>
+        <select id={keyProp} value={value} onChange={handleChange} style={{ width: "100%", padding: 8, borderRadius: 4 }}>
+          <option value="" disabled>
+            -- Sélectionner --
+          </option>
+          {options.map(opt => (
             <option key={opt} value={opt}>
               {opt}
             </option>
           ))}
         </select>
-      );
-    }
-
-    if (type === "checkbox") {
-      return (
-        <input
-          type="checkbox"
-          checked={value === "true"}
-          onChange={handleChange}
-          style={{ transform: "scale(1.2)", marginTop: 6 }}
-        />
-      );
-    }
-
-    // Pour les dates, datetime-local, on suppose que la value est une string ISO valide
-    // Pour number/range, c'est une string numérique
-
-    return (
-      <input
-        type={type}
-        value={value || ""}
-        onChange={handleChange}
-        style={inputStyle}
-      />
+      </div>
     );
-  };
+  }
 
-  return (
-    <div style={{ marginBottom: 16 }}>
-      <label style={{ fontWeight: "bold", marginBottom: 4, display: "block" }}>
-        {name}
-      </label>
-      {renderInput()}
-    </div>
-  );
+  switch (type) {
+    case "checkbox":
+      return (
+        <div style={{ marginBottom: 12 }}>
+          <label style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+            <input
+              type="checkbox"
+              id={keyProp}
+              checked={value === "true"}
+              onChange={handleChange}
+              style={{ marginRight: 8 }}
+            />
+            {name}
+          </label>
+        </div>
+      );
+
+    case "number":
+    case "range":
+      return (
+        <div style={{ marginBottom: 12 }}>
+          <label htmlFor={keyProp} style={{ display: "block", marginBottom: 4 }}>
+            {name}
+          </label>
+          <input
+            type={type}
+            id={keyProp}
+            value={value}
+            onChange={handleChange}
+            style={{ width: "100%", padding: 8, borderRadius: 4 }}
+          />
+        </div>
+      );
+
+    case "date":
+    case "datetime-local":
+    case "email":
+    case "color":
+    case "password":
+    case "tel":
+    case "text":
+    case "url":
+    case "search":
+    case "time":
+    case "month":
+    case "week":
+      return (
+        <div style={{ marginBottom: 12 }}>
+          <label htmlFor={keyProp} style={{ display: "block", marginBottom: 4 }}>
+            {name}
+          </label>
+          <input
+            type={type}
+            id={keyProp}
+            value={value}
+            onChange={handleChange}
+            style={{ width: "100%", padding: 8, borderRadius: 4 }}
+          />
+        </div>
+      );
+
+    case "textarea":
+      return (
+        <div style={{ marginBottom: 12 }}>
+          <label htmlFor={keyProp} style={{ display: "block", marginBottom: 4 }}>
+            {name}
+          </label>
+          <textarea
+            id={keyProp}
+            value={value}
+            onChange={handleChange}
+            style={{ width: "100%", padding: 8, borderRadius: 4, minHeight: 80 }}
+          />
+        </div>
+      );
+
+    default:
+      // Pour types non gérés, on affiche un input text par défaut
+      return (
+        <div style={{ marginBottom: 12 }}>
+          <label htmlFor={keyProp} style={{ display: "block", marginBottom: 4 }}>
+            {name} (type {type} non géré)
+          </label>
+          <input
+            type="text"
+            id={keyProp}
+            value={value}
+            onChange={handleChange}
+            style={{ width: "100%", padding: 8, borderRadius: 4 }}
+          />
+        </div>
+      );
+  }
 };
 
 export default ConfigInputField;

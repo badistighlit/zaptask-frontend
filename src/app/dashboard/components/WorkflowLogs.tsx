@@ -21,7 +21,7 @@ export default function WorkflowLogs({ workflows }: WorkflowLogsProps) {
       aria-label="Logs des workflows"
     >
       <code>
-        <span className="text-cyan-400">// Exemple de logs (à IMPLEMENT  POUR DE  vrais)</span>{"\n"}
+        <span className="text-cyan-400"> Exemple de logs (a IMPLEMENT  POUR DE  vrais)</span>{"\n"}
         <span>
           <span className="text-gray-500">[2025-07-01T12:34:56Z]</span>{" "}
           <span className="text-green-400">Executed Trigger</span>{" "}

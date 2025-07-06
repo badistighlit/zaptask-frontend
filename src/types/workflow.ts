@@ -1,31 +1,13 @@
-//workflow
+//
+
 export type WorkflowStatus = "draft" | "deployed" | "error";
 export type WorkflowStepType = "trigger" | "action";
-
-export interface WorkflowStepInput {
-  id: string;
-  workflow_id: string;
-  type: WorkflowStepType;
-  status: WorkflowStatus;
-  service_id: string;
-  lastExecution?: Date;
-  config: ParametersSchema;
-  order: number;
-  trigger?: string;
-  action?: string;
-}
-
-export interface WorkflowData {
-  id?: string;
-  name: string;
-  status: WorkflowStatus;
-  steps: WorkflowStepInput[];
-}
-
-
-//configuration parametres
 export type ConfigValue = string | number | boolean | undefined;
 
+export type ParameterOption = {
+  label: string;
+  value: string;
+};
 export type ParameterType =
   | "button"
   | "checkbox"
@@ -48,14 +30,17 @@ export type ParameterType =
   | "text"
   | "time"
   | "url"
-  | "week";
+  | "week"
+  | "object"
+  | "array"
+  |"textarea" ;
 
 
-//export type httpRequestParametreType = "body" |"query" |"url";
+// parameters
 
 export interface ParameterField {
-  name: string;
-  key: string;
+  name: string;                
+  key: string;                 
   type: ParameterType;
   value?: ConfigValue;
   options?: string[];
@@ -66,11 +51,51 @@ export interface ParameterField {
 export type ParametersSchema = ParameterField[];
 
 
+// WORKFLOW
+
+export interface WorkflowStepInput {
+  ref_id: any;
+  workflow_id: string;
+  type: WorkflowStepType;
+  status: WorkflowStatus;
+  serviceActionId: string;      // ID de l’action du service (UUID)
+  name: string;
+  service: string;             
+  lastExecution?: Date;
+  config: ParametersSchema;
+  order: number;
+  trigger?: string;
+  action?: string;
+}
+
+export interface WorkflowData {
+  id?: string;
+  name: string;
+  status: WorkflowStatus;
+  steps: WorkflowStepInput[];
+}
 
 
-//old version configuration
+//  ACTIONS TRIGGERS  SERVICES 
+
+export interface ActionOrTrigger {
+  serviceActionId: string;     
+  identifier: string;          
+  service_id: string;          
+  name: string;                
+  type: WorkflowStepType;
+  parameters: ParametersSchema;
+}
+
+export interface Service {
+  identifier: string;         
+  name?: string;
+}
+
+
+// 
+
 /*
-
 export type ConfigValue = string | number | boolean | Date;
 
 export interface ConfigSchemaField {
@@ -80,7 +105,6 @@ export interface ConfigSchemaField {
 }
 
 export type ConfigSchema = Record<string, ConfigSchemaField>;
-
 
 export function validateConfig(
   config: Record<string, unknown>,
@@ -95,36 +119,9 @@ export function validateConfig(
       case "string": return typeof value === "string";
       case "number": return typeof value === "number";
       case "boolean": return typeof value === "boolean";
-      case "date": return value instanceof Date || typeof value === "string"; 
+      case "date": return value instanceof Date || typeof value === "string";
       default: return true;
     }
   });
 }
-
 */
-
-//Action,service,trigger
-
-export interface ActionOrTrigger {
-  identifier: string;
-  service_id : string;
-  name: string;
-  type: "trigger" | "action";
-  parameters: ParametersSchema; 
-
-}
-
-
-export interface Service {
-  identifier: string;
-  name?: string;
-}
-
-
-
-
-
-//import { Node } from "reactflow";
-//import { CustomNodeData } from "@/app/workflowtest/CustomAlertNode";
-//export type NodesState = Node<CustomNodeData>[];
-//export type SetNodes = React.Dispatch<React.SetStateAction<NodesState>>;
