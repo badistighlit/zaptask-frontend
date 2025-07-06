@@ -1,60 +1,44 @@
-import React from "react";
-import { Handle, Position } from "reactflow";
-import { NodeProps } from "reactflow";
+import { Handle, Position, NodeProps } from "reactflow";
 import { WorkflowStepInput } from "@/types/workflow";
+import { Zap, Film } from "lucide-react"; // <-- import icônes
 
 type NodeData = {
   step: WorkflowStepInput;
 };
 
-const CustomWorkflowNode: React.FC<NodeProps<NodeData>> = ({ data, id }) => {
+export default function WorkflowNode({ data }: NodeProps<NodeData>) {
   const { step } = data;
 
+  const statusColorMap: Record<string, string> = {
+    draft: "bg-gray-100 border-gray-300 text-gray-700",
+    configured: "bg-blue-100 border-blue-500 text-blue-800",
+    tested: "bg-green-100 border-green-500 text-green-800",
+  };
+
+  const statusClass = statusColorMap[step.status || "draft"] || statusColorMap["draft"];
+
+  // Utilisation des icônes Lucide au lieu des emojis
+  const typeIcon = step.type === "trigger" ? <Zap size={16} /> : <Film size={16} />;
+
+  const subText = step.service
+    ? `Service: ${step.service}`
+    : step.status === "draft"
+    ? "Non configuré"
+    : "";
+
   return (
-    <div className="rounded-2xl shadow-md border border-gray-200 bg-white p-4 w-72">
-      {/* TYPE LABEL */}
-      <div className="text-xs font-semibold text-gray-500 uppercase mb-1">
-        {step.type === "trigger" ? "Trigger" : "Action"}
+    <div
+      className={`rounded-xl border p-4 shadow-md w-72 cursor-pointer hover:brightness-105 transition ${statusClass}`}
+      title={`${step.name} (${step.type})`}
+    >
+      <div className="flex items-center gap-2 mb-1 text-xs uppercase font-semibold">
+        <span>{typeIcon}</span>
+        <span>{step.type === "trigger" ? "Trigger" : "Action"}</span>
       </div>
-
-      {/* NAME */}
-      <h3 className="text-md font-bold text-gray-800 truncate">{step.name}</h3>
-
-      {/* SERVICE */}
-      <div className="text-sm text-gray-600 mt-1">Service: {step.service}</div>
-
-      {/* PARAMETERS */}
-      {step.config.length > 0 && (
-        <div className="mt-3">
-          <div className="text-xs font-medium text-gray-500 mb-1">Paramètres :</div>
-          <ul className="text-sm text-gray-700 space-y-1 max-h-28 overflow-y-auto">
-            {step.config.map((param) => (
-              <li key={param.key} className="flex justify-between">
-                <span className="truncate">{param.name}</span>
-                <span className="text-gray-400 truncate">
-                  {String(param.value ?? "—")}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* ACTIONS */}
-      <div className="mt-4 flex justify-end">
-        <button
-          onClick={() => console.log("Test", step)}
-          className="text-blue-600 text-sm hover:underline"
-        >
-          Tester
-        </button>
-      </div>
-
-      {/* Flow Handles */}
+      <h3 className="font-semibold truncate text-lg">{step.name}</h3>
+      {subText && <p className="text-sm mt-1 truncate">{subText}</p>}
       <Handle type="target" position={Position.Top} />
       <Handle type="source" position={Position.Bottom} />
     </div>
   );
-};
-
-export default CustomWorkflowNode;
+}

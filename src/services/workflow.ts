@@ -1,9 +1,9 @@
-import { BackendParam, BackendWorkflow, BackendServiceAction, BackendWorkflowAction } from "@/types/BackTypes";
+import {   BackendServiceAction, mapBackendParams } from "@/types/BackTypes";
 import {
   ActionOrTrigger,
   WorkflowData,
   Service,
-  ParametersSchema,
+  
 } from "@/types/workflow";
 import api from "@/utils/api";
 import { AxiosError } from "axios";
@@ -181,10 +181,10 @@ function openOAuthPopup(url: string): void {
 // ─── MAPPING ──────────────────────────────────────────────────────────────
 
 // Rend tous les champs optionnels (facultatifs) pour le payload de mise à jour
-type PartialBackendWorkflowAction = Partial<Omit<BackendWorkflowAction, 'id'>> & { id?: string };
+/*type PartialBackendWorkflowAction = Partial<Omit<BackendWorkflowAction, 'id'>> & { id?: string };
 type PartialWorkflowUpdate = Partial<Omit<BackendWorkflow, "actions">> & {
   actions?: Partial<BackendWorkflowAction>[];
-};
+};*/
 
 function buildUpdatePayload(workflowData: WorkflowData) {
   return {
@@ -212,18 +212,11 @@ function mapActionFromApi(action: BackendServiceAction, serviceId: string): Acti
     name: action.name,
     service_id: serviceId,
     type: action.type,
-    parameters: normalizeParameters(action.parameters),
+    parameters: mapBackendParams(action.parameters), // ✅ CORRECT
   };
 }
 
-function normalizeParameters(paramsFromApi: BackendParam[]): ParametersSchema {
-  return paramsFromApi.map((p) => ({
-    name: p.parameter_name,
-    key: p.parameter_key,
-    type: p.parameter_type,
-    options: p.options ?? [],
-  }));
-}
+
 
 function handleAxiosError(error: unknown, context: string): void {
   if ((error as AxiosError).isAxiosError) {

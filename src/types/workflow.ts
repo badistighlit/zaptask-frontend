@@ -33,7 +33,8 @@ export type ParameterType =
   | "week"
   | "object"
   | "array"
-  |"textarea" ;
+  |"textarea" 
+  | "multiline";
 
 
 // parameters
@@ -54,7 +55,7 @@ export type ParametersSchema = ParameterField[];
 // WORKFLOW
 
 export interface WorkflowStepInput {
-  ref_id: any;
+  ref_id: string;
   workflow_id: string;
   type: WorkflowStepType;
   status: WorkflowStatus;

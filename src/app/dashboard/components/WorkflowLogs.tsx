@@ -25,13 +25,13 @@ export default function WorkflowLogs({ workflows }: WorkflowLogsProps) {
         <span>
           <span className="text-gray-500">[2025-07-01T12:34:56Z]</span>{" "}
           <span className="text-green-400">Executed Trigger</span>{" "}
-          <span className="text-yellow-300">"New Email"</span>
+          <span className="text-yellow-300">New Email</span>
         </span>
         {"\n"}
         <span>
           <span className="text-gray-500">[2025-07-01T12:34:58Z]</span>{" "}
           <span className="text-green-400">Ran Action</span>{" "}
-          <span className="text-yellow-300">"Save to Notion"</span>
+          <span className="text-yellow-300">Save to Notion</span>
         </span>
         {"\n"}
         <span>
