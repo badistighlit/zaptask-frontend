@@ -116,7 +116,7 @@ export function mapBackendWorkflow(data: BackendWorkflow): WorkflowData {
     id: data.id,
     name: data.name,
     status: data.status,
-    steps: data.actions.map(mapBackendActionToStep),
+    steps: Array.isArray(data.actions) ? data.actions.map(mapBackendActionToStep) : [],
   };
 }
 
