@@ -16,7 +16,14 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchWorkflowsByUser()
-      .then((data) => setWorkflows(data ?? []))
+      .then((data) => {
+              if (Array.isArray(data)) {
+                  setWorkflows(data);
+                } else {
+                 console.warn("fetchWorkflowsByUser a retourné autre chose qu'un tableau :", data);
+                    setWorkflows([]);
+              }
+})
       .finally(() => setLoading(false));
   }, []);
 
@@ -52,7 +59,7 @@ export default function DashboardPage() {
                 Brouillons
               </h3>
               <p className="text-indigo-700 font-medium mt-1 select-text">
-                {workflows.filter((wf) => wf.status === "draft").length} brouillon(s)
+              {Array.isArray(workflows) ? workflows.filter((wf) => wf.status === "draft").length : 0}
               </p>
             </div>
           </div>
