@@ -106,25 +106,32 @@ export async function testActionOrtriggerForWorkflow(actionOrTrigger: ActionOrTr
 export async function fetchWorkflowById(workflowId: string): Promise<WorkflowData | null> {
   try {
     const response = await api.get(`/workflows/${workflowId}`);
-    if (response.status ===200) {
-      return mapBackendWorkflow(response.data)
 
+    if (response.status === 200 && response.data) {
+      return mapBackendWorkflow(response.data);
     }
-    return null;
 
+    console.warn("Réponse inattendue pour workflow ID:", workflowId, response.data);
+    return null;
   } catch (error) {
     handleAxiosError(error, `fetching workflow by ID ${workflowId}`);
     return null;
   }
 }
 
-export async function fetchWorkflowsByUser(): Promise<WorkflowData[] | null> {
+export async function fetchWorkflowsByUser(): Promise<WorkflowData[]> {
   try {
     const response = await api.get("/workflows");
-    return response.status === 200 ? (response.data as WorkflowData[]) : null;
+
+    if (response.status === 200 && Array.isArray(response.data)) {
+      return response.data;
+    }
+
+    console.warn(" Données inattendues dans fetchWorkflowsByUser:", response.data);
+    return [];
   } catch (error) {
     handleAxiosError(error, "fetching workflows by user");
-    return null;
+    return [];
   }
 }
 
