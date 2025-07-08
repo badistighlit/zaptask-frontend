@@ -180,11 +180,6 @@ function openOAuthPopup(url: string): void {
 
 // ─── MAPPING ──────────────────────────────────────────────────────────────
 
-// Rend tous les champs optionnels (facultatifs) pour le payload de mise à jour
-/*type PartialBackendWorkflowAction = Partial<Omit<BackendWorkflowAction, 'id'>> & { id?: string };
-type PartialWorkflowUpdate = Partial<Omit<BackendWorkflow, "actions">> & {
-  actions?: Partial<BackendWorkflowAction>[];
-};*/
 
 function buildUpdatePayload(workflowData: WorkflowData) {
   return {
@@ -192,17 +187,24 @@ function buildUpdatePayload(workflowData: WorkflowData) {
     name: workflowData.name,
     status: workflowData.status,
     actions: workflowData.steps.map(step => ({
-    //  name: step.name,
-      workflow_id: workflowData.id,
-    //  type: step.type,
-    //  identifier: step.ref_id, 
       service_action_id: step.serviceActionId,
       status: step.status,
       execution_order: step.order,
-      parameters: step.config || [],
+      parameters: step.config
+        ? step.config.reduce<Record<string, string | number | boolean | null>>((acc, param) => {
+            if (param.value !== undefined) {
+              acc[param.key] = param.value;
+            } else {
+              acc[param.key] = null; 
+            }
+            return acc;
+          }, {})
+        : {},
     })),
   };
 }
+
+
 
 
 function mapActionFromApi(action: BackendServiceAction, serviceId: string): ActionOrTrigger {

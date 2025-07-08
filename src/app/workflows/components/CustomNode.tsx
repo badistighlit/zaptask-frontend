@@ -1,6 +1,6 @@
 import { Handle, Position, NodeProps } from "reactflow";
 import { WorkflowStepInput } from "@/types/workflow";
-import { Zap, Film } from "lucide-react"; // <-- import icônes
+import { Zap, Film } from "lucide-react"; 
 
 type NodeData = {
   step: WorkflowStepInput;
@@ -17,7 +17,6 @@ export default function WorkflowNode({ data }: NodeProps<NodeData>) {
 
   const statusClass = statusColorMap[step.status || "draft"] || statusColorMap["draft"];
 
-  // Utilisation des icônes Lucide au lieu des emojis
   const typeIcon = step.type === "trigger" ? <Zap size={16} /> : <Film size={16} />;
 
   const subText = step.service
