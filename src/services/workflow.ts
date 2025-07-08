@@ -1,4 +1,4 @@
-import {   BackendServiceAction, mapBackendParams } from "@/types/BackTypes";
+import {   BackendServiceAction, mapBackendParams, mapBackendWorkflow } from "@/types/BackTypes";
 import {
   ActionOrTrigger,
   WorkflowData,
@@ -106,7 +106,12 @@ export async function testActionOrtriggerForWorkflow(actionOrTrigger: ActionOrTr
 export async function fetchWorkflowById(workflowId: string): Promise<WorkflowData | null> {
   try {
     const response = await api.get(`/workflows/${workflowId}`);
-    return response.status === 200 ? (response.data as WorkflowData) : null;
+    if (response.status ===200) {
+      return mapBackendWorkflow(response.data)
+
+    }
+    return null;
+
   } catch (error) {
     handleAxiosError(error, `fetching workflow by ID ${workflowId}`);
     return null;

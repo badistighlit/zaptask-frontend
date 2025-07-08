@@ -94,6 +94,31 @@ export function mapBackendParams(params: BackendParam[]): ParametersSchema {
   }));
 }
 
+export function mapBackendActionToStep(action: BackendWorkflowAction): WorkflowStepInput {
+  return {
+    ref_id: action.id,
+    workflow_id: action.workflow_id,
+    serviceActionId: action.service_action_id,
+    type: action.type,
+    status: action.status,
+    name: action.name,
+    service: action.service.identifier,
+    order: action.execution_order,
+    config: mapBackendParams(action.parameters),
+    lastExecution: action.last_executed_at ? new Date(action.last_executed_at) : undefined,
+    trigger: action.type === "trigger" ? action.identifier : undefined,
+    action: action.type === "action" ? action.identifier : undefined,
+  };
+}
+
+export function mapBackendWorkflow(data: BackendWorkflow): WorkflowData {
+  return {
+    id: data.id,
+    name: data.name,
+    status: data.status,
+    steps: data.actions.map(mapBackendActionToStep),
+  };
+}
 
 // * avoir par la siute
 /*
