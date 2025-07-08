@@ -19,7 +19,7 @@ import { deleteUserInfo } from "@/utils/authentication";
 
 const navItems = [
   { name: "Accueil", href: "/", icon: Home },
-  { name: "Build workflow", href: "/workflow", icon: Workflow },
+  { name: "Build workflow", href: "/workflows", icon: Workflow },
   { name: "Mes workflows", href: "/myWorkflows", icon: List },
   { name: "Mes services", href: "/services", icon: Server },
   { name: "Logs", href: "/logs", icon: FileText },

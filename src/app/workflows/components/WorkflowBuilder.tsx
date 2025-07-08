@@ -136,6 +136,8 @@ export default function WorkflowBuilder({ initialWorkflow }: WorkflowBuilderProp
       ? convertStepsToNodes(initialWorkflow.steps)
       : initialNodes
   );
+  const [workflowName, setWorkflowName] = useState(initialWorkflow.name || "");
+
 
   const [edges, setEdges, onEdgesChange] = useEdgesState(
     initialWorkflow.steps && initialWorkflow.steps.length > 0
@@ -149,6 +151,7 @@ export default function WorkflowBuilder({ initialWorkflow }: WorkflowBuilderProp
 
   const [configuratorOpen, setConfiguratorOpen] = useState(false);
   const [selectedConfigNodeId, setSelectedConfigNodeId] = useState<string | null>(null);
+
 
   useEffect(() => {
     
@@ -337,8 +340,7 @@ export default function WorkflowBuilder({ initialWorkflow }: WorkflowBuilderProp
 
 
   // sauvegarde 
-    const handleSave = async () => {
-    // Extraire et trier steps
+  const handleSave = async () => {
     const workflowSteps = nodes
       .filter((n) => n.type === "customWorkflowNode")
       .sort((a, b) => a.position.y - b.position.y)
@@ -349,6 +351,7 @@ export default function WorkflowBuilder({ initialWorkflow }: WorkflowBuilderProp
 
     const updatedWorkflow: WorkflowData = {
       ...initialWorkflow,
+      name: workflowName,
       steps: workflowSteps,
     };
 
@@ -364,6 +367,27 @@ export default function WorkflowBuilder({ initialWorkflow }: WorkflowBuilderProp
 
   return (
     <div className="w-full h-full relative">
+      <div className="flex items-center gap-4 p-4 border-b bg-white sticky top-0 z-40">
+        <input
+          type="text"
+          value={workflowName}
+          onChange={(e) => setWorkflowName(e.target.value)}
+          placeholder="Nom du workflow"
+          className="flex-grow border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <button
+          onClick={handleSave}
+          aria-label="Sauvegarder le workflow"
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow transition-colors"
+        >
+          <LucideSave size={20} />
+          Sauvegarder
+        </button>
+      </div>
+
+
+
+      
       <div className="w-full h-[90vh] relative overflow-y-auto" style={{ maxHeight: "90vh" }}>
         <ReactFlow
           nodes={nodes}
