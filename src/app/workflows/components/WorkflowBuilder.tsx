@@ -211,81 +211,118 @@ export default function WorkflowBuilder({ initialWorkflow }: WorkflowBuilderProp
     setConfiguratorOpen(true);
   };
 
+
+
   const onConnect = (connection: Connection) => {
     setEdges((eds) => addEdge(connection, eds));
   };
 
-  const addActionBetween = (fromId: string, toId: string) => {
-    const timestamp = Date.now();
-    const newActionId = `action-${timestamp}`;
-    const insertId = `insert-${timestamp}`;
 
-    const fromNode = nodes.find((n) => n.id === fromId);
-    const toNode = nodes.find((n) => n.id === toId);
 
-    if (!fromNode || !toNode) return;
 
-    // position du nouveau noeud d'action 
-    const newX = (fromNode.position.x + toNode.position.x) / 2;
-    const newY = (fromNode.position.y + toNode.position.y) / 2;
 
-    const newActionNode: Node = {
-      id: newActionId,
-      type: "customWorkflowNode",
-      position: { x: newX, y: newY },
-      data: {
-        step: {
-          name: "New Action",
-          type: "action",
-          service: "",
-          workflow_id: "",
-          status: "draft",
-          serviceActionId: "",
-          order: 1,
-          config: [],
-          action: "",
-          trigger: "",
-        },
+
+const addActionBetween = (fromId: string, toId: string | null) => {
+  const timestamp = Date.now();
+  const newActionId = `action-${timestamp}`;
+  const insertId = `insert-${timestamp}`;
+
+  const fromNode = nodes.find((n) => n.id === fromId);
+  const toNode = toId ? nodes.find((n) => n.id === toId) : null;
+
+  if (!fromNode) return;
+
+  // gestion du dernier noeud si toId is null
+  const newX = NODE_X;
+  const newY = toNode
+    ? (fromNode.position.y + toNode.position.y) / 2
+    : fromNode.position.y + NODE_HEIGHT + VERTICAL_GAP;
+
+  const newActionNode: Node = {
+    id: newActionId,
+    type: "customWorkflowNode",
+    position: { x: newX, y: newY },
+    data: {
+      step: {
+        name: "New Action",
+        type: "action",
+        service: "",
+        workflow_id: "",
+        status: "draft",
+        serviceActionId: "",
+        order: 1,
+        config: [],
+        action: "",
+        trigger: "",
       },
-    };
-
-    // position du bouton d'insertion
-    const insertX = NODE_X - INSERT_BUTTON_WIDTH / 2 + 145;
-    const insertY = (newY + toNode.position.y) / 2 - INSERT_BUTTON_HEIGHT / 2 - 5;
-
-    const newInsertNode: Node = {
-      id: insertId,
-      type: "insertButton",
-      position: { x: insertX, y: insertY },
-      data: { between: [newActionId, toId] },
-    };
-
-    // update des bouttons insertss
-    const updatedNodes = nodes
-      .filter(
-        (n) =>
-          !(
-            n.type === "insertButton" &&
-            n.data?.between?.[0] === fromId &&
-            n.data?.between?.[1] === toId
-          )
-      )
-      .concat(newActionNode, newInsertNode);
-
-    // Mise à jour des arêtes
-    const updatedEdges = edges
-      .filter((e) => !(e.source === fromId && e.target === toId))
-      .concat(
-        { id: `e-${fromId}-${newActionId}`, source: fromId, target: newActionId },
-        { id: `e-${newActionId}-${insertId}`, source: newActionId, target: insertId },
-        { id: `e-${insertId}-${toId}`, source: insertId, target: toId }
-      );
-
-    const reordered = reorderAndReposition(updatedNodes);
-
-    setNodes(reordered);
-    setEdges(updatedEdges);
+    },
   };
+
+  // Position du bouton insert 
+  const insertX = NODE_X - INSERT_BUTTON_WIDTH / 2 + 145;
+  const insertY = newY + NODE_HEIGHT + VERTICAL_GAP / 2 - INSERT_BUTTON_HEIGHT / 2 - 5;
+
+  const newInsertNode: Node = {
+    id: insertId,
+    type: "insertButton",
+    position: { x: insertX, y: insertY },
+    data: { between: [newActionId, null] },
+  };
+
+  // MAJ des nodoes
+  const updatedNodes = nodes.filter((n) => {
+    if (toId === null) {
+     
+      return !(n.type === "insertButton" && n.id === `insert-after-${fromId}`);
+    } else {
+      
+      return !(
+        n.type === "insertButton" &&
+        n.data?.between?.[0] === fromId &&
+        n.data?.between?.[1] === toId
+      );
+    }
+  }).concat(newActionNode, newInsertNode);
+
+
+
+  // MAJ edges
+  let updatedEdges = edges.filter((e) => {
+    if (toId === null) {
+      
+      return !(e.source === fromId && e.target === `insert-after-${fromId}`);
+    } else {
+      return !(e.source === fromId && e.target === toId);
+    }
+  });
+
+  if (toId === null) {
+    // ajout edge fromNode -> newActionNode -> newInsertNode
+    updatedEdges = updatedEdges.concat(
+      { id: `e-${fromId}-${newActionId}`, source: fromId, target: newActionId },
+      { id: `e-${newActionId}-${insertId}`, source: newActionId, target: insertId }
+    );
+  } else {
+    // ajout edge fromNode -> newActionNode -> insert -> toNode
+    updatedEdges = updatedEdges.concat(
+      { id: `e-${fromId}-${newActionId}`, source: fromId, target: newActionId },
+      { id: `e-${newActionId}-${insertId}`, source: newActionId, target: insertId },
+      { id: `e-${insertId}-${toId}`, source: insertId, target: toId }
+    );
+  }
+
+  const reordered = reorderAndReposition(updatedNodes);
+
+  setNodes(reordered);
+  setEdges(updatedEdges);
+};
+
+
+
+
+
+
+
 
 
   // fonction de reorganisation et position
@@ -321,6 +358,26 @@ export default function WorkflowBuilder({ initialWorkflow }: WorkflowBuilderProp
         });
       }
     });
+
+
+
+    // boutton après le dernier noeud
+      if (workflowNodes.length > 0) {
+    const lastNode = workflowNodes[workflowNodes.length - 1];
+    const lastY = 50 + (workflowNodes.length - 1) * (NODE_HEIGHT + VERTICAL_GAP);
+
+    insertButtons.push({
+      id: `insert-after-${lastNode.id}`,
+      type: "insertButton",
+      position: {
+        x: NODE_X - INSERT_BUTTON_WIDTH / 2 + 145,
+        y: lastY + NODE_HEIGHT + VERTICAL_GAP / 2 - INSERT_BUTTON_HEIGHT / 2 - 5,
+      },
+      data: { between: [lastNode.id, null] }, 
+    });
+  }
+
+
 
     return [...updated, ...insertButtons];
   };
@@ -387,7 +444,7 @@ export default function WorkflowBuilder({ initialWorkflow }: WorkflowBuilderProp
 
 
 
-      
+
       <div className="w-full h-[90vh] relative overflow-y-auto" style={{ maxHeight: "90vh" }}>
         <ReactFlow
           nodes={nodes}

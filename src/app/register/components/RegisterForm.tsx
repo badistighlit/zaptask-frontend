@@ -38,6 +38,7 @@ export default function RegisterForm() {
             const response = await registerUser(data);
 
             saveUserInfo(response)
+            window.location.href = "/dashboard"; 
 
         } catch (e: unknown) {
             console.log(isAxiosError(e) && e as AxiosError);
