@@ -17,13 +17,13 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchWorkflowsByUser()
       .then((data) => {
-              if (Array.isArray(data)) {
-                  setWorkflows(data);
-                } else {
-                 console.warn("fetchWorkflowsByUser a retourné autre chose qu'un tableau :", data);
-                    setWorkflows([]);
-              }
-})
+        if (Array.isArray(data)) {
+          setWorkflows(data);
+        } else {
+          console.warn("fetchWorkflowsByUser a retourné autre chose qu'un tableau :", data);
+          setWorkflows([]);
+        }
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -35,12 +35,12 @@ export default function DashboardPage() {
     );
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <h1 className="text-4xl font-extrabold mb-10 text-gray-900 select-none">
+    <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
+      <h1 className="text-3xl sm:text-4xl font-extrabold mb-10 text-gray-900 select-none">
         Tableau de bord
       </h1>
 
-      <div className="grid grid-cols-2 grid-rows-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 gap-y-10">
         {/* Brouillons */}
         <div
           tabIndex={0}
@@ -59,7 +59,9 @@ export default function DashboardPage() {
                 Brouillons
               </h3>
               <p className="text-indigo-700 font-medium mt-1 select-text">
-              {Array.isArray(workflows) ? workflows.filter((wf) => wf.status === "draft").length : 0}
+                {Array.isArray(workflows)
+                  ? workflows.filter((wf) => wf.status === "draft").length
+                  : 0}
               </p>
             </div>
           </div>
