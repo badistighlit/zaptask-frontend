@@ -461,6 +461,8 @@ const handleDeploy = async () => {
       alert("Workflow ID is required to deploy.");
       return;
     }
+    handleSave();
+    
     await deployWorkflow(initialWorkflow.id); 
 
     alert("Workflow deployed whith sucess !");
