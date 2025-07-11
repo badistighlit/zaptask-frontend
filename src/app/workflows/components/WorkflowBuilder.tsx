@@ -17,8 +17,8 @@ import { ActionOrTrigger, WorkflowData, WorkflowStepType } from "@/types/workflo
 import ServiceSelectorModal from "./ServiceSelectorModal";
 import { CustomEdge } from "./CustomEdges";
 import StepConfigurator from "./StepConfigurator";
-import { LucideSave , X } from "lucide-react";
-import { updateWorkflow } from "@/services/workflow";
+import { LucideSave , Rocket, Save, X } from "lucide-react";
+import { deployWorkflow, updateWorkflow } from "@/services/workflow";
 
 interface WorkflowBuilderProps {
   initialWorkflow: WorkflowData;
@@ -397,6 +397,7 @@ const addActionBetween = (fromId: string, toId: string | null) => {
 
 
   // sauvegarde 
+  /*
   const handleSave = async () => {
     const workflowSteps = nodes
       .filter((n) => n.type === "customWorkflowNode")
@@ -419,130 +420,183 @@ const addActionBetween = (fromId: string, toId: string | null) => {
       alert("Erreur lors de la sauvegarde.");
       console.error(error);
     }
+  };*/
+
+  // sauvegarde et update 
+  const handleSave = async () => {
+  const workflowSteps = nodes
+    .filter((n) => n.type === "customWorkflowNode")
+    .sort((a, b) => a.position.y - b.position.y)
+    .map((node, index) => ({
+      ...node.data.step,
+      order: index,
+    }));
+
+  const updatedWorkflow: WorkflowData = {
+    ...initialWorkflow,
+    name: workflowName,
+    steps: workflowSteps,
   };
 
+  try {
+    const savedWorkflow = await updateWorkflow(updatedWorkflow);
+    alert("Workflow saved successfully!");
 
-  return (
-    <div className="w-full h-full relative">
-      <div className="flex items-center gap-4 p-4 border-b bg-white sticky top-0 z-40">
-        <input
-          type="text"
-          value={workflowName}
-          onChange={(e) => setWorkflowName(e.target.value)}
-          placeholder="Nom du workflow"
-          className="flex-grow border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          onClick={handleSave}
-          aria-label="Sauvegarder le workflow"
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow transition-colors"
-        >
-          <LucideSave size={20} />
-          Sauvegarder
-        </button>
-      </div>
+    //update les changements 
+    const updatedNodes = convertStepsToNodes(savedWorkflow.steps);
+    const updatedEdges = convertStepsToEdges(savedWorkflow.steps);
 
+   
+    setNodes(reorderAndReposition(updatedNodes));
+    setEdges(updatedEdges);
+  } catch (error) {
+    alert("Error saving the workflow.");
+    console.error(error);
+  }
+};
 
+const handleDeploy = async () => {
+  try {
+    if (!initialWorkflow.id) {
+      alert("Workflow ID is required to deploy.");
+      return;
+    }
+    await deployWorkflow(initialWorkflow.id); 
 
+    alert("Workflow deployed whith sucess !");
+  } catch (error) {
+    alert("Error while deploying the workflow. please check the logs");
+    console.error(error);
+  }
+};
 
-      <div className="w-full h-[90vh] relative overflow-y-auto" style={{ maxHeight: "90vh" }}>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onNodeClick={(event, node) => handleNodeClick(node)}
-          nodeTypes={nodeTypes}
-          edgeTypes={edgeTypes}
-          nodesDraggable={false}
-          nodesConnectable={true}
-          panOnDrag={false}
-          panOnScroll={false}
-          zoomOnScroll={false}
-          style={{ minHeight: 1200 }}
-        >
-          <Background />
-          <Controls />
-        </ReactFlow>
-      </div>
-
-      {configuratorOpen && selectedConfigNodeId && (
-        <div className="fixed top-0 right-0 w-[400px] h-full bg-white shadow-lg border-l z-50 overflow-y-auto flex flex-col">
-          <div className="flex justify-between items-center p-4 border-b">
-            <h2 className="text-lg font-bold">Configurer les paramètres</h2>
-            <button
-              onClick={() => {
-                setConfiguratorOpen(false);
-                setSelectedConfigNodeId(null);
-              }}
-              className="p-1 rounded hover:bg-gray-200"
-              aria-label="Close configuration sidebar"
-            >
-              <X size={24} />
-            </button>
-          </div>
-
-          {(() => {
-            const node = nodes.find((n) => n.id === selectedConfigNodeId);
-            if (!node) return <p className="p-4">Étape non trouvée</p>;
-
-            return (
-              <StepConfigurator
-                step={node.data.step}
-                onChange={(updatedStep) => {
-                  setNodes((nds) =>
-                    nds.map((n) =>
-                      n.id === selectedConfigNodeId
-                        ? {
-                            ...n,
-                            data: {
-                              ...n.data,
-                              step: updatedStep,
-                            },
-                          }
-                        : n
-                    )
-                  );
-                }}
-                onTest={() => {
-                  setNodes((nds) =>
-                    nds.map((n) =>
-                      n.id === selectedConfigNodeId
-                        ? {
-                            ...n,
-                            data: {
-                              ...n.data,
-                              step: {
-                                ...n.data.step,
-                                status: "tested",
-                              },
-                            },
-                          }
-                        : n
-                    )
-                  );
-                }}
-              />
-            );
-          })()}
-        </div>
-      )}
-
-      <ServiceSelectorModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        stepType={currentStepType}
-        onSelect={handleSelectServiceAction}
+ return (
+  <div className="w-full h-full relative">
+    {/* Barre du haut avec uniquement le nom du workflow */}
+    <div className="flex items-center gap-4 p-4 border-b bg-white sticky top-0 z-40">
+      <input
+        type="text"
+        value={workflowName}
+        onChange={(e) => setWorkflowName(e.target.value)}
+        placeholder="Nom du workflow"
+        className="flex-grow border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
-      <button
-        onClick={handleSave}
-        aria-label="Sauvegarder le workflow"
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow-lg transition-colors"
-      >
-        <LucideSave size={20} />
-        Sauvegarder
-      </button>
     </div>
-  );
+
+    {/* Canvas principal */}
+    <div className="w-full h-[90vh] relative overflow-y-auto" style={{ maxHeight: "90vh" }}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onNodeClick={(event, node) => handleNodeClick(node)}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        nodesDraggable={false}
+        nodesConnectable={true}
+        panOnDrag={false}
+        panOnScroll={false}
+        zoomOnScroll={false}
+        style={{ minHeight: 1200 }}
+      >
+        <Background />
+        <Controls />
+      </ReactFlow>
+    </div>
+
+    {/* Panneau de configuration latéral */}
+    {configuratorOpen && selectedConfigNodeId && (
+      <div className="fixed top-0 right-0 w-[400px] h-full bg-white shadow-lg border-l z-50 overflow-y-auto flex flex-col">
+        <div className="flex justify-between items-center p-4 border-b">
+          <h2 className="text-lg font-bold">Configurer les paramètres</h2>
+          <button
+            onClick={() => {
+              setConfiguratorOpen(false);
+              setSelectedConfigNodeId(null);
+            }}
+            className="p-1 rounded hover:bg-gray-200"
+            aria-label="Fermer le panneau de configuration"
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        {(() => {
+          const node = nodes.find((n) => n.id === selectedConfigNodeId);
+          if (!node) return <p className="p-4">Étape non trouvée</p>;
+
+          return (
+            <StepConfigurator
+              step={node.data.step}
+              onChange={(updatedStep) => {
+                setNodes((nds) =>
+                  nds.map((n) =>
+                    n.id === selectedConfigNodeId
+                      ? {
+                          ...n,
+                          data: {
+                            ...n.data,
+                            step: updatedStep,
+                          },
+                        }
+                      : n
+                  )
+                );
+              }}
+              onTest={() => {
+                setNodes((nds) =>
+                  nds.map((n) =>
+                    n.id === selectedConfigNodeId
+                      ? {
+                          ...n,
+                          data: {
+                            ...n.data,
+                            step: {
+                              ...n.data.step,
+                              status: "tested",
+                            },
+                          },
+                        }
+                      : n
+                  )
+                );
+              }}
+            />
+          );
+        })()}
+      </div>
+    )}
+
+    {/* Modal de sélection de service */}
+    <ServiceSelectorModal
+      open={modalOpen}
+      onClose={() => setModalOpen(false)}
+      stepType={currentStepType}
+      onSelect={handleSelectServiceAction}
+    />
+<div className="absolute bottom-4 left-4 right-4 z-50 flex justify-between pointer-events-none">
+  <button
+    onClick={handleDeploy}
+    aria-label="Déployer le workflow"
+    className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-2xl shadow-md transition-all duration-200 pointer-events-auto text-sm font-medium"
+  >
+    <Rocket className="w-4 h-4" />
+    Déployer
+  </button>
+
+  <button
+    onClick={handleSave}
+    aria-label="Sauvegarder le workflow"
+    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl shadow-md transition-all duration-200 pointer-events-auto text-sm font-medium"
+  >
+    <Save className="w-4 h-4" />
+    Sauvegarder
+  </button>
+</div>
+
+  </div>
+);
+
 }

@@ -65,6 +65,7 @@ export interface BackendWorkflow {
 
 
 export interface PushWorkflowAction {
+  id : string; 
   service_action_id: string;
   identifier: string;
   parameters: { [key: string]: string }; 
@@ -117,6 +118,8 @@ export function mapBackendWorkflow(data: BackendWorkflow): WorkflowData {
     name: data.name,
     status: data.status,
     steps: Array.isArray(data.actions) ? data.actions.map(mapBackendActionToStep) : [],
+    deployedAt : data.deployed_at ? new Date(data.deployed_at) : new Date(),
+    savedAt: data.saved_at ? new Date(data.saved_at) : new Date(),
   };
 }
 
@@ -132,6 +135,7 @@ export function mapStepToPushAction(step: WorkflowStepInput): PushWorkflowAction
   }
 
   return {
+    id: step.ref_id,
     service_action_id: step.serviceActionId,
     identifier: step.type === "trigger" ? step.trigger || "" : step.action || "",
     parameters,

@@ -76,7 +76,7 @@ export async function updateWorkflow(workflowData: WorkflowData) {
 
   try {
     const response = await api.put(`/workflows/${workflowData.id}`, payload);
-    return response.data;
+    return mapBackendWorkflow (response.data);
   } catch (error) {
     console.error("Error updating workflow:", error);
     throw error;
@@ -134,6 +134,31 @@ export async function fetchWorkflowsByUser(): Promise<WorkflowData[]> {
     return [];
   }
 }
+
+
+
+export async function deployWorkflow(workflowId: string): Promise<any[]> {
+  try {
+    const response = await api.post(`/workflows/deploy/${workflowId}`, null, {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+
+    if (response.status === 200) {
+      return response.data?.data || [];
+    } else {
+      console.warn("Réponse inattendue lors du déploiement:", response.status, response.data);
+      return [];
+    }
+  } catch (error) {
+    handleAxiosError(error, `deploying workflow ${workflowId}`);
+    throw error;
+  }
+}
+
+
 
 // ─── RELATION UTILISATEUR / SERVICE ───────────────────────────────────────
 
@@ -199,6 +224,7 @@ function buildUpdatePayload(workflowData: WorkflowData) {
     name: workflowData.name,
     status: workflowData.status,
     actions: workflowData.steps.map(step => ({
+      id : step.ref_id, 
       service_action_id: step.serviceActionId,
       status: step.status,
       execution_order: step.order,

@@ -74,6 +74,8 @@ export interface WorkflowData {
   name: string;
   status: WorkflowStatus;
   steps: WorkflowStepInput[];
+  savedAt : Date;
+  deployedAt?: Date;
 }
 
 
