@@ -7,6 +7,9 @@ import { NotificationProvider } from "@/components/NotificationProvider";
 export const metadata = {
   title: "Zaptask",
   description: "description",
+    icons: {
+    icon: "/z-logo.png", 
+  },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -18,6 +21,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="fr">
+  
       <body className="flex bg-white text-[#1a1a1a]">
         {isLoggedIn && <DashboardSidebar />}
         <main className={isLoggedIn ? "ml-64 w-full" : "w-full"}>
