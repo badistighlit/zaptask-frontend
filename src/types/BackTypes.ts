@@ -1,3 +1,4 @@
+import { WorkflowLog, WorkflowLogs } from "./logs";
 import {
   ParametersSchema,
   ParameterField,
@@ -77,11 +78,80 @@ export interface PushWorkflow {
   actions: PushWorkflowAction[];
 }
 
+// LOGs 
+
+
+
+
+export interface BackLog {
+  id: string;
+  action_id: string;
+  action_name: string;
+  service_name: string;
+  execution_status: "success" | "error";
+  response_http_code: string;
+  exception: string | null;
+  url: string | null;
+  parameters: {
+    parameter_key: string;
+    parameter_type: ParameterType;
+    parameter_value: string;
+  }[];
+  executed_at: string;
+  type: "action" | "trigger"; 
+}
+
+export interface BackWorkflowLogs {
+  workflow_id: string;
+  workflow_name : string
+  logs: BackLog[];
+}
 
 
 //
 // mappers backend → frontend
 // 
+
+
+
+export function mapBackendLogParamToField(param: {
+  parameter_key: string;
+  parameter_type: ParameterType;
+  parameter_value: string;
+}): ParameterField {
+  return {
+    name: param.parameter_key,
+    key: param.parameter_key,
+    type: param.parameter_type,
+    value: param.parameter_value,
+  };
+}
+
+export function mapBackLogToFront(log: BackLog): WorkflowLog {
+  return {
+    id: log.id,
+    actionId: log.action_id,
+    actionName: log.action_name,
+    serviceName: log.service_name,
+    status: log.execution_status,
+    httpCode: log.response_http_code,
+    exception: log.exception ?? undefined,
+    url: log.url ?? undefined,
+    parameters: log.parameters.map(mapBackendLogParamToField),
+    executedAt: new Date(log.executed_at),
+    type: log.type as "action" | "trigger", 
+  };
+}
+
+export function mapBackendWorkflowLogs(data: BackWorkflowLogs): WorkflowLogs {
+  return {
+    workflowId: data.workflow_id,
+    name: data.workflow_name,
+    logs: data.logs.map(mapBackLogToFront),
+  };
+}
+
+
 
 export function mapBackendParams(params: BackendParam[]): ParametersSchema {
   return params.map((p): ParameterField => ({

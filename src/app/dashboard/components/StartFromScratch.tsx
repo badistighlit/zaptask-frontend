@@ -8,7 +8,7 @@ const StartFromScratch = () => {
   return (
     <div className="border p-4 rounded-xl shadow">
       <h2 className="text-xl font-semibold mb-2">Start from Scratch</h2>
-      <Button onClick={() => router.push("/workflow")}>Create New Workflow</Button>
+      <Button onClick={() => router.push("/workflows")}>Create New Workflow</Button>
     </div>
   );
 };

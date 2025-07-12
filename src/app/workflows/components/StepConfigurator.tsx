@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, {  useEffect, useState } from "react";
 import {
   ParameterField,
   WorkflowStepInput,
@@ -9,6 +9,7 @@ import {
 } from "@/types/workflow";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useNotify } from "@/components/NotificationProvider";
 
 interface StepConfiguratorProps {
   step: WorkflowStepInput | null;
@@ -23,6 +24,7 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
 }) => {
   const [localConfig, setLocalConfig] = useState<ParameterField[]>([]);
   const [activeTab, setActiveTab] = useState("configure");
+  const notify = useNotify();
 
   useEffect(() => {
     if (step?.config) {
@@ -42,7 +44,7 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
   const handleSave = () => {
     if (step) {
       onChange({ ...step, config: localConfig });
-      alert("Configuration sauvegardée !");
+    notify("Configuration saved !", "success");
     }
   };
 
@@ -163,7 +165,8 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
             type="button"
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
             onClick={() => {
-              alert("Fonction Test à implémenter");
+              notify("Fonction Test à implémenter", "error");
+
               if (onTest) onTest();
             }}
           >

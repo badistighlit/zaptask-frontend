@@ -33,7 +33,7 @@ export default function DraftWorkflows({ workflows }: DraftWorkflowsProps) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              router.push(`/workflow/${wf.id}`);
+              router.push(`/workflows/${wf.id}`);
             }}
             className="flex items-center gap-1 text-indigo-600 font-semibold text-sm hover:text-indigo-800
                        focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded px-2 py-1 transition"

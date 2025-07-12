@@ -1,4 +1,5 @@
-import {   BackendServiceAction, mapBackendParams, mapBackendWorkflow } from "@/types/BackTypes";
+import {   BackendServiceAction, mapBackendParams, mapBackendWorkflow, mapBackendWorkflowLogs } from "@/types/BackTypes";
+import { WorkflowLogs } from "@/types/logs";
 import {
   ActionOrTrigger,
   WorkflowData,
@@ -137,7 +138,7 @@ export async function fetchWorkflowsByUser(): Promise<WorkflowData[]> {
 
 
 
-export async function deployWorkflow(workflowId: string ): Promise<any[]> {
+export async function deployWorkflow(workflowId: string ): Promise<WorkflowData[]> {
   try {
     const response = await api.post(`/workflows/deploy/${workflowId}`, null, {
       headers: {
@@ -155,6 +156,25 @@ export async function deployWorkflow(workflowId: string ): Promise<any[]> {
   } catch (error) {
     handleAxiosError(error, `deploying workflow ${workflowId}`);
     throw error;
+  }
+}
+
+// WORKFLOW LOGS ──────────────────────────────────────────────────────
+
+
+export async function getWorkflowLogs(workflowId: string): Promise<WorkflowLogs | null> {
+  try {
+    const response = await api.get(`/logs/${workflowId}`);
+
+    if (response.status === 200 && response.data) {
+      return mapBackendWorkflowLogs(response.data);
+    }
+
+    console.warn("Unexpected response while fetching workflow logs:", response.status, response.data);
+    return null;
+  } catch (error) {
+    handleAxiosError(error, `fetching logs for workflow ${workflowId}`);
+    return null;
   }
 }
 

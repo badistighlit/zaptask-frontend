@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, {  useEffect, useState } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -17,8 +17,9 @@ import { ActionOrTrigger, WorkflowData, WorkflowStepType } from "@/types/workflo
 import ServiceSelectorModal from "./ServiceSelectorModal";
 import { CustomEdge } from "./CustomEdges";
 import StepConfigurator from "./StepConfigurator";
-import { LucideSave , Rocket, Save, X } from "lucide-react";
+import {  Rocket, Save, X } from "lucide-react";
 import { deployWorkflow, updateWorkflow } from "@/services/workflow";
+import { useNotify } from "@/components/NotificationProvider";
 
 interface WorkflowBuilderProps {
   initialWorkflow: WorkflowData;
@@ -32,6 +33,8 @@ const nodeTypes = {
 const edgeTypes = {
   custom: CustomEdge,
 };
+
+
 
 const NODE_HEIGHT = 120; //  hauteur des noeuds
 const VERTICAL_GAP = 80; // espace entre les noeuds
@@ -151,6 +154,11 @@ export default function WorkflowBuilder({ initialWorkflow }: WorkflowBuilderProp
 
   const [configuratorOpen, setConfiguratorOpen] = useState(false);
   const [selectedConfigNodeId, setSelectedConfigNodeId] = useState<string | null>(null);
+
+
+  const notify = useNotify();
+
+
 
 
   useEffect(() => {
@@ -440,7 +448,9 @@ const addActionBetween = (fromId: string, toId: string | null) => {
 
   try {
     const savedWorkflow = await updateWorkflow(updatedWorkflow);
-    alert("Workflow saved successfully!");
+    notify("Workflow saved successfully!", "success" );
+  
+
 
     //update les changements 
     const updatedNodes = convertStepsToNodes(savedWorkflow.steps);
@@ -450,7 +460,8 @@ const addActionBetween = (fromId: string, toId: string | null) => {
     setNodes(reorderAndReposition(updatedNodes));
     setEdges(updatedEdges);
   } catch (error) {
-    alert("Error saving the workflow.");
+    notify( "Error saving the workflow",  "error" );
+
     console.error(error);
   }
 };
@@ -462,12 +473,14 @@ const handleDeploy = async () => {
       return;
     }
     handleSave();
-    
+
     await deployWorkflow(initialWorkflow.id); 
 
-    alert("Workflow deployed whith sucess !");
+
+    notify("Workflow deployed successfully!", "success");
+
   } catch (error) {
-    alert("Error while deploying the workflow. please check the logs");
+    notify("Error while deploying the workflow. please check the logs", "error");
     console.error(error);
   }
 };
@@ -565,6 +578,7 @@ const handleDeploy = async () => {
                   )
                 );
               }}
+
             />
           );
         })()}
@@ -598,7 +612,12 @@ const handleDeploy = async () => {
   </button>
 </div>
 
+
+
+
   </div>
+
+  
 );
 
 }
