@@ -105,7 +105,7 @@ export default function WorkflowCard({ workflow }: Props) {
           </button>
         </Link>
 
-        <Link href={`/logs/${workflow.id}`}>
+        <Link href={`/workflowLogs/${workflow.id}`}>
           <button
             className="
               flex items-center gap-2 px-4 py-2 rounded-2xl

@@ -22,7 +22,7 @@ const navItems = [
   { name: "Build workflow", href: "/workflows", icon: Workflow },
   { name: "Mes workflows", href: "/myWorkflows", icon: List },
   { name: "Mes services", href: "/services", icon: Server },
-  { name: "Logs", href: "/logs", icon: FileText },
+  { name: "Logs", href: "/workflowLogs", icon: FileText },
   { name: "Paramètres", href: "/settings", icon: Settings },
 ];
 
