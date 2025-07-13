@@ -201,7 +201,7 @@ export async function connectService(serviceId: string): Promise<void> {
         console.error("Redirection sans URL valide.");
         return;
       }
-      openOAuthPopup(redirectUrl);
+       await openOAuthPopup(redirectUrl);
     } else {
       console.log("Réponse sans redirection explicite:", response.status);
     }
@@ -211,29 +211,55 @@ export async function connectService(serviceId: string): Promise<void> {
   }
 }
 
-function openOAuthPopup(url: string): void {
-  const width = 600;
-  const height = 700;
-  const left = window.screenX + (window.outerWidth - width) / 2;
-  const top = window.screenY + (window.outerHeight - height) / 2;
-
-  const popup = window.open(
-    url,
-    "oauthPopup",
-    `width=${width},height=${height},left=${left},top=${top},resizable,scrollbars=yes`
-  );
-
-  if (!popup) {
-    alert("Popup blocked. Please allow popups for this site.");
-  }
-
-  const pollTimer = setInterval(() => {
-    if (popup?.closed) {
-      clearInterval(pollTimer);
-      console.log("OAuth popup closed.");
-    }
-  }, 500);
+// TO DO 
+export async function disconnectService(serviceId: string): Promise<void> {
+  console.log("Déconnexion du service:", serviceId);
 }
+
+
+export async function fetchConnectedServices(): Promise<Service[]> {
+  try {
+    const response = await api.get("/subscriptions");
+    return response.data.data as Service[];
+  } catch (error) {
+    console.error("Error fetching connected services:", error);
+    throw error;
+  }
+}
+
+
+
+
+// AUthentification ────────────────────────────────────────────────
+
+function openOAuthPopup(url: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const width = 600;
+    const height = 700;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+
+    const popup = window.open(
+      url,
+      "oauthPopup",
+      `width=${width},height=${height},left=${left},top=${top},resizable,scrollbars=yes`
+    );
+
+    if (!popup) {
+      alert("Popup blocked. Please allow popups for this site.");
+      reject(new Error("Popup blocked"));
+      return;
+    }
+
+    const pollTimer = setInterval(() => {
+      if (popup.closed) {
+        clearInterval(pollTimer);
+        resolve(); 
+      }
+    }, 500);
+  });
+}
+
 
 // ─── MAPPING ──────────────────────────────────────────────────────────────
 

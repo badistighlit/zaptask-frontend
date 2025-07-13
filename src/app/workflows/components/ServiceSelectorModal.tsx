@@ -75,7 +75,7 @@ export default function ServiceSelectorModal({
           await loadActionsOrTriggers(serviceId);
         }
         setCheckingConnection(false);
-      }, 2000);
+      }, 1000);
     }
   };
 
