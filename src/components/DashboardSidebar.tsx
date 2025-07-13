@@ -18,12 +18,12 @@ import clsx from "clsx";
 import { deleteUserInfo } from "@/utils/authentication";
 
 const navItems = [
-  { name: "Accueil", href: "/", icon: Home },
+  { name: "Dashboard", href: "/", icon: Home },
   { name: "Build workflow", href: "/workflows", icon: Workflow },
-  { name: "Mes workflows", href: "/myWorkflows", icon: List },
-  { name: "Mes services", href: "/services", icon: Server },
+  { name: "My workflows", href: "/myWorkflows", icon: List },
+  { name: "My services", href: "/services", icon: Server },
   { name: "Logs", href: "/workflowLogs", icon: FileText },
-  { name: "Paramètres", href: "/settings", icon: Settings },
+  { name: "Settings", href: "/settings", icon: Settings },
 ];
 
 export default function DashboardSidebar() {

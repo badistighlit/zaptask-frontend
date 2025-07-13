@@ -122,7 +122,7 @@ export default function DashboardPage() {
         <div
           tabIndex={0}
           role="button"
-          onClick={() => router.push("/workflow")}
+          onClick={() => router.push("/workflows")}
           onKeyDown={(e) => e.key === "Enter" && router.push("/workflow")}
           className="cursor-pointer rounded-2xl border border-purple-300 p-6 flex flex-col
                      items-center justify-center text-center shadow-md

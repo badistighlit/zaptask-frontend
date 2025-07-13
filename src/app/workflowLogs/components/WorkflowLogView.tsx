@@ -5,8 +5,14 @@ import LogItem from './LogItem';
 import { Activity, AlertTriangle } from 'lucide-react';
 
 export default function WorkflowLogView({ logs }: { logs: WorkflowLog[] }) {
-  const triggers = logs.filter(log => log.type === 'trigger');
-  const actions = logs.filter(log => log.type === 'action');
+
+  const sortedLogs = [...logs].sort(
+    (a, b) => new Date(b.executedAt).getTime() - new Date(a.executedAt).getTime()
+  );
+
+  
+  const triggers = sortedLogs.filter(log => log.type === 'trigger');
+  const actions = sortedLogs.filter(log => log.type === 'action');
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
