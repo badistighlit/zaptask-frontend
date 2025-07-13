@@ -493,7 +493,7 @@ const handleDeploy = async () => {
         type="text"
         value={workflowName}
         onChange={(e) => setWorkflowName(e.target.value)}
-        placeholder="Nom du workflow"
+        placeholder="Name of the workflow"
         className="flex-grow border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
     </div>

@@ -123,7 +123,7 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
 
   return (
     <div className="space-y-4 p-4 border rounded bg-white">
-      <h3 className="text-lg font-semibold mb-2">Configurer : {step.name}</h3>
+      <h3 className="text-lg font-semibold mb-2">Configure : {step.name}</h3>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
@@ -133,7 +133,7 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
 
         <TabsContent value="configure">
           {localConfig.length === 0 && (
-            <p className="text-gray-500">Aucun paramètre.</p>
+            <p className="text-gray-500">No parameters</p>
           )}
 
           {localConfig.map((param) => (
@@ -159,7 +159,7 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
 
         <TabsContent value="test" className="flex flex-col items-start gap-4">
           <p className="text-gray-600">
-            Ici vous pourrez tester la configuration du step.
+            Here you can test the step with the current configuration.
           </p>
           <button
             type="button"

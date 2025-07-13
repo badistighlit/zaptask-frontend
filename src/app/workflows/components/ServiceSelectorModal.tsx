@@ -51,7 +51,7 @@ export default function ServiceSelectorModal({
       const data = await fetchServices();
       setServices(data);
     } catch (err) {
-      console.error("Erreur lors du chargement des services :", err);
+      console.error("Error while fetching services :", err);
     } finally {
       setLoadingServices(false);
     }
@@ -88,7 +88,7 @@ export default function ServiceSelectorModal({
           : await fetchActionsByService(serviceId);
       setActions(data);
     } catch (err) {
-      console.error("Erreur lors du chargement des actions/triggers :", err);
+      console.error("Error while fetching actions/triggers :", err);
     } finally {
       setLoadingActions(false);
     }
@@ -102,7 +102,7 @@ export default function ServiceSelectorModal({
     >
       <div className="bg-black/40 fixed inset-0" />
       <Dialog.Panel className="relative z-50 bg-white max-w-3xl w-full rounded-xl shadow-lg p-6">
-        <h2 className="text-xl font-bold mb-4">Sélectionnez un service</h2>
+        <h2 className="text-xl font-bold mb-4">Select a service</h2>
 
         {loadingServices ? (
           <div className="flex justify-center py-10">
@@ -130,22 +130,22 @@ export default function ServiceSelectorModal({
         {checkingConnection && (
           <div className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-600">
             <Loader2 className="animate-spin w-5 h-5" />
-            Vérification de la connexion au service...
+            Verification of the connection to the service ...
           </div>
         )}
 
         {serviceConnected && !checkingConnection && (
           <div className="mt-4 text-green-600 text-sm flex items-center gap-2">
             <ShieldCheck className="w-4 h-4" />
-            Service connecté avec succès.
+            Service connected successfully.
           </div>
         )}
 
         {selectedServiceId && actions.length > 0 && !loadingActions && (
           <>
             <h3 className="text-md font-semibold mt-6 mb-2">
-              Sélectionnez une{" "}
-              {stepType === "trigger" ? "déclencheur" : "action"}
+              Select a{""}
+              {stepType === "trigger" ? " trigger" : "n action"}
             </h3>
             <div className="grid grid-cols-2 gap-3 max-h-[250px] overflow-y-auto">
               {actions.map((item) => (
@@ -168,7 +168,7 @@ export default function ServiceSelectorModal({
         {loadingActions && (
           <div className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-600">
             <Loader2 className="animate-spin w-5 h-5" />
-            Chargement des {stepType === "trigger" ? "triggers" : "actions"}...
+            Loading {stepType === "trigger" ? "triggers" : "actions"}...
           </div>
         )}
       </Dialog.Panel>

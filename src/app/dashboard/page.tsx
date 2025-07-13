@@ -56,7 +56,7 @@ export default function DashboardPage() {
             <Edit size={44} className="text-indigo-600" />
             <div>
               <h3 className="text-2xl font-semibold text-indigo-900 select-text">
-                Brouillons
+                Drafts
               </h3>
               <p className="text-indigo-700 font-medium mt-1 select-text">
                 {Array.isArray(workflows)
@@ -83,10 +83,10 @@ export default function DashboardPage() {
             <PlayCircle size={44} className="text-green-600" />
             <div>
               <h3 className="text-2xl font-semibold text-green-900 select-text">
-                Déployés
+                Deployed
               </h3>
               <p className="text-green-700 font-medium mt-1 select-text">
-                {workflows.filter((wf) => wf.status === "deployed").length} workflow(s) déployé(s)
+                {workflows.filter((wf) => wf.status === "deployed").length} deployed workflow(s)
               </p>
             </div>
           </div>
@@ -111,7 +111,7 @@ export default function DashboardPage() {
                 Logs
               </h3>
               <p className="text-gray-600 font-medium mt-1 select-text">
-                Voir les logs des workflows
+                See logs of your workflows
               </p>
             </div>
           </div>
@@ -132,10 +132,10 @@ export default function DashboardPage() {
         >
           <PlusCircle size={48} className="text-purple-600 mb-5" />
           <h3 className="text-2xl font-semibold text-purple-900 select-text">
-            Créer un workflow
+            Create New Workflow
           </h3>
           <p className="text-purple-700 font-medium mt-2 select-text">
-            Démarrer un nouveau workflow
+            Start from scratch
           </p>
         </div>
       </div>

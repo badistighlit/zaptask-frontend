@@ -45,12 +45,12 @@ export default function WorkflowPage() {
             d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
           />
         </svg>
-        <p className="text-lg font-medium">Chargement du workflow...</p>
+        <p className="text-lg font-medium">Loading the  workflow...</p>
       </div>
     );
   }
 
-  if (!workflow) return <div className="p-8 text-center text-red-600">Workflow introuvable</div>;
+  if (!workflow) return <div className="p-8 text-center text-red-600">Workflow not found. </div>;
 
   return <WorkflowBuilder initialWorkflow={workflow} />;
 }

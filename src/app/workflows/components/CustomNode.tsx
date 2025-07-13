@@ -22,7 +22,7 @@ export default function WorkflowNode({ data }: NodeProps<NodeData>) {
   const subText = step.service
     ? `Service: ${step.service}`
     : step.status === "draft"
-    ? "Non configuré"
+    ? "Not configured"
     : "";
 
   return (

@@ -14,7 +14,7 @@ export default function DeployedWorkflows({ workflows }: DeployedWorkflowsProps)
   if (deployed.length === 0) {
     return (
       <p className="text-gray-400 italic text-center py-4 select-none">
-        Aucun workflow déployé.
+        No workflow deployed.
       </p>
     );
   }
@@ -37,11 +37,11 @@ export default function DeployedWorkflows({ workflows }: DeployedWorkflowsProps)
           <button
             onClick={(e) => {
               e.stopPropagation();
-              router.push(`/workflow/${wf.id}`);
+              router.push(`/workflows/${wf.id}`);
             }}
             className="flex items-center gap-1 text-green-600 font-semibold text-sm hover:text-green-800
                        focus:outline-none focus:ring-2 focus:ring-green-400 rounded px-2 py-1 transition"
-            aria-label={`Éditer le workflow ${wf.name}`}
+            aria-label={`Édit ${wf.name}`}
           >
             <Edit size={16} />
             <span>Éditer</span>

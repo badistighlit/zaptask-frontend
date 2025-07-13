@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createEmptyWorkflow } from "@/services/workflow";
+import { useNotify } from "@/components/NotificationProvider";
 
 
 export default function WorkflowsPage() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const notify = useNotify();
 
   useEffect(() => {
     const createWorkflow = async () => {
@@ -15,8 +17,8 @@ export default function WorkflowsPage() {
         const workflow = await createEmptyWorkflow("draft - " + new Date().toISOString());
         router.push(`/workflows/${workflow.id}`);
       } catch (e) {
-        console.error("Erreur lors de la création du workflow :", e);
-        alert("Erreur lors de la création du workflow");
+        console.error("Error while creating the workflow :", e);
+        notify("Error creating workflow", "error");
         setLoading(false);
       }
     };

@@ -67,7 +67,7 @@ export default function MyWorkflowsPage() {
   return (
     <div className="p-8 max-w-4xl mx-auto space-y-6">
       <h1 className="text-3xl font-extrabold mb-6 text-gray-900 select-none">
-        Mes Workflows
+        My Workflows
       </h1>
 
       {/* filtres */}
@@ -77,7 +77,7 @@ export default function MyWorkflowsPage() {
           <Search className="absolute left-3 text-gray-400 w-5 h-5 pointer-events-none" />
           <input
             type="text"
-            placeholder="Rechercher par nom..."
+            placeholder="Search by name..."
             className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -96,7 +96,7 @@ export default function MyWorkflowsPage() {
             {statuses.map((status) => (
               <option key={status} value={status}>
                 {status === "all"
-                  ? "Tous les statuts"
+                  ? "All status"
                   : status.charAt(0).toUpperCase() + status.slice(1)}
               </option>
             ))}
