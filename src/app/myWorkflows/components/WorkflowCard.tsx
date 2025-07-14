@@ -45,6 +45,7 @@ export default function WorkflowCard({ workflow,onDelete }: Props) {
       }
 
     } catch (e) {
+      console.error("Failed to delete workflow unknown error:", e);
     }
   };
 
