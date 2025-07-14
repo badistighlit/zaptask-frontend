@@ -1,3 +1,4 @@
+import { useNotify } from "@/components/NotificationProvider";
 import {   BackendServiceAction, mapBackendParams, mapBackendWorkflow, mapBackendWorkflowLogs } from "@/types/BackTypes";
 import { WorkflowLogs } from "@/types/logs";
 import {
@@ -8,6 +9,8 @@ import {
 } from "@/types/workflow";
 import api from "@/utils/api";
 import { AxiosError } from "axios";
+
+
 
 // ─── SERVICES ─────────────────────────────────────────────────────────────
 
@@ -178,7 +181,46 @@ export async function getWorkflowLogs(workflowId: string): Promise<WorkflowLogs 
   }
 }
 
+// Actions and Triggers ────────────────────────────────────────────────
 
+
+export function useDeleteActionOrTrigger() {
+  const notify = useNotify();
+
+  const deleteActionOrTrigger = async (actionId: string): Promise<void> => {
+    try {
+      const response = await api.delete(`/actions/${actionId}`);
+
+      if (response.status === 200) {
+        notify(`Step ${actionId} deleted successfully.`, "success");
+      }
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      const status = axiosError.response?.status;
+      const message = axiosError.response?.data?.message;
+
+      switch (status) {
+        case 400:
+          notify("Invalid action identifier.", "error");
+          break;
+        case 404:
+          notify("Action not found.", "error");
+          break;
+        case 401:
+        case 403:
+          notify("Unauthorized or forbidden request.", "error");
+          break;
+        default:
+          notify(message || "An unexpected error occurred.", "error");
+          break;
+      }
+
+      throw error;
+    }
+  };
+
+  return { deleteActionOrTrigger };
+}
 
 // ─── RELATION UTILISATEUR / SERVICE ───────────────────────────────────────
 
@@ -214,6 +256,31 @@ export async function connectService(serviceId: string): Promise<void> {
 // TO DO 
 export async function disconnectService(serviceId: string): Promise<void> {
   console.log("Déconnexion du service:", serviceId);
+
+  try {
+    const response = await api.delete(`/subscriptions/${serviceId}`);
+
+    if (response.status === 200) {
+      console.log(`Service ${serviceId} deconnected sucessfuly.`);
+    }
+  } catch (error) {
+    const axiosError = error as AxiosError<{ message?: string }>;
+    const status = axiosError?.response?.status;
+    const message = axiosError?.response?.data?.message;
+
+    switch (status) {
+      case 400:
+        console.error("Service invalide :", message || "Invalid service Id.");
+        break;
+      case 404:
+        console.error("Service non trouvé :", message || "Not connected to this service.");
+        break;
+      default:
+        console.error("Unknown error:", message || "An unexpected error occurred.");
+        break;
+    }
+
+  }
 }
 
 

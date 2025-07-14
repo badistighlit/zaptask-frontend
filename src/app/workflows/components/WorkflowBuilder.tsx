@@ -36,19 +36,33 @@ const edgeTypes = {
 
 
 
+
+
+// Constante pour le UI 
+
 const NODE_HEIGHT = 120; //  hauteur des noeuds
 const VERTICAL_GAP = 80; // espace entre les noeuds
 const INSERT_BUTTON_WIDTH = 40;
 const INSERT_BUTTON_HEIGHT = 40;
 const NODE_X = 250; // position fixe verticale
 
+
+
+
+
+
+
+
+// Organisation et conversion des nodes 
+
 // conversion des steps en noedus
-function convertStepsToNodes(steps: WorkflowData["steps"]): Node[] {
+function convertStepsToNodes(steps: WorkflowData["steps"],  onDeleteNode?: (id: string) => void
+): Node[] {
   const nodes: Node[] = steps.map((step, index) => ({
     id: step.ref_id,
     type: "customWorkflowNode",
     position: { x: NODE_X, y: 50 + index * (NODE_HEIGHT + VERTICAL_GAP) },
-    data: { step },
+    data: { step, onDeleteNode },
   }));
 
   const insertButtons: Node[] = [];
@@ -70,6 +84,7 @@ function convertStepsToNodes(steps: WorkflowData["steps"]): Node[] {
   return [...nodes, ...insertButtons];
 }
 
+
 function convertStepsToEdges(steps: WorkflowData["steps"]): Edge[] {
   const edges: Edge[] = [];
   for (let i = 0; i < steps.length - 1; i++) {
@@ -86,6 +101,74 @@ function convertStepsToEdges(steps: WorkflowData["steps"]): Edge[] {
   }
   return edges;
 }
+
+  // fonction de reorganisation et position
+
+
+  const reorderAndReposition = (nodes: Node[]) => {
+    const workflowNodes = nodes.filter((n) => n.type === "customWorkflowNode");
+    const insertButtons: Node[] = [];
+
+    workflowNodes.sort((a, b) => a.position.y - b.position.y);
+
+    const updated: Node[] = [];
+
+    workflowNodes.forEach((node, index) => {
+      const y = 50 + index * (NODE_HEIGHT + VERTICAL_GAP);
+      const x = node.position.x;
+
+      updated.push({
+        ...node,
+        position: { x, y },
+      });
+
+      if (index < workflowNodes.length - 1) {
+        const nextNode = workflowNodes[index + 1];
+        const nextY = 50 + (index + 1) * (NODE_HEIGHT + VERTICAL_GAP);
+
+        insertButtons.push({
+          id: `insert-${node.id}-${nextNode.id}`,
+          type: "insertButton",
+          position: {
+            x: NODE_X - INSERT_BUTTON_WIDTH / 2 + 145,
+            y: (y + NODE_HEIGHT + nextY) / 2 - INSERT_BUTTON_HEIGHT / 2 - 5,
+          },
+          data: { between: [node.id, nextNode.id] },
+        });
+      }
+    });
+
+
+
+    // boutton après le dernier noeud
+      if (workflowNodes.length > 0) {
+    const lastNode = workflowNodes[workflowNodes.length - 1];
+    const lastY = 50 + (workflowNodes.length - 1) * (NODE_HEIGHT + VERTICAL_GAP);
+
+    insertButtons.push({
+      id: `insert-after-${lastNode.id}`,
+      type: "insertButton",
+      position: {
+        x: NODE_X - INSERT_BUTTON_WIDTH / 2 + 145,
+        y: lastY + NODE_HEIGHT + VERTICAL_GAP / 2 - INSERT_BUTTON_HEIGHT / 2 - 5,
+      },
+      data: { between: [lastNode.id, null] }, 
+    });
+  }
+
+
+
+    return [...updated, ...insertButtons];
+  };
+
+
+
+
+
+
+
+
+
 
 // nodes par defauts quand le workflow est vide
 const initialWorkflowNode = (
@@ -132,13 +215,37 @@ const initialEdges: Edge[] = [
   { id: "edge-2", source: "insert-0", target: "action-node" },
 ];
 
+
+
+
+
+
+
+// Composant principal du Workflow Builder
+
 export default function WorkflowBuilder({ initialWorkflow }: WorkflowBuilderProps) {
+
+  const handleDeleteNode = (nodeId: string) => {
+  setNodes((nds) => nds.filter((n) => n.id !== nodeId && !n.id.startsWith(`insert-${nodeId}`) && !n.data?.between?.includes(nodeId)));
+
+  setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId && !e.source.startsWith(`insert-${nodeId}`) && !e.target.startsWith(`insert-${nodeId}`)));
+  
+  setNodes((nds) => reorderAndReposition(nds));
+};
+
+
   // si on a des steps convertit, sinon on garde les nodes initiaux
-  const [nodes, setNodes, onNodesChange] = useNodesState(
-    initialWorkflow.steps && initialWorkflow.steps.length > 0
-      ? convertStepsToNodes(initialWorkflow.steps)
-      : initialNodes
-  );
+      const [nodes, setNodes, onNodesChange] = useNodesState(
+        initialWorkflow.steps && initialWorkflow.steps.length > 0
+          ? convertStepsToNodes(initialWorkflow.steps, handleDeleteNode)
+          : initialNodes.map(node => ({
+              ...node,
+              data: {
+                ...node.data,
+                onDeleteNode: handleDeleteNode
+              }
+            }))
+      );
   const [workflowName, setWorkflowName] = useState(initialWorkflow.name || "");
 
 
@@ -221,10 +328,16 @@ export default function WorkflowBuilder({ initialWorkflow }: WorkflowBuilderProp
 
 
 
+
+
+
+
+
+
+
   const onConnect = (connection: Connection) => {
     setEdges((eds) => addEdge(connection, eds));
   };
-
 
 
 
@@ -263,7 +376,10 @@ const addActionBetween = (fromId: string, toId: string | null) => {
         action: "",
         trigger: "",
       },
+      onDeleteNode: handleDeleteNode,
+
     },
+    
   };
 
   // Position du bouton insert 
@@ -333,62 +449,7 @@ const addActionBetween = (fromId: string, toId: string | null) => {
 
 
 
-  // fonction de reorganisation et position
-  const reorderAndReposition = (nodes: Node[]) => {
-    const workflowNodes = nodes.filter((n) => n.type === "customWorkflowNode");
-    const insertButtons: Node[] = [];
 
-    workflowNodes.sort((a, b) => a.position.y - b.position.y);
-
-    const updated: Node[] = [];
-
-    workflowNodes.forEach((node, index) => {
-      const y = 50 + index * (NODE_HEIGHT + VERTICAL_GAP);
-      const x = node.position.x;
-
-      updated.push({
-        ...node,
-        position: { x, y },
-      });
-
-      if (index < workflowNodes.length - 1) {
-        const nextNode = workflowNodes[index + 1];
-        const nextY = 50 + (index + 1) * (NODE_HEIGHT + VERTICAL_GAP);
-
-        insertButtons.push({
-          id: `insert-${node.id}-${nextNode.id}`,
-          type: "insertButton",
-          position: {
-            x: NODE_X - INSERT_BUTTON_WIDTH / 2 + 145,
-            y: (y + NODE_HEIGHT + nextY) / 2 - INSERT_BUTTON_HEIGHT / 2 - 5,
-          },
-          data: { between: [node.id, nextNode.id] },
-        });
-      }
-    });
-
-
-
-    // boutton après le dernier noeud
-      if (workflowNodes.length > 0) {
-    const lastNode = workflowNodes[workflowNodes.length - 1];
-    const lastY = 50 + (workflowNodes.length - 1) * (NODE_HEIGHT + VERTICAL_GAP);
-
-    insertButtons.push({
-      id: `insert-after-${lastNode.id}`,
-      type: "insertButton",
-      position: {
-        x: NODE_X - INSERT_BUTTON_WIDTH / 2 + 145,
-        y: lastY + NODE_HEIGHT + VERTICAL_GAP / 2 - INSERT_BUTTON_HEIGHT / 2 - 5,
-      },
-      data: { between: [lastNode.id, null] }, 
-    });
-  }
-
-
-
-    return [...updated, ...insertButtons];
-  };
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -404,31 +465,7 @@ const addActionBetween = (fromId: string, toId: string | null) => {
   }, [nodes]);
 
 
-  // sauvegarde 
-  /*
-  const handleSave = async () => {
-    const workflowSteps = nodes
-      .filter((n) => n.type === "customWorkflowNode")
-      .sort((a, b) => a.position.y - b.position.y)
-      .map((node, index) => ({
-        ...node.data.step,
-        order: index,
-      }));
 
-    const updatedWorkflow: WorkflowData = {
-      ...initialWorkflow,
-      name: workflowName,
-      steps: workflowSteps,
-    };
-
-    try {
-      await updateWorkflow(updatedWorkflow);
-      alert("Workflow sauvegardé avec succès !");
-    } catch (error) {
-      alert("Erreur lors de la sauvegarde.");
-      console.error(error);
-    }
-  };*/
 
   // sauvegarde et update 
   const handleSave = async () => {
@@ -453,7 +490,7 @@ const addActionBetween = (fromId: string, toId: string | null) => {
 
 
     //update les changements 
-    const updatedNodes = convertStepsToNodes(savedWorkflow.steps);
+    const updatedNodes = convertStepsToNodes(savedWorkflow.steps , handleDeleteNode );
     const updatedEdges = convertStepsToEdges(savedWorkflow.steps);
 
    
@@ -484,6 +521,11 @@ const handleDeploy = async () => {
     console.error(error);
   }
 };
+
+
+
+
+
 
  return (
   <div className="w-full h-full relative">
