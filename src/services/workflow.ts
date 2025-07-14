@@ -87,6 +87,33 @@ export async function updateWorkflow(workflowData: WorkflowData) {
   }
 }
 
+//
+
+export function useDeleteWorkflow() {
+  const notify = useNotify();
+
+  const deleteWorkflow = async (workflowId: string) => {
+    if (!workflowId) {
+      notify("Workflow ID is required", "error");
+      throw new Error("Workflow ID is required");
+    }
+
+    try {
+      await api.delete(`/workflows/${workflowId}`);
+      notify("Workflow deleted successfully", "success");
+    } catch (error) {
+      console.error("Error deleting workflow:", error);
+      notify("Failed to delete workflow", "error");
+      throw error;
+    }
+  };
+
+  return deleteWorkflow;
+}
+
+
+
+
 export async function testWorkflow(workflow: WorkflowData): Promise<boolean> {
   try {
     const response = await api.post("/testWorkflow", workflow);

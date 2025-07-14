@@ -123,7 +123,12 @@ export default function MyWorkflowsPage() {
                 key={wf.id}
                 className="transform hover:scale-[1.02] transition-transform duration-200"
               >
-                <WorkflowCard workflow={wf} />
+                <WorkflowCard
+                 workflow={wf} 
+                   onDelete={(id : string) => {
+                      setWorkflows((prev) => prev.filter((w) => w.id !== id));
+  }}
+                 />
               </div>
             ))}
           </div>

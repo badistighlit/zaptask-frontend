@@ -27,7 +27,12 @@ export default function LogsPage() {
   return (
     <div className="max-w-5xl mx-auto py-8">
       <h1 className="text-3xl font-bold mb-6">Workflow Logs</h1>
-      <WorkflowList workflows={workflows} />
+      <WorkflowList
+       workflows={workflows} 
+         onDelete={(id) => {
+            setWorkflows((prev) => prev.filter((w) => w.id !== id));
+                }}
+   />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, {  useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ParameterField,
   WorkflowStepInput,
@@ -10,6 +10,7 @@ import {
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useNotify } from "@/components/NotificationProvider";
+import { useDebounce } from "../hooks/useDebounce"; // Assure-toi d’avoir ce hook
 
 interface StepConfiguratorProps {
   step: WorkflowStepInput | null;
@@ -24,28 +25,32 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
 }) => {
   const [localConfig, setLocalConfig] = useState<ParameterField[]>([]);
   const [activeTab, setActiveTab] = useState("configure");
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const notify = useNotify();
 
+  // Débounce localConfig pour éviter les sauvegardes à chaque frappe
+  const debouncedConfig = useDebounce(localConfig, 1000);
+
+  
   useEffect(() => {
-    if (step?.config) {
+    if (step?.config && Array.isArray(step.config)) {
       setLocalConfig(step.config);
     } else {
       setLocalConfig([]);
     }
-  }, [step]);
+  }, [step?.ref_id]);
+
+  useEffect(() => {
+    if (!step) return;
+    onChange({ ...step, config: debouncedConfig });
+    setLastSaved(new Date());
+  }, [debouncedConfig]);
 
   const handleInputChange = (key: string, newValue: ConfigValue) => {
     const updatedConfig = localConfig.map((param) =>
       param.key === key ? { ...param, value: newValue } : param
     );
     setLocalConfig(updatedConfig);
-  };
-
-  const handleSave = () => {
-    if (step) {
-      onChange({ ...step, config: localConfig });
-    notify("Configuration saved !", "success");
-    }
   };
 
   const getInputValue = (value: ConfigValue, type: ParameterType): string | number => {
@@ -123,7 +128,14 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
 
   return (
     <div className="space-y-4 p-4 border rounded bg-white">
-      <h3 className="text-lg font-semibold mb-2">Configure : {step.name}</h3>
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="text-lg font-semibold">Configurer : {step.name}</h3>
+        {lastSaved && (
+          <span className="text-sm text-gray-500">
+            Auto-saved à {lastSaved.toLocaleTimeString()}
+          </span>
+        )}
+      </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
@@ -133,7 +145,7 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
 
         <TabsContent value="configure">
           {localConfig.length === 0 && (
-            <p className="text-gray-500">No parameters</p>
+            <p className="text-gray-500">Aucun paramètre à configurer.</p>
           )}
 
           {localConfig.map((param) => (
@@ -147,26 +159,17 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
               )}
             </div>
           ))}
-
-          <button
-            type="button"
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-            onClick={handleSave}
-          >
-            Save
-          </button>
         </TabsContent>
 
         <TabsContent value="test" className="flex flex-col items-start gap-4">
           <p className="text-gray-600">
-            Here you can test the step with the current configuration.
+            Ici, vous pouvez tester l’étape avec la configuration actuelle.
           </p>
           <button
             type="button"
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
             onClick={() => {
               notify("Fonction Test à implémenter", "error");
-
               if (onTest) onTest();
             }}
           >
