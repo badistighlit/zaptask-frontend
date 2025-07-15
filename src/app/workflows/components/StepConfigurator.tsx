@@ -102,6 +102,20 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
       ));
     }
 
+    if (param.type === "select" && param.options) {
+      return (
+          <label key='key' className="mr-4">
+            <select
+                name={param.key}
+                value={param.value as string}
+                onChange={(e) => handleInputChange(param.key, e.target.value)}
+            >
+            {param.options.map((opt, index) => <option key={index} value={opt}>{opt}</option>)}
+            </select>
+          </label>
+      );
+    }
+
     return (
       <input
         {...commonProps}

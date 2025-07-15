@@ -33,8 +33,9 @@ export type ParameterType =
   | "week"
   | "object"
   | "array"
-  |"textarea" 
-  | "multiline";
+  | "textarea"
+  | "multiline"
+  | "select";
 
 
 // parameters
