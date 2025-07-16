@@ -574,7 +574,7 @@ const handleDeploy = async () => {
     className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-2xl shadow-md transition-all duration-200 pointer-events-auto text-sm font-medium"
   >
     <Rocket className="w-4 h-4" />
-    Déployer
+    Deploy
   </button>
 
   <button
@@ -583,7 +583,7 @@ const handleDeploy = async () => {
     className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl shadow-md transition-all duration-200 pointer-events-auto text-sm font-medium"
   >
     <Save className="w-4 h-4" />
-    Sauvegarder
+    Save
   </button>
 </div>
 
