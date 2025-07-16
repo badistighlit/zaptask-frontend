@@ -125,7 +125,7 @@ export default function MyWorkflowsPage() {
               >
                 <WorkflowCard
                  workflow={wf} 
-                   onDelete={(id : string) => {
+                   onDelete={(id) => {
                       setWorkflows((prev) => prev.filter((w) => w.id !== id));
   }}
                  />

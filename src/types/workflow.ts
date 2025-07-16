@@ -14,6 +14,7 @@ export type ParameterType =
   | "color"
   | "date"
   | "datetime-local"
+  | "datetime"
   | "email"
   | "file"
   | "hidden"

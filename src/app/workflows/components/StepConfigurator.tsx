@@ -29,9 +29,9 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
   const notify = useNotify();
 
   // Débounce localConfig pour éviter les sauvegardes à chaque frappe
-  const debouncedConfig = useDebounce(localConfig, 1000);
+  const debouncedConfig = useDebounce(localConfig, 600);
 
-  
+
   useEffect(() => {
     if (step?.config && Array.isArray(step.config)) {
       setLocalConfig(step.config);
@@ -80,6 +80,17 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
         />
       );
     }
+    if (param.type === "datetime") {
+  return (
+    <input
+      {...commonProps}
+      type="datetime-local"
+      value={String(value)}
+      onChange={(e) => handleInputChange(param.key, e.target.value)}
+    />
+  );
+}
+
 
     if (param.type === "checkbox") {
       return (

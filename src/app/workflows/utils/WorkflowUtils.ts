@@ -140,6 +140,7 @@ export const initialWorkflowNode = (
   position: { x: NODE_X, y },
   data: {
     step: {
+      ref_id: `temp-${id}`,
       name,
       type,
       service: "",
@@ -153,3 +154,11 @@ export const initialWorkflowNode = (
     },
   },
 });
+
+
+export const getLocalNodeIdentifier = (node: Node): string => {
+  if (node.type === "customWorkflowNode") {
+    return node.data?.step?.ref_id || node.id;
+  }
+  return node.id;
+};

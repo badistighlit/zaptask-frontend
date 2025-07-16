@@ -7,8 +7,11 @@ import { useDeleteActionOrTrigger } from "@/services/workflow";
 import { useNotify } from "@/components/NotificationProvider";
 
 type NodeData = {
+  id: string;
   step: WorkflowStepInput;
   onDeleteNode?: (id: string) => void;
+  canDeleteNode?: (id: string) => boolean; 
+
 
 };
 
@@ -37,22 +40,31 @@ export default function WorkflowNode({ data }: NodeProps<NodeData>) {
     setIsConfirmOpen(true);
   };
 
-  const handleConfirmDelete = async () => {
-    setIsConfirmOpen(false);
+const handleConfirmDelete = async () => {
+  setIsConfirmOpen(false);
 
-    try {
-      await deleteActionOrTrigger(step.ref_id);
-     
+  //  si suppression autorisée
+  if (data.canDeleteNode && !data.canDeleteNode(data.step.ref_id)) {
+    notify("A workflow must have at least one action.", "error");
+    return;
+  }
 
-      if (data.onDeleteNode) {
-        data.onDeleteNode(step.ref_id);
-      }
+  // Suppression locale 
+  if (!step.ref_id || step.ref_id.startsWith("temp-")) {
+    data.onDeleteNode?.(data.id);
+    return;
+  }
 
-    } catch (e) {
-      console.error("Failed to delete step:", e);
-      notify("Failed to delete step.", "error");
-    }
-  };
+  // Suppression backend
+  try {
+    await deleteActionOrTrigger(step.ref_id);
+    data.onDeleteNode?.(data.id);
+  } catch (e) {
+    console.error("Failed to delete step:", e);
+    notify("Failed to delete step.", "error");
+  }
+};
+
 
   const handleCancelDelete = () => {
     setIsConfirmOpen(false);
@@ -65,9 +77,14 @@ export default function WorkflowNode({ data }: NodeProps<NodeData>) {
         title={`${step.name} (${step.type})`}
       >
         <button
-          onClick={openConfirm}
-          className="absolute top-2 right-2 rounded-full p-1 bg-white/70 shadow-sm hover:bg-red-500 hover:text-white transition-colors duration-200"
-          title="Delete node"
+          onClick={step.type !== "trigger" ? openConfirm : undefined}
+          disabled={step.type === "trigger"}
+          className={`
+            absolute top-2 right-2 rounded-full p-1 
+            ${step.type === "trigger" ? "cursor-not-allowed bg-gray-200 text-gray-400" : "bg-white/70 hover:bg-red-500 hover:text-white"} 
+            shadow-sm transition-colors duration-200
+          `}
+          title={step.type === "trigger" ? "Cannot delete a trigger" : "Delete node"}
         >
           <X size={14} />
         </button>

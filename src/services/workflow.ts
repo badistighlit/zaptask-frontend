@@ -364,17 +364,13 @@ function buildUpdatePayload(workflowData: WorkflowData) {
     name: workflowData.name,
     status: workflowData.status,
     actions: workflowData.steps.map(step => ({
-      id : step.ref_id, 
+      id: step.ref_id.startsWith("temp-") ? undefined : step.ref_id,
       service_action_id: step.serviceActionId,
       status: step.status,
       execution_order: step.order,
       parameters: step.config
         ? step.config.reduce<Record<string, string | number | boolean | null>>((acc, param) => {
-            if (param.value !== undefined) {
-              acc[param.key] = param.value;
-            } else {
-              acc[param.key] = null; 
-            }
+            acc[param.key] = param.value !== undefined ? param.value : null;
             return acc;
           }, {})
         : {},

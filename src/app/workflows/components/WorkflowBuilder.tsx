@@ -20,7 +20,7 @@ import StepConfigurator from "./StepConfigurator";
 import {  Rocket, Save, X } from "lucide-react";
 import { deployWorkflow, updateWorkflow } from "@/services/workflow";
 import { useNotify } from "@/components/NotificationProvider";
-import { convertStepsToEdges, convertStepsToNodes, initialWorkflowNode, reorderAndReposition } from "../utils/WorkflowUtils";
+import { convertStepsToEdges, convertStepsToNodes, getLocalNodeIdentifier,  initialWorkflowNode, reorderAndReposition } from "../utils/WorkflowUtils";
 
 interface WorkflowBuilderProps {
   initialWorkflow: WorkflowData;
@@ -46,6 +46,8 @@ const VERTICAL_GAP = 80; // espace entre les noeuds
 const INSERT_BUTTON_WIDTH = 40;
 const INSERT_BUTTON_HEIGHT = 40;
 const NODE_X = 250; // position fixe verticale
+
+
 
 
 
@@ -86,26 +88,84 @@ export default function WorkflowBuilder({ initialWorkflow }: WorkflowBuilderProp
 
    const notify = useNotify();
 
-   
 
-  const handleDeleteNode = (nodeId: string) => {
-  setNodes((nds) => nds.filter((n) => n.id !== nodeId && !n.id.startsWith(`insert-${nodeId}`) && !n.data?.between?.includes(nodeId)));
+   const injectNodeHandlers = (nodesToUpdate: Node[]): Node[] => {
+  return nodesToUpdate.map((node) => {
+    if (node.type === "customWorkflowNode") {
+      return {
+        ...node,
+        data: {
+          ...node.data,
+          onDeleteNode: handleDeleteNode,
+          canDeleteNode: canDeleteNode,
+        },
+      };
+    }
+    return node;
+  });
+};
 
-  setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId && !e.source.startsWith(`insert-${nodeId}`) && !e.target.startsWith(`insert-${nodeId}`)));
-  
+
+
+
+
+const canDeleteNode = (nodeId: string): boolean => {
+   const node = nodes.find(n => (n.id) === nodeId) || nodes.find(n => n.data.step?.ref_id === nodeId);
+  if (!node || node.type !== "customWorkflowNode") return true;
+
+  const isAction = node.data.step.type === "action";
+  if (!isAction) return true;
+
+  const actionCount = nodes.filter(
+    n =>
+      n.type === "customWorkflowNode" &&
+      n.data.step.type === "action"
+  ).length;
+
+  return actionCount > 1;
+};
+
+
+
+
+const handleDeleteNode = (nodeId: string) => {
+  if (!canDeleteNode(nodeId)) {
+    notify("A workflow must have at least one action.", "error");
+    return;
+  }
+
+  setNodes((nds) => {
+    return nds.filter((n) => {
+      const currentId = getLocalNodeIdentifier(n);
+      const isInsertNodeLinked = n.type === "insertButton" && n.data?.between?.includes(nodeId);
+      return currentId !== nodeId && !isInsertNodeLinked;
+    });
+  });
+
+  setEdges((eds) => {
+    return eds.filter((e) => {
+      return e.source !== nodeId && e.target !== nodeId &&
+             !e.source.startsWith(`insert-${nodeId}`) &&
+             !e.target.startsWith(`insert-${nodeId}`);
+    });
+  });
+
   setNodes((nds) => reorderAndReposition(nds));
 };
 
 
+
+
   // si on a des steps convertit, sinon on garde les nodes initiaux
-      const [nodes, setNodes, onNodesChange] = useNodesState(
+  const [nodes, setNodes, onNodesChange] = useNodesState(
         initialWorkflow.steps && initialWorkflow.steps.length > 0
           ? convertStepsToNodes(initialWorkflow.steps, handleDeleteNode)
           : initialNodes.map(node => ({
               ...node,
               data: {
                 ...node.data,
-                onDeleteNode: handleDeleteNode
+                onDeleteNode: handleDeleteNode,
+                canDeleteNode: canDeleteNode,
               }
             }))
       );
@@ -228,6 +288,7 @@ const addActionBetween = (fromId: string, toId: string | null) => {
     position: { x: newX, y: newY },
     data: {
       step: {
+       ref_id: `temp-${newActionId}`, //  IDENTIFIANT TEMPORAIRE 
         name: "New Action",
         type: "action",
         service: "",
@@ -240,6 +301,7 @@ const addActionBetween = (fromId: string, toId: string | null) => {
         trigger: "",
       },
       onDeleteNode: handleDeleteNode,
+      canDeleteNode: canDeleteNode,
 
     },
     
@@ -299,8 +361,9 @@ const addActionBetween = (fromId: string, toId: string | null) => {
   }
 
   const reordered = reorderAndReposition(updatedNodes);
+  const finalNodes = injectNodeHandlers(reordered);
 
-  setNodes(reordered);
+  setNodes(finalNodes);
   setEdges(updatedEdges);
 };
 
@@ -353,12 +416,19 @@ const addActionBetween = (fromId: string, toId: string | null) => {
 
 
     //update les changements 
-    const updatedNodes = convertStepsToNodes(savedWorkflow.steps , handleDeleteNode );
+  const updatedNodes = injectNodeHandlers(
+    convertStepsToNodes(savedWorkflow.steps, handleDeleteNode)
+  );
     const updatedEdges = convertStepsToEdges(savedWorkflow.steps);
 
    
     setNodes(reorderAndReposition(updatedNodes));
     setEdges(updatedEdges);
+
+
+    //console.log(workflowSteps);
+    console.log(nodes);
+
   } catch (error) {
     notify( "Error saving the workflow",  "error" );
 
@@ -526,3 +596,5 @@ const handleDeploy = async () => {
 );
 
 }
+
+
