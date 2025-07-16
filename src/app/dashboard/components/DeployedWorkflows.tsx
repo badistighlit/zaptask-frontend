@@ -31,7 +31,11 @@ export default function DeployedWorkflows({ workflows }: DeployedWorkflowsProps)
           className="flex justify-between items-center bg-white border border-green-100 rounded-md p-2
                      hover:bg-green-50 transition cursor-pointer select-text"
           title={`Workflow: ${wf.name}`}
-          onClick={() => router.push(`/workflow/${wf.id}`)}
+                    onClick={(e) => {
+            e.stopPropagation();
+            router.push(`/workflows/${wf.id}`);
+          }}
+
         >
           <span className="truncate max-w-[70%] font-medium text-gray-800">{wf.name}</span>
           <button

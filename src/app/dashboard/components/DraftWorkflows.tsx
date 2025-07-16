@@ -27,8 +27,11 @@ export default function DraftWorkflows({ workflows }: DraftWorkflowsProps) {
           className="flex justify-between items-center bg-white border border-indigo-200 rounded-md p-2
                      hover:bg-indigo-100 transition cursor-pointer select-text"
           title={`Workflow: ${wf.name}`}
-          onClick={() => router.push(`/workflows/${wf.id}`)}
-        >
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(`/workflows/${wf.id}`);
+              }}
+                      >
           <span className="truncate max-w-[70%] font-semibold text-indigo-900">{wf.name}</span>
           <button
             onClick={(e) => {

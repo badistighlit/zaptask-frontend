@@ -1,13 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { fetchWorkflowsByUser } from "@/services/workflow";
 import WorkflowList from "./components/WorkflowList";
-import { WorkflowData } from "@/types/workflow";
+import { WorkflowData, WorkflowStatus } from "@/types/workflow";
+import { Search, Filter, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+
+const ITEMS_PER_PAGE = 10;
+
+const statuses: (WorkflowStatus | "all")[] = [
+  "all",
+  "draft",
+  "deployed",
+  "error",
+];
 
 export default function LogsPage() {
   const [workflows, setWorkflows] = useState<WorkflowData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<WorkflowStatus | "all">("all");
+  const [sortOrder, setSortOrder] = useState<"recent" | "name">("recent");
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetchWorkflowsByUser()
@@ -16,23 +30,126 @@ export default function LogsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64 text-gray-600">
-        <p className="text-lg font-medium">Chargement des workflows...</p>
-      </div>
-    );
-  }
+  // Filtrer et trier les workflows selon recherche, status et tri
+  const filteredWorkflows = useMemo(() => {
+    let filtered = workflows.filter((wf) => {
+      const matchesStatus = statusFilter === "all" || wf.status === statusFilter;
+      const matchesSearch = wf.name.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesStatus && matchesSearch;
+    });
+
+    if (sortOrder === "recent") {
+      filtered = filtered.sort(
+        (a, b) => new Date(b.savedAt || 0).getTime() - new Date(a.savedAt || 0).getTime()
+      );
+    } else if (sortOrder === "name") {
+      filtered = filtered.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    return filtered;
+  }, [workflows, searchTerm, statusFilter, sortOrder]);
+
+  const totalPages = Math.ceil(filteredWorkflows.length / ITEMS_PER_PAGE);
+
+  const currentWorkflows = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredWorkflows.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredWorkflows, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1); // reset page à 1 dès que filtre change
+  }, [searchTerm, statusFilter, sortOrder]);
 
   return (
-    <div className="max-w-5xl mx-auto py-8">
+    <div className="max-w-5xl mx-auto py-8 space-y-6">
       <h1 className="text-3xl font-bold mb-6">Workflow Logs</h1>
-      <WorkflowList
-       workflows={workflows} 
-         onDelete={(id) => {
-            setWorkflows((prev) => prev.filter((w) => w.id !== id));
-                }}
-   />
+
+      {/* Filters */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 max-w-md mx-auto">
+        <div className="relative">
+          <Search className="absolute left-3 top-3.5 text-gray-400 w-5 h-5 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search by name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            spellCheck={false}
+            className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+          />
+        </div>
+
+        <div className="flex items-center space-x-3">
+          <Filter className="text-gray-600 w-6 h-6" />
+          <select
+            className="w-full rounded-xl border border-gray-300 py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+            value={statusFilter}
+            onChange={(e) =>
+              setStatusFilter(e.target.value as WorkflowStatus | "all")
+            }
+          >
+            {statuses.map((status) => (
+              <option key={status} value={status}>
+                {status === "all"
+                  ? "All Statuses"
+                  : status.charAt(0).toUpperCase() + status.slice(1)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex items-center space-x-3">
+          <Calendar className="text-gray-600 w-6 h-6" />
+          <select
+            className="w-full rounded-xl border border-gray-300 py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value as "recent" | "name")}
+          >
+            <option value="recent">Most Recent</option>
+            <option value="name">Alphabetical</option>
+          </select>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center items-center h-64 text-gray-600">
+          <p className="text-lg font-medium">Chargement des workflows...</p>
+        </div>
+      ) : filteredWorkflows.length === 0 ? (
+        <div className="flex flex-col items-center justify-center space-y-3 text-gray-400 select-none">
+          <p className="text-xl">Aucun workflow trouvé.</p>
+        </div>
+      ) : (
+        <>
+          <WorkflowList
+            workflows={currentWorkflows}
+            onDelete={(id) => setWorkflows((prev) => prev.filter((w) => w.id !== id))}
+          />
+
+          {/* Pagination */}
+          <div className="flex justify-center items-center space-x-6 mt-10 select-none">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="flex items-center px-5 py-3 rounded-2xl border border-gray-300 bg-white text-gray-700 hover:bg-indigo-50 disabled:opacity-50 shadow-md"
+            >
+              <ChevronLeft className="w-6 h-6 mr-3" />
+              Précédent
+            </button>
+
+            <span className="text-gray-800 font-semibold text-lg">
+              Page {currentPage} sur {totalPages}
+            </span>
+
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="flex items-center px-5 py-3 rounded-2xl border border-gray-300 bg-white text-gray-700 hover:bg-indigo-50 disabled:opacity-50 shadow-md"
+            >
+              Suivant <ChevronRight className="w-6 h-6 ml-3" />
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -45,8 +45,8 @@ export default function DashboardPage() {
         <div
           tabIndex={0}
           role="button"
-          onClick={() => router.push("/myworkflows")}
-          onKeyDown={(e) => e.key === "Enter" && router.push("/myworkflows")}
+          onClick={() => router.push("/myWorkflows")}
+          onKeyDown={(e) => e.key === "Enter" && router.push("/myWorkflows")}
           className="cursor-pointer rounded-2xl border border-indigo-300 p-6 flex flex-col shadow-md
                      hover:shadow-2xl hover:scale-105 transition-transform duration-300 ease-in-out
                      focus:outline-none focus:ring-4 focus:ring-indigo-400 bg-gradient-to-tr from-indigo-50 to-white"
@@ -72,8 +72,8 @@ export default function DashboardPage() {
         <div
           tabIndex={0}
           role="button"
-          onClick={() => router.push("/myworkflows")}
-          onKeyDown={(e) => e.key === "Enter" && router.push("/myworkflows")}
+          onClick={() => router.push("/myWorkflows")}
+          onKeyDown={(e) => e.key === "Enter" && router.push("/myWorkflows")}
           className="cursor-pointer rounded-2xl border border-green-300 p-6 flex flex-col shadow-md
                      hover:shadow-2xl hover:scale-105 transition-transform duration-300 ease-in-out
                      focus:outline-none focus:ring-4 focus:ring-green-400 bg-gradient-to-tr from-green-50 to-white"
@@ -97,7 +97,7 @@ export default function DashboardPage() {
         <div
           tabIndex={0}
           role="button"
-          onClick={() => router.push("/logs")}
+          onClick={() => router.push("/workflowLogs")}
           onKeyDown={(e) => e.key === "Enter" && router.push("/logs")}
           className="cursor-pointer rounded-2xl border border-gray-400 p-6 flex flex-col shadow-md
                      hover:shadow-2xl hover:scale-105 transition-transform duration-300 ease-in-out
@@ -123,7 +123,7 @@ export default function DashboardPage() {
           tabIndex={0}
           role="button"
           onClick={() => router.push("/workflows")}
-          onKeyDown={(e) => e.key === "Enter" && router.push("/workflow")}
+          onKeyDown={(e) => e.key === "Enter" && router.push("/workflows")}
           className="cursor-pointer rounded-2xl border border-purple-300 p-6 flex flex-col
                      items-center justify-center text-center shadow-md
                      hover:shadow-2xl hover:scale-105 transition-transform duration-300 ease-in-out
