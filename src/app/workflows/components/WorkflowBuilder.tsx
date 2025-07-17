@@ -565,24 +565,7 @@ const handleDeploy = async () => {
                   )
                 );
               }}
-              onTest={() => {
-                setNodes((nds) =>
-                  nds.map((n) =>
-                    n.id === selectedConfigNodeId
-                      ? {
-                          ...n,
-                          data: {
-                            ...n.data,
-                            step: {
-                              ...n.data.step,
-                              status: "tested",
-                            },
-                          },
-                        }
-                      : n
-                  )
-                );
-              }}
+
 
             />
           );

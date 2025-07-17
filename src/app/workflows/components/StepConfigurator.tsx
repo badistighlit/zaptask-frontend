@@ -9,27 +9,24 @@ import {
 } from "@/types/workflow";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useNotify } from "@/components/NotificationProvider";
 import { useDebounce } from "../hooks/useDebounce"; // Assure-toi d’avoir ce hook
 import { useTestWorkflowAction } from "@/services/workflow";
 
 interface StepConfiguratorProps {
   step: WorkflowStepInput | null;
-  onTest?: () => void;
   onChange: (updatedStep: WorkflowStepInput) => void;
 }
 
 const StepConfigurator: React.FC<StepConfiguratorProps> = ({
   step,
   onChange,
-  onTest,
+  
 }) => {
   const [localConfig, setLocalConfig] = useState<ParameterField[]>([]);
   const [activeTab, setActiveTab] = useState("configure");
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const { testWorkflowAction } = useTestWorkflowAction(); // test
 
-  const notify = useNotify();
 
   // Débounce localConfig pour éviter les sauvegardes à chaque frappe
   const debouncedConfig = useDebounce(localConfig, 600);
