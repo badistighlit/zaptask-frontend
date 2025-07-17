@@ -17,7 +17,7 @@ import { ActionOrTrigger, WorkflowData, WorkflowStepType } from "@/types/workflo
 import ServiceSelectorModal from "./ServiceSelectorModal";
 import { CustomEdge } from "./CustomEdges";
 import StepConfigurator from "./StepConfigurator";
-import {  Rocket, Save, X } from "lucide-react";
+import {  FileText, Rocket, Save, X } from "lucide-react";
 import { deployWorkflow, updateWorkflow } from "@/services/workflow";
 import { useNotify } from "@/components/NotificationProvider";
 import { convertStepsToEdges, convertStepsToNodes, getLocalNodeIdentifier,  initialWorkflowNode, reorderAndReposition } from "../utils/WorkflowUtils";
@@ -190,35 +190,62 @@ const handleDeleteNode = (nodeId: string) => {
 
 
 
+  
 
   useEffect(() => {
     
     setNodes((nds) => reorderAndReposition(nds));
   }, []);
 
-  const handleNodeClick = (node: Node | undefined) => {
-    if (!node) return;
+const handleNodeClick = (node: Node | undefined) => {
+  if (!node) return;
 
-    if (node.type === "customWorkflowNode") {
-      const step = node.data.step;
+  if (node.type === "customWorkflowNode") {
+    const step = node.data.step;
 
-      setSelectedConfigNodeId(node.id);
-      setConfiguratorOpen(false);
+    setModalOpen(false); 
 
-      if (!step.service) {
-        setCurrentStepId(node.id);
-        setCurrentStepType(step.type);
-        setModalOpen(true);
-      } else {
-        setConfiguratorOpen(true);
-      }
+    setSelectedConfigNodeId(node.id);
+    setConfiguratorOpen(false);
+
+    setCurrentStepId(node.id);
+    setCurrentStepType(step.type);
+
+    if (!step.service) {
+      setModalOpen(true); // si pas de service, ouvrir modal de sélection
     }
+  }
 
-    if (node.type === "insertButton") {
-      const [from, to] = node.data.between;
-      addActionBetween(from, to);
-    }
-  };
+  if (node.type === "insertButton") {
+    const [from, to] = node.data.between;
+    addActionBetween(from, to);
+  }
+};
+
+useEffect(() => {
+  if (!selectedConfigNodeId) {
+    setConfiguratorOpen(false);
+    return;
+  }
+
+  const node = nodes.find((n) => n.id === selectedConfigNodeId);
+  if (!node) {
+    setConfiguratorOpen(false);
+    return;
+  }
+
+  if (node.data.step.service) {
+    // délai min pour forcer le rendu après fermeture
+    const timeout = setTimeout(() => {
+      setConfiguratorOpen(true);
+    }, 50);
+
+    return () => clearTimeout(timeout);
+  } else {
+    setConfiguratorOpen(false);
+  }
+}, [selectedConfigNodeId, nodes]);
+
 
   const handleSelectServiceAction = (item: ActionOrTrigger) => {
     setNodes((prevNodes) =>
@@ -487,12 +514,15 @@ const handleDeploy = async () => {
         nodesDraggable={false}
         nodesConnectable={true}
         panOnDrag={false}
-        panOnScroll={false}
+        panOnScroll={true}
         zoomOnScroll={false}
         style={{ minHeight: 1200 }}
       >
-        <Background />
-        <Controls />
+          {/* Place Controls and Background outside ReactFlow or overlay */}
+            <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 10 }}>
+              <Controls />
+              <Background />
+            </div>
       </ReactFlow>
     </div>
 
@@ -585,7 +615,24 @@ const handleDeploy = async () => {
     <Save className="w-4 h-4" />
     Save
   </button>
+
+  <button
+    onClick={() => {
+      if (initialWorkflow.id) {
+        window.location.href = `/workflowLogs/${initialWorkflow.id}`;
+      } else {
+        alert("Workflow ID is not available.");
+      }
+    }}
+    aria-label="Voir les logs"
+    className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-5 py-2.5 rounded-2xl shadow-md transition-all duration-200 pointer-events-auto text-sm font-medium"
+  >
+    <FileText className="w-4 h-4" />
+    Logs
+  </button>
 </div>
+
+
 
 
 

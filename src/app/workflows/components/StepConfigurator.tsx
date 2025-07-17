@@ -11,6 +11,7 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useNotify } from "@/components/NotificationProvider";
 import { useDebounce } from "../hooks/useDebounce"; // Assure-toi d’avoir ce hook
+import { useTestWorkflowAction } from "@/services/workflow";
 
 interface StepConfiguratorProps {
   step: WorkflowStepInput | null;
@@ -26,11 +27,12 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
   const [localConfig, setLocalConfig] = useState<ParameterField[]>([]);
   const [activeTab, setActiveTab] = useState("configure");
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const { testWorkflowAction } = useTestWorkflowAction(); // test
+
   const notify = useNotify();
 
   // Débounce localConfig pour éviter les sauvegardes à chaque frappe
   const debouncedConfig = useDebounce(localConfig, 600);
-
 
   useEffect(() => {
     if (step?.config && Array.isArray(step.config)) {
@@ -69,28 +71,29 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
       required: param.required,
       className: "w-full border px-2 py-1 rounded",
       name: param.key,
+      autoComplete: "on", // Permet le remplissage automatique
     };
 
     if (param.type === "textarea" || param.type === "multiline") {
       return (
         <textarea
           {...commonProps}
-          value={String(value)}
+          defaultValue={String(value)}
           onChange={(e) => handleInputChange(param.key, e.target.value)}
         />
       );
     }
-    if (param.type === "datetime") {
-  return (
-    <input
-      {...commonProps}
-      type="datetime-local"
-      value={String(value)}
-      onChange={(e) => handleInputChange(param.key, e.target.value)}
-    />
-  );
-}
 
+    if (param.type === "datetime") {
+      return (
+        <input
+          {...commonProps}
+          type="datetime-local"
+          defaultValue={String(value)}
+          onChange={(e) => handleInputChange(param.key, e.target.value)}
+        />
+      );
+    }
 
     if (param.type === "checkbox") {
       return (
@@ -98,6 +101,7 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
           {...commonProps}
           type="checkbox"
           checked={Boolean(param.value)}
+          autoComplete="off" // souvent off pour checkbox
           onChange={(e) => handleInputChange(param.key, e.target.checked)}
         />
       );
@@ -111,6 +115,7 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
             name={param.key}
             value={opt}
             checked={param.value === opt}
+            autoComplete="off"
             onChange={(e) => handleInputChange(param.key, e.target.value)}
           />{" "}
           {opt}
@@ -120,23 +125,29 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
 
     if (param.type === "select" && param.options) {
       return (
-          <label key='key' className="mr-4">
-            <select
-                name={param.key}
-                value={param.value as string}
-                onChange={(e) => handleInputChange(param.key, e.target.value)}
-            >
-            {param.options.map((opt, index) => <option key={index} value={opt}>{opt}</option>)}
-            </select>
-          </label>
+        <label key="key" className="mr-4">
+          <select
+            name={param.key}
+            defaultValue={param.value as string}
+            autoComplete="on"
+            onChange={(e) => handleInputChange(param.key, e.target.value)}
+          >
+            {param.options.map((opt, index) => (
+              <option key={index} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        </label>
       );
     }
 
+    // Par défaut input texte/number
     return (
       <input
         {...commonProps}
         type={param.type}
-        value={String(value)}
+        defaultValue={String(value)}
         onChange={(e) => {
           if (param.type === "number") {
             const numVal = e.target.value === "" ? "" : Number(e.target.value);
@@ -194,8 +205,8 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
             type="button"
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
             onClick={() => {
-              notify("Fonction Test à implémenter", "error");
-              if (onTest) onTest();
+                if (step) testWorkflowAction(step);
+
             }}
           >
             Test

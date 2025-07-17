@@ -5,6 +5,7 @@ import {
   ActionOrTrigger,
   WorkflowData,
   Service,
+  WorkflowStepInput,
   
 } from "@/types/workflow";
 import api from "@/utils/api";
@@ -124,15 +125,32 @@ export async function testWorkflow(workflow: WorkflowData): Promise<boolean> {
   }
 }
 
-export async function testActionOrtriggerForWorkflow(actionOrTrigger: ActionOrTrigger): Promise<boolean> {
-  try {
-    const response = await api.post("/testActionOrTriggerForWorkflow", actionOrTrigger);
-    return response.data.isOk as boolean;
-  } catch (error) {
-    console.error("Error while testing the action");
-    throw error;
-  }
+export function useTestWorkflowAction() {
+  const notify = useNotify();
+
+  const testWorkflowAction = async (step: WorkflowStepInput) => {
+    if (!step.ref_id) {
+      notify("Missing step identifier, please save yout workflow.", "error");
+      return;
+    }
+
+    try {
+      const res = await api.post(`/actions/execute/${step.ref_id}`, step);
+
+      if (res.status === 200) {
+        notify("Step executed successfully.", "success");
+      } else {
+        notify("An error occurred. Please check your workflow logs.", "error");
+      }
+    } catch (error) {
+      console.error("Test execution error", error);
+      notify("An error occurred. Please check your workflow logs.", "error");
+    }
+  };
+
+  return { testWorkflowAction };
 }
+
 
 export async function fetchWorkflowById(workflowId: string): Promise<WorkflowData | null> {
   try {

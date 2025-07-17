@@ -111,7 +111,7 @@ export default function DashboardPage() {
                 Logs
               </h3>
               <p className="text-gray-600 font-medium mt-1 select-text">
-                See logs of your workflows
+                See logs of your last deployed workflow
               </p>
             </div>
           </div>
