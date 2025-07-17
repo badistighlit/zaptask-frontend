@@ -18,7 +18,7 @@ import ServiceSelectorModal from "./ServiceSelectorModal";
 import { CustomEdge } from "./CustomEdges";
 import StepConfigurator from "./StepConfigurator";
 import {  CirclePause, FileText, Rocket, Save, X } from "lucide-react";
-import { deployWorkflow, updateWorkflow } from "@/services/workflow";
+import { useUndeployWorkflow,deployWorkflow, updateWorkflow } from "@/services/workflow";
 import { useNotify } from "@/components/NotificationProvider";
 import { convertStepsToEdges, convertStepsToNodes, getLocalNodeIdentifier,  initialWorkflowNode, isStepIncomplete, reorderAndReposition } from "../utils/WorkflowUtils";
 
@@ -184,6 +184,8 @@ const handleDeleteNode = (nodeId: string) => {
 
   const [configuratorOpen, setConfiguratorOpen] = useState(false);
   const [selectedConfigNodeId, setSelectedConfigNodeId] = useState<string | null>(null);
+
+const { undeployWorkflow } = useUndeployWorkflow();
 
 
  
@@ -465,6 +467,25 @@ const handleSave = async () => {
 };
 
 
+const handleUndepeploy = async () => {
+  try {
+    if (!initialWorkflow.id) {
+      alert("Workflow ID is required to deploy.");
+      return;
+    }
+    handleSave();
+
+    await undeployWorkflow(initialWorkflow.id); 
+
+
+    notify("Workflow is no actif !", "success");
+
+  } catch (error) {
+    notify("Error while undeploying the workflow. please check the logs", "error");
+    console.error(error);
+  }
+};
+
 
 const handleDeploy = async () => {
   try {
@@ -595,7 +616,7 @@ const handleDeploy = async () => {
 
 {initialWorkflow.status === "deployed" && (
   <button
-    onClick={handleDeploy}
+    onClick={handleUndepeploy}
     aria-label="Undeploy workflow"
     className="flex items-center gap-2 bg-orange-400 hover:bg-orange-500 text-white px-5 py-2.5 rounded-2xl shadow-md transition-all duration-200 pointer-events-auto text-sm font-medium"
   >

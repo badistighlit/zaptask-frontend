@@ -205,10 +205,11 @@ export async function fetchWorkflowsByUser(): Promise<WorkflowData[]> {
 // TODO Update appel et url de l'api
 export function useUndeployWorkflow() {
  const notify = useNotify();
-   const undeployWorkflow= async(workflowId : String) : Promise<void> => {
+ 
+   const undeployWorkflow= async (workflowId: string) => {
 
     try {
-      const response  = await api.put(`/undeploy/${workflowId}`);
+      const response  = await api.put(`/workflows/undeploy/${workflowId}`);
        if (response.status === 200) {
         notify(`workflow undeployed successfully.`, "success");
       }
