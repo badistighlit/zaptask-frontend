@@ -2,17 +2,17 @@ import React, { useState } from "react";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import { Handle, Position, NodeProps } from "reactflow";
 import { WorkflowStepInput } from "@/types/workflow";
-import { Zap, Film, X } from "lucide-react";
-import { useDeleteActionOrTrigger } from "@/services/workflow"; 
+import { Zap, Film, X, AlertTriangle } from "lucide-react";
+import { useDeleteActionOrTrigger } from "@/services/workflow";
 import { useNotify } from "@/components/NotificationProvider";
+import { isStepIncomplete } from "../utils/WorkflowUtils";
+
 
 type NodeData = {
   id: string;
   step: WorkflowStepInput;
   onDeleteNode?: (id: string) => void;
-  canDeleteNode?: (id: string) => boolean; 
-
-
+  canDeleteNode?: (id: string) => boolean;
 };
 
 export default function WorkflowNode({ data }: NodeProps<NodeData>) {
@@ -20,6 +20,8 @@ export default function WorkflowNode({ data }: NodeProps<NodeData>) {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const { deleteActionOrTrigger } = useDeleteActionOrTrigger();
   const notify = useNotify();
+
+  const isIncomplete = isStepIncomplete(step);
 
   const statusColorMap: Record<string, string> = {
     draft: "bg-gray-100 border-gray-300 text-gray-700",
@@ -40,31 +42,27 @@ export default function WorkflowNode({ data }: NodeProps<NodeData>) {
     setIsConfirmOpen(true);
   };
 
-const handleConfirmDelete = async () => {
-  setIsConfirmOpen(false);
+  const handleConfirmDelete = async () => {
+    setIsConfirmOpen(false);
 
-  //  si suppression autorisée
-  if (data.canDeleteNode && !data.canDeleteNode(data.step.ref_id)) {
-    notify("A workflow must have at least one action.", "error");
-    return;
-  }
+    if (data.canDeleteNode && !data.canDeleteNode(data.step.ref_id)) {
+      notify("A workflow must have at least one action.", "error");
+      return;
+    }
 
-  // Suppression locale 
-  if (!step.ref_id || step.ref_id.startsWith("temp-")) {
-    data.onDeleteNode?.(data.id);
-    return;
-  }
+    if (!step.ref_id || step.ref_id.startsWith("temp-")) {
+      data.onDeleteNode?.(data.id);
+      return;
+    }
 
-  // Suppression backend
-  try {
-    await deleteActionOrTrigger(step.ref_id);
-    data.onDeleteNode?.(data.id);
-  } catch (e) {
-    console.error("Failed to delete step:", e);
-    notify("Failed to delete step.", "error");
-  }
-};
-
+    try {
+      await deleteActionOrTrigger(step.ref_id);
+      data.onDeleteNode?.(data.id);
+    } catch (e) {
+      console.error("Failed to delete step:", e);
+      notify("Failed to delete step.", "error");
+    }
+  };
 
   const handleCancelDelete = () => {
     setIsConfirmOpen(false);
@@ -73,15 +71,26 @@ const handleConfirmDelete = async () => {
   return (
     <>
       <div
-        className={`relative rounded-xl border p-4 shadow-md w-72 cursor-pointer hover:brightness-105 transition ${statusClass}`}
+        className={`relative rounded-xl border p-4 shadow-md w-72 cursor-pointer transition
+        ${statusClass} ${isIncomplete ? "border-red-300 ring-1 ring-red-200" : "hover:brightness-105"}`}
         title={`${step.name} (${step.type})`}
       >
+        {isIncomplete && (
+          <div 
+            className="absolute bottom-2 right-2 text-red-400" 
+            title="This step is incomplete"
+            style={{ opacity: 0.7 }}
+          >
+            <AlertTriangle size={18} />
+          </div>
+        )}
+
         <button
           onClick={step.type !== "trigger" ? openConfirm : undefined}
           disabled={step.type === "trigger"}
           className={`
             absolute top-2 right-2 rounded-full p-1 
-            ${step.type === "trigger" ? "cursor-not-allowed bg-gray-200 text-gray-400" : "bg-white/70 hover:bg-red-500 hover:text-white"} 
+            ${step.type === "trigger" ? "cursor-not-allowed bg-gray-200 text-gray-400" : "bg-white/70 hover:bg-red-400 hover:text-white"} 
             shadow-sm transition-colors duration-200
           `}
           title={step.type === "trigger" ? "Cannot delete a trigger" : "Delete node"}

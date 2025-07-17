@@ -10,7 +10,7 @@ const NODE_X = 250; // position fixe verticale
 
 // Organisation et conversion des nodes 
 
-import { WorkflowData } from "@/types/workflow";
+import { WorkflowData, WorkflowStepInput } from "@/types/workflow";
 import { Edge } from "reactflow";
 
 // conversion des steps en noedus
@@ -161,4 +161,17 @@ export const getLocalNodeIdentifier = (node: Node): string => {
     return node.data?.step?.ref_id || node.id;
   }
   return node.id;
+};
+
+
+export const isStepIncomplete = (step: WorkflowStepInput): boolean => {
+  const isBaseInvalid =
+    !step.service ||
+    !step.serviceActionId ||
+    !((step.type === "action" && step.action) || (step.type === "trigger" && step.trigger));
+
+  // Tous les paramètres doivent avoir une value non vide (ni undefined, ni null, ni "")
+  const hasMissingParams = step.config.some(param => param.value === undefined || param.value === null || param.value === "");
+
+  return isBaseInvalid || hasMissingParams;
 };

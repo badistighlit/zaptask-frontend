@@ -20,7 +20,7 @@ import StepConfigurator from "./StepConfigurator";
 import {  FileText, Rocket, Save, X } from "lucide-react";
 import { deployWorkflow, updateWorkflow } from "@/services/workflow";
 import { useNotify } from "@/components/NotificationProvider";
-import { convertStepsToEdges, convertStepsToNodes, getLocalNodeIdentifier,  initialWorkflowNode, reorderAndReposition } from "../utils/WorkflowUtils";
+import { convertStepsToEdges, convertStepsToNodes, getLocalNodeIdentifier,  initialWorkflowNode, isStepIncomplete, reorderAndReposition } from "../utils/WorkflowUtils";
 
 interface WorkflowBuilderProps {
   initialWorkflow: WorkflowData;
@@ -329,6 +329,8 @@ const addActionBetween = (fromId: string, toId: string | null) => {
       },
       onDeleteNode: handleDeleteNode,
       canDeleteNode: canDeleteNode,
+      
+
 
     },
     
@@ -421,7 +423,16 @@ const addActionBetween = (fromId: string, toId: string | null) => {
 
 
   // sauvegarde et update 
-  const handleSave = async () => {
+const handleSave = async () => {
+  const incompleteSteps = nodes
+    .filter((n) => n.type === "customWorkflowNode")
+    .filter((node) => isStepIncomplete(node.data.step)); // ici on utilise ta fonction
+
+  if (incompleteSteps.length > 0) {
+    notify("Please configure all steps before saving.", "error");
+    return;
+  }
+
   const workflowSteps = nodes
     .filter((n) => n.type === "customWorkflowNode")
     .sort((a, b) => a.position.y - b.position.y)
@@ -438,30 +449,22 @@ const addActionBetween = (fromId: string, toId: string | null) => {
 
   try {
     const savedWorkflow = await updateWorkflow(updatedWorkflow);
-    notify("Workflow saved successfully!", "success" );
-  
+    notify("Workflow saved successfully!", "success");
 
-
-    //update les changements 
-  const updatedNodes = injectNodeHandlers(
-    convertStepsToNodes(savedWorkflow.steps, handleDeleteNode)
-  );
+    const updatedNodes = injectNodeHandlers(
+      convertStepsToNodes(savedWorkflow.steps, handleDeleteNode)
+    );
     const updatedEdges = convertStepsToEdges(savedWorkflow.steps);
 
-   
     setNodes(reorderAndReposition(updatedNodes));
     setEdges(updatedEdges);
-
-
-    //console.log(workflowSteps);
-    console.log(nodes);
-
   } catch (error) {
-    notify( "Error saving the workflow",  "error" );
-
+    notify("Error saving the workflow", "error");
     console.error(error);
   }
 };
+
+
 
 const handleDeploy = async () => {
   try {
