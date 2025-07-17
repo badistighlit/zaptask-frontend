@@ -17,7 +17,7 @@ import { ActionOrTrigger, WorkflowData, WorkflowStepType } from "@/types/workflo
 import ServiceSelectorModal from "./ServiceSelectorModal";
 import { CustomEdge } from "./CustomEdges";
 import StepConfigurator from "./StepConfigurator";
-import {  FileText, Rocket, Save, X } from "lucide-react";
+import {  CirclePause, FileText, Rocket, Save, X } from "lucide-react";
 import { deployWorkflow, updateWorkflow } from "@/services/workflow";
 import { useNotify } from "@/components/NotificationProvider";
 import { convertStepsToEdges, convertStepsToNodes, getLocalNodeIdentifier,  initialWorkflowNode, isStepIncomplete, reorderAndReposition } from "../utils/WorkflowUtils";
@@ -583,31 +583,40 @@ const handleDeploy = async () => {
       stepType={currentStepType}
       onSelect={handleSelectServiceAction}
     />
+
+
+
+
+    
+    {/*  boutton inferieur*/}
 <div className="absolute bottom-4 left-4 right-4 z-50 flex justify-between pointer-events-none">
-  { initialWorkflow.status =="deployed" &&   
-          <button
-            onClick={handleDeploy}
-            aria-label="Undeploy  workflow"
-            className="flex items-center gap-2 bg-orange-600 hover:bg-orang-700 text-white px-5 py-2.5 rounded-2xl shadow-md transition-all duration-200 pointer-events-auto text-sm font-medium"
-          >
-            <Rocket className="w-4 h-4" />
-            Undeploy
-          </button>
-  
 
 
-  }
 
-  { initialWorkflow.status =="draft" &&
-   (<button
+{initialWorkflow.status === "deployed" && (
+  <button
+    onClick={handleDeploy}
+    aria-label="Undeploy workflow"
+    className="flex items-center gap-2 bg-orange-400 hover:bg-orange-500 text-white px-5 py-2.5 rounded-2xl shadow-md transition-all duration-200 pointer-events-auto text-sm font-medium"
+  >
+    <CirclePause className="w-4 h-4" />
+    Undeploy
+  </button>
+)}
+
+
+
+{["draft", "saved", "error"].includes(initialWorkflow.status) && (
+  <button
     onClick={handleDeploy}
     aria-label="Déployer le workflow"
     className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-2xl shadow-md transition-all duration-200 pointer-events-auto text-sm font-medium"
   >
     <Rocket className="w-4 h-4" />
     Deploy
-  </button>)
-   }
+  </button>
+)}
+
  
 
   <button

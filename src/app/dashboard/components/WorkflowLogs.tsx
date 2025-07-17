@@ -49,17 +49,18 @@ export default function WorkflowLogs({ workflows }: WorkflowLogsProps) {
     return <p className="text-gray-400 italic text-center">Chargement des logs...</p>;
   }
 
-  if (!workflows || workflows.length === 0) {
-    return <p className="text-gray-400 italic text-center">Aucun workflow trouvé.</p>;
-  }
+if (!workflows || workflows.length === 0) {
+  return <p className="text-gray-400 italic text-center">No workflows found.</p>;
+}
 
-  if (!latestWorkflowId) {
-    return <p className="text-gray-400 italic text-center">Aucun workflow déployé disponible.</p>;
-  }
+if (!latestWorkflowId) {
+  return <p className="text-gray-400 italic text-center">No deployed workflow available.</p>;
+}
 
-  if (!logs || logs.length === 0) {
-    return <p className="text-gray-400 italic text-center">Aucun log disponible pour le workflow déployé.</p>;
-  }
+if (!logs || logs.length === 0) {
+  return <p className="text-gray-400 italic text-center">No logs available for the deployed workflow.</p>;
+}
+
 
   return (
     <div

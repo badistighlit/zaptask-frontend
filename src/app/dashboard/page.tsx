@@ -30,14 +30,14 @@ export default function DashboardPage() {
   if (loading)
     return (
       <div className="p-6 text-center text-lg text-indigo-600 font-semibold">
-        Chargement...
+        Loading...
       </div>
     );
 
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
       <h1 className="text-3xl sm:text-4xl font-extrabold mb-10 text-gray-900 select-none">
-        Tableau de bord
+        Dashboard
       </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 gap-y-10">

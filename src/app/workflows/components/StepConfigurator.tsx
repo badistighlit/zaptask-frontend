@@ -209,7 +209,7 @@ if (param.type === "select" && Array.isArray(param.options) && param.options.len
 
         <TabsContent value="configure">
           {localConfig.length === 0 && (
-            <p className="text-gray-500">Aucun paramètre à configurer.</p>
+            <p className="text-gray-500">Nothing to parametre.</p>
           )}
 
           {localConfig.map((param) => (
@@ -227,7 +227,7 @@ if (param.type === "select" && Array.isArray(param.options) && param.options.len
 
         <TabsContent value="test" className="flex flex-col items-start gap-4">
           <p className="text-gray-600">
-            Ici, vous pouvez tester l’étape avec la configuration actuelle.
+            Here you can test your action.
           </p>
           <button
             type="button"
