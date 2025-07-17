@@ -249,15 +249,10 @@ export function useUndeployWorkflow() {
 
 export async function deployWorkflow(workflowId: string ): Promise<WorkflowData[]> {
   try {
-    const response = await api.post(`/workflows/deploy/${workflowId}`, null, {
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-    });
+    const response = await api.post(`/workflows/deploy/${workflowId}`);
 
     if (response.status === 200) {
-      return response.data?.data || [];
+      return response.data || [];
     } else {
       console.warn("Réponse inattendue lors du déploiement:", response.status, response.data);
       return [];

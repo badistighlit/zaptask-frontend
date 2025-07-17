@@ -18,7 +18,7 @@ import ServiceSelectorModal from "./ServiceSelectorModal";
 import { CustomEdge } from "./CustomEdges";
 import StepConfigurator from "./StepConfigurator";
 import {  CirclePause, FileText, Rocket, Save, X } from "lucide-react";
-import {useUndeployWorkflow, deployWorkflow, updateWorkflow, fetchWorkflowById} from "@/services/workflow";
+import {useUndeployWorkflow, deployWorkflow, updateWorkflow} from "@/services/workflow";
 import { useNotify } from "@/components/NotificationProvider";
 import { convertStepsToEdges, convertStepsToNodes, extractStepsFromNodes, getLocalNodeIdentifier,  initialWorkflowNode, isStepIncomplete, isWorkflowTested, reorderAndReposition } from "../utils/WorkflowUtils";
 
@@ -193,10 +193,12 @@ const { undeployWorkflow } = useUndeployWorkflow();
 
 
 // verification si le workflow est tested : 
+const [workflowStatus,setWorkflowStatus] = useState(initialWorkflow.status);
 const steps = extractStepsFromNodes(nodes); 
 const allStepsTested = isWorkflowTested(steps);
-const isDeployableStatus = ["draft", "tested", "error"].includes(initialWorkflow.status);
+const isDeployableStatus = ["draft", "tested", "error"].includes(workflowStatus);
 const canDeploy = isDeployableStatus && allStepsTested;
+
 
 
  
@@ -478,7 +480,7 @@ const handleSave = async () => {
 };
 
 
-const handleUndepeploy = async () => {
+const handleUndeploy = async () => {
   try {
     if (!initialWorkflow.id) {
       alert("Workflow ID is required to deploy.");
@@ -486,6 +488,8 @@ const handleUndepeploy = async () => {
     }
 
     await undeployWorkflow(initialWorkflow.id); 
+    if(isWorkflowTested (extractStepsFromNodes(nodes)) ) setWorkflowStatus("tested")
+      else setWorkflowStatus("draft")
 
 
     notify("Workflow is no longer active", "success");
@@ -508,9 +512,9 @@ const handleDeploy = async () => {
     const data = await deployWorkflow(initialWorkflow.id);
 
     if (data.length === 0) {
-      initialWorkflow.status = "error";
+      setWorkflowStatus("error");
     } else {
-      initialWorkflow.status = "deployed";
+      setWorkflowStatus("deployed")
     }
 
 
@@ -630,9 +634,9 @@ const handleDeploy = async () => {
 
 
 
-{initialWorkflow.status === "deployed" && (
+{workflowStatus === "deployed" && (
   <button
-    onClick={handleUndepeploy}
+    onClick={handleUndeploy}
     aria-label="Undeploy workflow"
     className="flex items-center gap-2 bg-orange-400 hover:bg-orange-500 text-white px-5 py-2.5 rounded-2xl shadow-md transition-all duration-200 pointer-events-auto text-sm font-medium"
   >
@@ -642,8 +646,7 @@ const handleDeploy = async () => {
 )}
 
 
-
-{["draft", "tested", "error"].includes(initialWorkflow.status) && (
+{["draft", "tested", "error"].includes(workflowStatus) && (
 <button
   onClick={canDeploy ? handleDeploy : undefined}
   aria-label="Déployer le workflow"

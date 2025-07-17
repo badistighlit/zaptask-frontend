@@ -45,7 +45,7 @@ export interface BackendWorkflowAction {
     name: string;
   };
   type: "trigger" | "action";
-  status: "draft" | "deployed" | "error";
+  status: "draft" | "deployed" | "tested"|"error";
   execution_order: number;
   url: string;
   parameters: BackendParam[];
@@ -55,7 +55,7 @@ export interface BackendWorkflowAction {
 export interface BackendWorkflow {
   id: string;
   name: string;
-  status: "draft" | "deployed" | "error";
+  status: "draft" | "deployed" |"tested"| "error";
   actions: BackendWorkflowAction[];
   saved_at: string | null;
   deployed_at: string | null;
