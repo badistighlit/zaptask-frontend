@@ -18,7 +18,7 @@ import ServiceSelectorModal from "./ServiceSelectorModal";
 import { CustomEdge } from "./CustomEdges";
 import StepConfigurator from "./StepConfigurator";
 import {  CirclePause, FileText, Rocket, Save, X } from "lucide-react";
-import { useUndeployWorkflow,deployWorkflow, updateWorkflow } from "@/services/workflow";
+import {useUndeployWorkflow, deployWorkflow, updateWorkflow, fetchWorkflowById} from "@/services/workflow";
 import { useNotify } from "@/components/NotificationProvider";
 import { convertStepsToEdges, convertStepsToNodes, extractStepsFromNodes, getLocalNodeIdentifier,  initialWorkflowNode, isStepIncomplete, isWorkflowTested, reorderAndReposition } from "../utils/WorkflowUtils";
 
@@ -195,7 +195,7 @@ const { undeployWorkflow } = useUndeployWorkflow();
 // verification si le workflow est tested : 
 const steps = extractStepsFromNodes(nodes); 
 const allStepsTested = isWorkflowTested(steps);
-const isDeployableStatus = ["draft", "saved", "error"].includes(initialWorkflow.status);
+const isDeployableStatus = ["draft", "tested", "error"].includes(initialWorkflow.status);
 const canDeploy = isDeployableStatus && allStepsTested;
 
 
@@ -484,12 +484,11 @@ const handleUndepeploy = async () => {
       alert("Workflow ID is required to deploy.");
       return;
     }
-    handleSave();
 
     await undeployWorkflow(initialWorkflow.id); 
 
 
-    notify("Workflow is no actif !", "success");
+    notify("Workflow is no longer active", "success");
 
   } catch (error) {
     notify("Error while undeploying the workflow. please check the logs", "error");
@@ -506,7 +505,13 @@ const handleDeploy = async () => {
     }
     handleSave();
 
-    await deployWorkflow(initialWorkflow.id); 
+    const data = await deployWorkflow(initialWorkflow.id);
+
+    if (data.length === 0) {
+      initialWorkflow.status = "error";
+    } else {
+      initialWorkflow.status = "deployed";
+    }
 
 
     notify("Workflow deployed successfully!", "success");
@@ -638,7 +643,7 @@ const handleDeploy = async () => {
 
 
 
-{["draft", "saved", "error"].includes(initialWorkflow.status) && (
+{["draft", "tested", "error"].includes(initialWorkflow.status) && (
 <button
   onClick={canDeploy ? handleDeploy : undefined}
   aria-label="Déployer le workflow"

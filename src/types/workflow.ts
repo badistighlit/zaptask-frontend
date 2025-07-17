@@ -1,7 +1,7 @@
 //
 
-export type WorkflowStatus = "draft" |"tested"| "deployed" | "error";
-export type WorkflowActionStatus = "draft" |"tested"| "deployed" | "error";
+export type WorkflowStatus = "draft" | "tested" | "deployed" | "error";
+export type WorkflowActionStatus = "draft" | "tested" | "deployed" | "error";
 export type WorkflowStepType = "trigger" | "action";
 export type ConfigValue = string | number | boolean | undefined;
 

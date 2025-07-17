@@ -213,9 +213,9 @@ export function useUndeployWorkflow() {
    const undeployWorkflow= async (workflowId: string) => {
 
     try {
-      const response  = await api.put(`/workflows/undeploy/${workflowId}`);
+      const response  = await api.post(`/workflows/undeploy/${workflowId}`);
        if (response.status === 200) {
-        notify(`workflow undeployed successfully.`, "success");
+        // notify(`workflow undeployed successfully.`, "success");
       }
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
