@@ -170,7 +170,6 @@ export const isStepIncomplete = (step: WorkflowStepInput): boolean => {
     !step.serviceActionId ||
     !((step.type === "action" && step.action) || (step.type === "trigger" && step.trigger));
 
-  // Tous les paramètres doivent avoir une value non vide (ni undefined, ni null, ni "")
   const hasMissingParams = step.config.some(param => param.value === undefined || param.value === null || param.value === "");
 
   return isBaseInvalid || hasMissingParams;

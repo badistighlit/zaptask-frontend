@@ -45,6 +45,32 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
     setLastSaved(new Date());
   }, [debouncedConfig]);
 
+
+  //si les la liste des options est à 1 on pose default value  avec la premiere value
+  useEffect(() => {
+  const updatedConfig = localConfig.map((param) => {
+    if (
+      param.type === "select" &&
+      Array.isArray(param.options) &&
+      param.options.length > 0 &&
+      (param.value === undefined || param.value === null || param.value === "")
+    ) {
+      return { ...param, value: param.options[0] };
+    }
+    return param;
+  });
+
+  const changed = updatedConfig.some((p, i) => p.value !== localConfig[i].value);
+  if (changed) {
+    setLocalConfig(updatedConfig);
+  }
+}, [localConfig]);
+
+
+
+
+
+
   const handleInputChange = (key: string, newValue: ConfigValue) => {
     const updatedConfig = localConfig.map((param) =>
       param.key === key ? { ...param, value: newValue } : param
@@ -120,24 +146,29 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
       ));
     }
 
-    if (param.type === "select" && param.options) {
-      return (
-        <label key="key" className="mr-4">
-          <select
-            name={param.key}
-            defaultValue={param.value as string}
-            autoComplete="on"
-            onChange={(e) => handleInputChange(param.key, e.target.value)}
-          >
-            {param.options.map((opt, index) => (
-              <option key={index} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
-        </label>
-      );
-    }
+if (param.type === "select" && Array.isArray(param.options) && param.options.length > 0) {
+  return (
+    <label key={param.key} className="mr-4">
+      <select
+        name={param.key}
+        value={typeof param.value === "string" || typeof param.value === "number" ? param.value : param.options[0]}
+        autoComplete="on"
+        onChange={(e) => handleInputChange(param.key, e.target.value)}
+        disabled={param.options.length === 1}
+      >
+        {param.options.map((opt, index) => (
+          <option key={index} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+
+
+
 
     // Par défaut input texte/number
     return (

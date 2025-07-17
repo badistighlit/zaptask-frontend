@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import { Handle, Position, NodeProps } from "reactflow";
 import { WorkflowStepInput } from "@/types/workflow";
-import { Zap, Film, X, AlertTriangle } from "lucide-react";
+import { Zap, Film, X, AlertTriangle,OctagonAlert } from "lucide-react";
 import { useDeleteActionOrTrigger } from "@/services/workflow";
 import { useNotify } from "@/components/NotificationProvider";
 import { isStepIncomplete } from "../utils/WorkflowUtils";
@@ -26,6 +26,8 @@ export default function WorkflowNode({ data }: NodeProps<NodeData>) {
   const statusColorMap: Record<string, string> = {
     draft: "bg-gray-100 border-gray-300 text-gray-700",
     configured: "bg-blue-100 border-blue-500 text-blue-800",
+    notConfigured : "bg-yellow-100 border-yellow-500 text-yellow-800",
+    error : "bg-red-100 border-red-500 text-red-800",
     tested: "bg-green-100 border-green-500 text-green-800",
   };
 
@@ -72,18 +74,29 @@ export default function WorkflowNode({ data }: NodeProps<NodeData>) {
     <>
       <div
         className={`relative rounded-xl border p-4 shadow-md w-72 cursor-pointer transition
-        ${statusClass} ${isIncomplete ? "border-red-300 ring-1 ring-red-200" : "hover:brightness-105"}`}
+        ${statusClass} ${isIncomplete ? "border-yellow-300 ring-1 ring-red-200" : "hover:brightness-105"}`}
         title={`${step.name} (${step.type})`}
       >
         {isIncomplete && (
           <div 
-            className="absolute bottom-2 right-2 text-red-400" 
+            className="absolute bottom-2 right-2 text-yellow-400" 
             title="This step is incomplete"
             style={{ opacity: 0.7 }}
           >
             <AlertTriangle size={18} />
           </div>
         )}
+
+
+          {step.status === "error" && (
+            <div
+              className="absolute bottom-2 right-2 text-red-600"
+              title="An error occurred during execution. Check logs or review configuration."
+              style={{ opacity: 0.9 }}
+            >
+              <OctagonAlert size={18} />
+            </div>
+          )}
 
         <button
           onClick={step.type !== "trigger" ? openConfirm : undefined}

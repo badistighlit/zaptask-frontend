@@ -129,7 +129,7 @@ export function useTestWorkflowAction() {
   const notify = useNotify();
 
   const testWorkflowAction = async (step: WorkflowStepInput) => {
-    if (!step.ref_id) {
+    if (!step.ref_id || step.ref_id.startsWith("temp")) {
       notify("Missing step identifier, please save yout workflow.", "error");
       return;
     }
