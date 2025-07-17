@@ -174,3 +174,17 @@ export const isStepIncomplete = (step: WorkflowStepInput): boolean => {
 
   return isBaseInvalid || hasMissingParams;
 };
+
+
+
+
+export const isWorkflowTested = (steps: WorkflowStepInput[]): boolean => {
+  return steps.every(step => step.status === "tested");
+};
+
+export const extractStepsFromNodes = (nodes: Node[]): WorkflowStepInput[] => {
+  return nodes
+    .filter((node) => node.type === "customWorkflowNode")
+    .map((node) => node.data?.step)
+    .filter(Boolean); 
+};

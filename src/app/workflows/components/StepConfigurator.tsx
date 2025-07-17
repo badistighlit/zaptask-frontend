@@ -11,6 +11,7 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useDebounce } from "../hooks/useDebounce"; // Assure-toi d’avoir ce hook
 import { useTestWorkflowAction } from "@/services/workflow";
+import { WorkflowActionStatus } from "@/types/workflow";
 
 interface StepConfiguratorProps {
   step: WorkflowStepInput | null;
@@ -232,10 +233,14 @@ if (param.type === "select" && Array.isArray(param.options) && param.options.len
           <button
             type="button"
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-            onClick={() => {
-                if (step) testWorkflowAction(step);
-
-            }}
+                onClick={async () => {
+                  if (step) {
+                    const result = await testWorkflowAction(step);
+                    const newStatus: WorkflowActionStatus = result === "success" ? "tested" : "error";
+                    const updatedStep = { ...step, status: newStatus };
+                    onChange(updatedStep);
+                  }
+                }}
           >
             Test
           </button>

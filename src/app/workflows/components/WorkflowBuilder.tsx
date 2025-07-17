@@ -20,7 +20,11 @@ import StepConfigurator from "./StepConfigurator";
 import {  CirclePause, FileText, Rocket, Save, X } from "lucide-react";
 import { useUndeployWorkflow,deployWorkflow, updateWorkflow } from "@/services/workflow";
 import { useNotify } from "@/components/NotificationProvider";
-import { convertStepsToEdges, convertStepsToNodes, getLocalNodeIdentifier,  initialWorkflowNode, isStepIncomplete, reorderAndReposition } from "../utils/WorkflowUtils";
+import { convertStepsToEdges, convertStepsToNodes, extractStepsFromNodes, getLocalNodeIdentifier,  initialWorkflowNode, isStepIncomplete, isWorkflowTested, reorderAndReposition } from "../utils/WorkflowUtils";
+
+
+
+
 
 interface WorkflowBuilderProps {
   initialWorkflow: WorkflowData;
@@ -186,6 +190,13 @@ const handleDeleteNode = (nodeId: string) => {
   const [selectedConfigNodeId, setSelectedConfigNodeId] = useState<string | null>(null);
 
 const { undeployWorkflow } = useUndeployWorkflow();
+
+
+// verification si le workflow est tested : 
+const steps = extractStepsFromNodes(nodes); 
+const allStepsTested = isWorkflowTested(steps);
+const isDeployableStatus = ["draft", "saved", "error"].includes(initialWorkflow.status);
+const canDeploy = isDeployableStatus && allStepsTested;
 
 
  
@@ -628,14 +639,19 @@ const handleDeploy = async () => {
 
 
 {["draft", "saved", "error"].includes(initialWorkflow.status) && (
-  <button
-    onClick={handleDeploy}
-    aria-label="Déployer le workflow"
-    className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-2xl shadow-md transition-all duration-200 pointer-events-auto text-sm font-medium"
-  >
-    <Rocket className="w-4 h-4" />
-    Deploy
-  </button>
+<button
+  onClick={canDeploy ? handleDeploy : undefined}
+  aria-label="Déployer le workflow"
+  disabled={!canDeploy}
+  title={!canDeploy ? "The workflow will be deployable once all steps are tested." : ""}
+  className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl shadow-md transition-all duration-200 pointer-events-auto text-sm font-medium
+    ${canDeploy 
+      ? "bg-green-600 hover:bg-green-700 text-white" 
+      : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}
+>
+  <Rocket className="w-4 h-4" />
+  Deploy
+</button>
 )}
 
  

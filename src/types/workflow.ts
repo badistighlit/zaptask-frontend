@@ -1,6 +1,7 @@
 //
 
-export type WorkflowStatus = "draft" | "deployed" | "error";
+export type WorkflowStatus = "draft" |"tested"| "deployed" | "error";
+export type WorkflowActionStatus = "draft" |"tested"| "deployed" | "error";
 export type WorkflowStepType = "trigger" | "action";
 export type ConfigValue = string | number | boolean | undefined;
 
@@ -60,7 +61,7 @@ export interface WorkflowStepInput {
   ref_id: string;
   workflow_id: string;
   type: WorkflowStepType;
-  status: WorkflowStatus;
+  status: WorkflowActionStatus;
   serviceActionId: string;      // ID de l’action du service (UUID)
   name: string;
   service: string;             

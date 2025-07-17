@@ -128,10 +128,10 @@ export async function testWorkflow(workflow: WorkflowData): Promise<boolean> {
 export function useTestWorkflowAction() {
   const notify = useNotify();
 
-  const testWorkflowAction = async (step: WorkflowStepInput) => {
+  const testWorkflowAction = async (step: WorkflowStepInput): Promise<"success" | "error"> => {
     if (!step.ref_id || step.ref_id.startsWith("temp")) {
-      notify("Missing step identifier, please save yout workflow.", "error");
-      return;
+      notify("Missing step identifier, please save your workflow.", "error");
+      return "error";
     }
 
     try {
@@ -139,17 +139,21 @@ export function useTestWorkflowAction() {
 
       if (res.status === 200) {
         notify("Step executed successfully.", "success");
+        return "success";
       } else {
         notify("An error occurred. Please check your workflow logs.", "error");
+        return "error";
       }
     } catch (error) {
       console.error("Test execution error", error);
       notify("An error occurred. Please check your workflow logs.", "error");
+      return "error";
     }
   };
 
   return { testWorkflowAction };
 }
+
 
 
 export async function fetchWorkflowById(workflowId: string): Promise<WorkflowData | null> {
