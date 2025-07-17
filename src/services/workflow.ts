@@ -1,5 +1,5 @@
 import { useNotify } from "@/components/NotificationProvider";
-import {   BackendServiceAction, mapBackendParams, mapBackendWorkflow, mapBackendWorkflowLogs } from "@/types/BackTypes";
+import {   BackendServiceAction, BackendWorkflow, mapBackendParams, mapBackendWorkflow, mapBackendWorkflowLogs } from "@/types/BackTypes";
 import { WorkflowLogs } from "@/types/logs";
 import {
   ActionOrTrigger,
@@ -149,7 +149,7 @@ export async function fetchWorkflowById(workflowId: string): Promise<WorkflowDat
     return null;
   }
 }
-
+/*
 export async function fetchWorkflowsByUser(): Promise<WorkflowData[]> {
   try {
     const response = await api.get("/workflows");
@@ -159,6 +159,22 @@ export async function fetchWorkflowsByUser(): Promise<WorkflowData[]> {
     }
 
     console.warn(" Données inattendues dans fetchWorkflowsByUser:", response.data);
+    return [];
+  } catch (error) {
+    handleAxiosError(error, "fetching workflows by user");
+    return [];
+  }
+}*/
+
+export async function fetchWorkflowsByUser(): Promise<WorkflowData[]> {
+  try {
+    const response = await api.get<BackendWorkflow[]>("/workflows");
+
+    if (response.status === 200 && Array.isArray(response.data)) {
+      return response.data.map(mapBackendWorkflow);
+    }
+
+    console.warn("Unnexpected data for fetchWorkflowsByUser:", response.data);
     return [];
   } catch (error) {
     handleAxiosError(error, "fetching workflows by user");
