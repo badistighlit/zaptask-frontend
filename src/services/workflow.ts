@@ -202,6 +202,46 @@ export async function fetchWorkflowsByUser(): Promise<WorkflowData[]> {
 
 
 
+// TODO Update appel et url de l'api
+export function useUndeployWorkflow() {
+ const notify = useNotify();
+   const undeployWorkflow= async(workflowId : String) : Promise<void> => {
+
+    try {
+      const response  = await api.put(`/undeploy/${workflowId}`);
+       if (response.status === 200) {
+        notify(`workflow undeployed successfully.`, "success");
+      }
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      const status = axiosError.response?.status;
+      const message = axiosError.response?.data?.message;
+
+      switch (status) {
+        case 400:
+          notify("Invalid workflow identifier.", "error");
+          break;
+        case 404:
+          notify("workflow not found.", "error");
+          break;
+        case 401:
+        case 403:
+          notify("Unauthorized or forbidden request.", "error");
+          break;
+        default:
+          notify(message || "An unexpected error occurred.", "error");
+          break;
+      }
+
+      throw error;
+    }
+
+
+  }
+  return {undeployWorkflow}
+}
+
+
 export async function deployWorkflow(workflowId: string ): Promise<WorkflowData[]> {
   try {
     const response = await api.post(`/workflows/deploy/${workflowId}`, null, {
