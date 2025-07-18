@@ -227,16 +227,3 @@ export const initialSteps: WorkflowStepInput[] = [
 
 
 
-// step configurator utils
-
-export const isConfigDifferent = (a: ParameterField[], b: ParameterField[]) => {
-  if (a.length !== b.length) return true;
-
-  return a.some((paramA, i) => {
-    const paramB = b[i];
-    return (
-      paramA.key !== paramB.key ||
-      paramA.value !== paramB.value
-    );
-  });
-};

@@ -6,13 +6,15 @@ import {
   WorkflowStepInput,
   ConfigValue,
   ParameterType,
-  WorkflowActionStatus,
+  
   WorkflowStatus,
 } from "@/types/workflow";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useDebounce } from "../hooks/useDebounce";
 import { useTestWorkflowAction } from "@/services/workflow";
+import { CheckCircle, AlertTriangle, Settings } from "lucide-react";
+
 
 interface StepConfiguratorProps {
   step: WorkflowStepInput | null;
@@ -223,10 +225,54 @@ const handleInputChange = (key: string, newValue: ConfigValue) => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-white rounded shadow-sm">
-          <TabsTrigger value="configure">Configure</TabsTrigger>
-          <TabsTrigger value="test">Test</TabsTrigger>
-        </TabsList>
+
+  <TabsList style={{ backgroundColor: "white", borderRadius: 8, boxShadow: "0 1px 3px rgba(0,0,0,0.1)", display: "flex" }}>
+
+<TabsTrigger
+  value="configure"
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    padding: "8px 16px",
+    borderBottom: activeTab === "configure" ? "3px solid #2563EB" : "3px solid transparent",
+    fontWeight: activeTab === "configure" ? "700" : "500",
+    color: activeTab === "configure" ? "#2563EB" : "#374151",
+    backgroundColor: activeTab === "configure" ? "rgba(37, 99, 235, 0.1)" : "transparent",
+    cursor: "pointer",
+  }}
+>
+  <Settings size={18} />
+  Configure
+</TabsTrigger>
+
+<TabsTrigger
+  value="test"
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    padding: "8px 16px",
+    borderBottom: activeTab === "test" ? "3px solid #2563EB" : "3px solid transparent",
+    fontWeight: activeTab === "test" ? "700" : "500",
+    color: step?.status === "tested" ? "#22c55e" : "#ea580c", 
+    backgroundColor: activeTab === "test" ? "rgba(37, 99, 235, 0.1)" : "transparent", 
+  }}
+>
+  {step?.status === "tested" ? (
+    <CheckCircle size={18} color="#22c55e" />
+  ) : (
+    <AlertTriangle size={18} color="#ea580c" />
+  )}
+  Test
+</TabsTrigger>
+
+
+  </TabsList>
+
+
+
+
 
 <TabsContent value="configure">
   {!step?.config ? (
@@ -249,6 +295,9 @@ const handleInputChange = (key: string, newValue: ConfigValue) => {
 </TabsContent>
 
 
+
+
+
         <TabsContent value="test" className="pt-4">
           <p className="text-gray-600 mb-4">Test this action’s behavior.</p>
           <button
@@ -269,6 +318,10 @@ const handleInputChange = (key: string, newValue: ConfigValue) => {
             Run Test
           </button>
         </TabsContent>
+
+
+
+
       </Tabs>
     </div>
   );
