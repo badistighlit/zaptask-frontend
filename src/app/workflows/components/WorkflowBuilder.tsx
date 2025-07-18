@@ -586,7 +586,7 @@ const handleDeploy = async () => {
     {configuratorOpen && selectedConfigNodeId && (
       <div className="fixed top-0 right-0 w-[400px] h-full bg-white shadow-lg border-l z-50 overflow-y-auto flex flex-col">
         <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-lg font-bold">Configurer les paramètres</h2>
+          <h2 className="text-lg font-bold">Configure settings</h2>
           <button
             onClick={() => {
               setConfiguratorOpen(false);
@@ -601,7 +601,7 @@ const handleDeploy = async () => {
 
         {(() => {
           const node = nodes.find((n) => n.id === selectedConfigNodeId);
-          if (!node) return <p className="p-4">Étape non trouvée</p>;
+          if (!node) return <p className="p-4">Step not fount.</p>;
 
           return (
             <StepConfigurator

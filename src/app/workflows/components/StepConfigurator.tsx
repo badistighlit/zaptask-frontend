@@ -6,30 +6,24 @@ import {
   WorkflowStepInput,
   ConfigValue,
   ParameterType,
+  WorkflowActionStatus,
 } from "@/types/workflow";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useDebounce } from "../hooks/useDebounce"; // Assure-toi d’avoir ce hook
+import { useDebounce } from "../hooks/useDebounce";
 import { useTestWorkflowAction } from "@/services/workflow";
-import { WorkflowActionStatus } from "@/types/workflow";
 
 interface StepConfiguratorProps {
   step: WorkflowStepInput | null;
   onChange: (updatedStep: WorkflowStepInput) => void;
 }
 
-const StepConfigurator: React.FC<StepConfiguratorProps> = ({
-  step,
-  onChange,
-  
-}) => {
+const StepConfigurator: React.FC<StepConfiguratorProps> = ({ step, onChange }) => {
   const [localConfig, setLocalConfig] = useState<ParameterField[]>([]);
   const [activeTab, setActiveTab] = useState("configure");
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const { testWorkflowAction } = useTestWorkflowAction(); // test
+  const { testWorkflowAction } = useTestWorkflowAction();
 
-
-  // Débounce localConfig pour éviter les sauvegardes à chaque frappe
   const debouncedConfig = useDebounce(localConfig, 600);
 
   useEffect(() => {
@@ -46,42 +40,33 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
     setLastSaved(new Date());
   }, [debouncedConfig]);
 
-
-  //si les la liste des options est à 1 on pose default value  avec la premiere value
   useEffect(() => {
-  const updatedConfig = localConfig.map((param) => {
-    if (
-      param.type === "select" &&
-      Array.isArray(param.options) &&
-      param.options.length > 0 &&
-      (param.value === undefined || param.value === null || param.value === "")
-    ) {
-      return { ...param, value: param.options[0] };
-    }
-    return param;
-  });
+    const updated = localConfig.map((param) => {
+      if (
+        param.type === "select" &&
+        Array.isArray(param.options) &&
+        param.options.length > 0 &&
+        (param.value === undefined || param.value === null || param.value === "")
+      ) {
+        return { ...param, value: param.options[0] };
+      }
+      return param;
+    });
 
-  const changed = updatedConfig.some((p, i) => p.value !== localConfig[i].value);
-  if (changed) {
-    setLocalConfig(updatedConfig);
-  }
-}, [localConfig]);
-
-
-
-
-
+    const changed = updated.some((p, i) => p.value !== localConfig[i].value);
+    if (changed) setLocalConfig(updated);
+  }, [localConfig]);
 
   const handleInputChange = (key: string, newValue: ConfigValue) => {
-    const updatedConfig = localConfig.map((param) =>
+    const updated = localConfig.map((param) =>
       param.key === key ? { ...param, value: newValue } : param
     );
-    setLocalConfig(updatedConfig);
+    setLocalConfig(updated);
   };
 
   const getInputValue = (value: ConfigValue, type: ParameterType): string | number => {
     if (value === undefined || value === null) return "";
-    if (type === "checkbox") return ""; // géré par checked
+    if (type === "checkbox") return "";
     if (typeof value === "boolean") return value ? "true" : "false";
     return value;
   };
@@ -90,18 +75,16 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
     const inputId = `param-${param.key}`;
     const value = getInputValue(param.value, param.type);
 
-    const commonProps = {
-      id: inputId,
-      required: param.required,
-      className: "w-full border px-2 py-1 rounded",
-      name: param.key,
-      autoComplete: "on", // Permet le remplissage automatique
-    };
+    const baseInput =
+      "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm";
 
     if (param.type === "textarea" || param.type === "multiline") {
       return (
         <textarea
-          {...commonProps}
+          id={inputId}
+          className={baseInput}
+          name={param.key}
+          required={param.required}
           defaultValue={String(value)}
           onChange={(e) => handleInputChange(param.key, e.target.value)}
         />
@@ -111,8 +94,11 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
     if (param.type === "datetime") {
       return (
         <input
-          {...commonProps}
           type="datetime-local"
+          className={baseInput}
+          id={inputId}
+          name={param.key}
+          required={param.required}
           defaultValue={String(value)}
           onChange={(e) => handleInputChange(param.key, e.target.value)}
         />
@@ -122,10 +108,10 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
     if (param.type === "checkbox") {
       return (
         <input
-          {...commonProps}
           type="checkbox"
+          id={inputId}
+          className="h-5 w-5 text-blue-600"
           checked={Boolean(param.value)}
-          autoComplete="off" // souvent off pour checkbox
           onChange={(e) => handleInputChange(param.key, e.target.checked)}
         />
       );
@@ -133,57 +119,53 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({
 
     if (param.type === "radio" && param.options) {
       return param.options.map((opt) => (
-        <label key={opt} className="mr-4">
+        <label key={opt} className="mr-4 text-sm">
           <input
             type="radio"
             name={param.key}
             value={opt}
             checked={param.value === opt}
-            autoComplete="off"
             onChange={(e) => handleInputChange(param.key, e.target.value)}
-          />{" "}
+            className="mr-1"
+          />
           {opt}
         </label>
       ));
     }
 
-if (param.type === "select" && Array.isArray(param.options) && param.options.length > 0) {
-  return (
-    <label key={param.key} className="mr-4">
-      <select
-        name={param.key}
-        value={typeof param.value === "string" || typeof param.value === "number" ? param.value : param.options[0]}
-        autoComplete="on"
-        onChange={(e) => handleInputChange(param.key, e.target.value)}
-        disabled={param.options.length === 1}
-      >
-        {param.options.map((opt, index) => (
-          <option key={index} value={opt}>
-            {opt}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-}
+    if (param.type === "select" && param.options?.length) {
+      return (
+        <select
+          name={param.key}
+          className={baseInput}
+          value={
+            typeof param.value === "string" || typeof param.value === "number"
+              ? param.value
+              : param.options[0]
+          }
+          onChange={(e) => handleInputChange(param.key, e.target.value)}
+          disabled={param.options.length === 1}
+        >
+          {param.options.map((opt, index) => (
+            <option key={index} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+      );
+    }
 
-
-
-
-
-    // Par défaut input texte/number
     return (
       <input
-        {...commonProps}
-        type={param.type}
+        type={param.type === "number" ? "number" : "text"}
+        className={baseInput}
+        id={inputId}
+        name={param.key}
+        required={param.required}
         defaultValue={String(value)}
         onChange={(e) => {
-          if (param.type === "number") {
-            const numVal = e.target.value === "" ? "" : Number(e.target.value);
-            handleInputChange(param.key, numVal);
-          } else {
-            handleInputChange(param.key, e.target.value);
-          }
+          const val = param.type === "number" ? Number(e.target.value) : e.target.value;
+          handleInputChange(param.key, val);
         }}
       />
     );
@@ -192,57 +174,57 @@ if (param.type === "select" && Array.isArray(param.options) && param.options.len
   if (!step) return null;
 
   return (
-    <div className="space-y-4 p-4 border rounded bg-white">
-      <div className="flex justify-between items-center mb-2">
-        <h3 className="text-lg font-semibold">Configurer : {step.name}</h3>
+    <div className="space-y-6 p-6 rounded-xl bg-gray-50 border border-gray-200 shadow-sm">
+      <div className="flex justify-between items-center">
+        <h3 className="text-xl font-semibold text-gray-800">
+          Configure: <span className="text-blue-600">{step.name}</span>
+        </h3>
         {lastSaved && (
           <span className="text-sm text-gray-500">
-            Auto-saved à {lastSaved.toLocaleTimeString()}
+            Auto-saved at {lastSaved.toLocaleTimeString()}
           </span>
         )}
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="configure">Configurer</TabsTrigger>
+        <TabsList className="bg-white rounded shadow-sm">
+          <TabsTrigger value="configure">Configure</TabsTrigger>
           <TabsTrigger value="test">Test</TabsTrigger>
         </TabsList>
 
         <TabsContent value="configure">
-          {localConfig.length === 0 && (
-            <p className="text-gray-500">Nothing to parametre.</p>
+          {localConfig.length === 0 ? (
+            <p className="text-gray-500 italic mt-2">No parameters to configure.</p>
+          ) : (
+            localConfig.map((param) => (
+              <div key={param.key} className="space-y-1 mb-4">
+                <label htmlFor={`param-${param.key}`} className="font-medium block">
+                  {param.name} {param.required && <span className="text-red-500">*</span>}
+                </label>
+                {renderField(param)}
+                {param.description && (
+                  <p className="text-sm text-gray-500">{param.description}</p>
+                )}
+              </div>
+            ))
           )}
-
-          {localConfig.map((param) => (
-            <div key={param.key} className="space-y-1 mb-4">
-              <label htmlFor={`param-${param.key}`} className="block font-medium">
-                {param.name} {param.required && <span className="text-red-500">*</span>}
-              </label>
-              {renderField(param)}
-              {param.description && (
-                <p className="text-sm text-gray-500">{param.description}</p>
-              )}
-            </div>
-          ))}
         </TabsContent>
 
-        <TabsContent value="test" className="flex flex-col items-start gap-4">
-          <p className="text-gray-600">
-            Here you can test your action.
-          </p>
+        <TabsContent value="test" className="pt-4">
+          <p className="text-gray-600 mb-4">Test this action’s behavior.</p>
           <button
             type="button"
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-                onClick={async () => {
-                  if (step) {
-                    const result = await testWorkflowAction(step);
-                    const newStatus: WorkflowActionStatus = result === "success" ? "tested" : "error";
-                    const updatedStep = { ...step, status: newStatus };
-                    onChange(updatedStep);
-                  }
-                }}
+            onClick={async () => {
+              if (step) {
+                const result = await testWorkflowAction(step);
+                const newStatus: WorkflowActionStatus =
+                  result === "success" ? "tested" : "error";
+                onChange({ ...step, status: newStatus });
+              }
+            }}
+            className="px-5 py-2 rounded-lg bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 transition"
           >
-            Test
+            Run Test
           </button>
         </TabsContent>
       </Tabs>
