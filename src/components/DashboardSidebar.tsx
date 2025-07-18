@@ -6,12 +6,12 @@ import { useState } from "react";
 import {
   Home,
   Workflow,
-  Settings,
   List,
   Server,
   FileText,
   ChevronsLeft,
   ChevronsRight,
+  ChartPie,
   LogOut,
 } from "lucide-react";
 import clsx from "clsx";
@@ -21,9 +21,10 @@ const navItems = [
   { name: "Dashboard", href: "/", icon: Home },
   { name: "Build workflow", href: "/workflows", icon: Workflow },
   { name: "My workflows", href: "/myWorkflows", icon: List },
-  { name: "My services", href: "/services", icon: Server },
   { name: "Logs", href: "/workflowLogs", icon: FileText },
-  { name: "Settings", href: "/settings", icon: Settings },
+  { name: "Statistics", href: "/stats", icon: ChartPie },
+  { name: "My services", href: "/services", icon: Server },
+
 ];
 
 export default function DashboardSidebar() {

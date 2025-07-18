@@ -10,7 +10,7 @@ const NODE_X = 250; // position fixe verticale
 
 // Organisation et conversion des nodes 
 
-import { ParameterField, WorkflowData, WorkflowStepInput } from "@/types/workflow";
+import {  WorkflowData, WorkflowStepInput } from "@/types/workflow";
 import { Edge } from "reactflow";
 
 // conversion des steps en noedus

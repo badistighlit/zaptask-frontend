@@ -1,4 +1,5 @@
 import { WorkflowLog, WorkflowLogs } from "./logs";
+import { FrontStatsData } from "./statsTypes";
 import {
   ParametersSchema,
   ParameterField,
@@ -105,6 +106,51 @@ export interface BackWorkflowLogs {
   workflow_id: string;
   workflow_name : string
   logs: BackLog[];
+}
+
+
+
+
+
+//stats
+
+export interface StatsData {
+  workflows: {
+    total: number;
+    by_status: {
+      [status: string]: {
+        count: number;
+        percent: number;
+      };
+    };
+    by_month: {
+      [month: string]: number; 
+    };
+  };
+  actions: {
+    total: number;
+    by_status: {
+      [status: string]: {
+        count: number;
+        percent: number;
+      };
+    };
+  };
+  executions: {
+    total: number;
+    by_status: {
+      [status: string]: {
+        count: number;
+        percent: number;
+      };
+    };
+    last_errors: {
+      action_id: string;
+      message: string;
+      executed_at: string; 
+    }[];
+  };
+  used_services: string[];
 }
 
 
@@ -217,5 +263,50 @@ export function mapWorkflowToPush(workflow: WorkflowData): PushWorkflow {
   return {
     name: workflow.name,
     actions: workflow.steps.map(mapStepToPushAction),
+  };
+}
+
+
+
+
+
+
+
+export function mapStatsToFront(data: StatsData): FrontStatsData {
+  return {
+    workflows: {
+      total: data.workflows.total,
+      statuses: Object.entries(data.workflows.by_status).map(([label, stat]) => ({
+        label,
+        count: stat.count,
+        percent: stat.percent,
+      })),
+      monthlyCounts: Object.entries(data.workflows.by_month).map(([month, count]) => ({
+        month,
+        count,
+      })),
+    },
+    actions: {
+      total: data.actions.total,
+      statuses: Object.entries(data.actions.by_status).map(([label, stat]) => ({
+        label,
+        count: stat.count,
+        percent: stat.percent,
+      })),
+    },
+    executions: {
+      total: data.executions.total,
+      statuses: Object.entries(data.executions.by_status).map(([label, stat]) => ({
+        label,
+        count: stat.count,
+        percent: stat.percent,
+      })),
+      lastErrors: data.executions.last_errors.map((error) => ({
+        actionId: error.action_id,
+        message: error.message,
+        executedAt: error.executed_at,
+      })),
+    },
+    usedServices: data.used_services,
   };
 }

@@ -1,6 +1,7 @@
 import { useNotify } from "@/components/NotificationProvider";
-import {   BackendServiceAction, BackendWorkflow, mapBackendParams, mapBackendWorkflow, mapBackendWorkflowLogs } from "@/types/BackTypes";
+import {   BackendServiceAction, BackendWorkflow, mapBackendParams, mapBackendWorkflow, mapBackendWorkflowLogs, mapStatsToFront, StatsData } from "@/types/BackTypes";
 import { WorkflowLogs } from "@/types/logs";
+import { FrontStatsData } from "@/types/statsTypes";
 import {
   ActionOrTrigger,
   WorkflowData,
@@ -465,7 +466,7 @@ function mapActionFromApi(action: BackendServiceAction, serviceId: string): Acti
     name: action.name,
     service_id: serviceId,
     type: action.type,
-    parameters: mapBackendParams(action.parameters), // ✅ CORRECT
+    parameters: mapBackendParams(action.parameters), 
   };
 }
 
@@ -499,3 +500,47 @@ function handleConnectionError(error: unknown): boolean {
 
 
 
+
+// stats 
+
+
+export function useFetchStats() {
+  const notify = useNotify();
+
+  const fetchStats = async (): Promise<FrontStatsData | null> => {
+    try {
+      const response = await api.get<StatsData>('/stats');
+
+      if (response.status === 200) {
+        return mapStatsToFront(response.data);
+      } else {
+        notify('Unexpected status code while fetching stats.', 'error');
+        return null;
+      }
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      const status = axiosError.response?.status;
+      const message = axiosError.response?.data?.message;
+
+      switch (status) {
+        case 400:
+          notify('Invalid request for stats.', 'error');
+          break;
+        case 404:
+          notify('Stats endpoint not found.', 'error');
+          break;
+        case 401:
+        case 403:
+          notify('Unauthorized to fetch stats.', 'error');
+          break;
+        default:
+          notify(message || 'An unexpected error occurred while fetching stats.', 'error');
+          break;
+      }
+
+      return null;
+    }
+  };
+
+  return { fetchStats };
+}
