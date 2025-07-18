@@ -16,7 +16,7 @@ export interface BackendParam {
   parameter_name: string;
   parameter_key: string;
   parameter_type: ParameterType;
-  parameter_value?: string;
+  parameter_value?: string | string[];
   options?: string[];
   required?: boolean;
   description?: string;

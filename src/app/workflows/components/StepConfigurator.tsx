@@ -14,6 +14,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useDebounce } from "../hooks/useDebounce";
 import { useTestWorkflowAction } from "@/services/workflow";
 import { CheckCircle, AlertTriangle, Settings } from "lucide-react";
+import TagsInput from "@/components/TagsInput";
+
 
 
 interface StepConfiguratorProps {
@@ -92,7 +94,7 @@ const handleInputChange = (key: string, newValue: ConfigValue) => {
 
 
 
-  const getInputValue = (value: ConfigValue, type: ParameterType): string | number => {
+  const getInputValue = (value: ConfigValue, type: ParameterType): string | number | string[] => {
     if (value === undefined || value === null) return "";
     if (type === "checkbox") return "";
     if (typeof value === "boolean") return value ? "true" : "false";
@@ -113,6 +115,16 @@ const handleInputChange = (key: string, newValue: ConfigValue) => {
       </div>
     );
   }
+
+
+  if (param.type === "array") {
+  return (
+    <TagsInput
+      value={Array.isArray(param.value) ? param.value : []}
+      onChange={(newTags) => handleInputChange(param.key, newTags)}
+    />
+  );
+}
 
 
 

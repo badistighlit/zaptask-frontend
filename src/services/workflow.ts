@@ -83,6 +83,7 @@ export async function updateWorkflow(workflowData: WorkflowData) {
   console.log("Payload for update:", payload);
 
   try {
+    console.log(payload);
     const response = await api.put(`/workflows/${workflowData.id}`, payload);
     return mapBackendWorkflow (response.data);
   } catch (error) {
@@ -447,7 +448,7 @@ function buildUpdatePayload(workflowData: WorkflowData) {
       status: step.status,
       execution_order: step.order,
       parameters: step.config
-        ? step.config.reduce<Record<string, string | number | boolean | null>>((acc, param) => {
+        ? step.config.reduce<Record<string, string | string []| number | boolean | null>>((acc, param) => {
             acc[param.key] = param.value !== undefined ? param.value : null;
             return acc;
           }, {})
