@@ -35,7 +35,7 @@ export default function ServiceSelectorModal({
   useEffect(() => {
     if (!open) return;
     resetModal();
-    loadServices();
+    loadServices(stepType);
   }, [open]);
 
   const resetModal = () => {
@@ -45,10 +45,13 @@ export default function ServiceSelectorModal({
     setServiceConnected(false);
   };
 
-  const loadServices = async () => {
+  const loadServices = async (stepType: WorkflowStepType) => {
     setLoadingServices(true);
     try {
-      const data = await fetchServices();
+      const data = (await fetchServices())
+          .filter((service: Service) => {
+              return stepType === 'trigger' ? service.hasTriggers : service.hasActions;
+          })
       setServices(data);
     } catch (err) {
       console.error("Error while fetching services :", err);
