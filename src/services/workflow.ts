@@ -6,6 +6,8 @@ import {
   WorkflowData,
   Service,
   WorkflowStepInput,
+  WorkflowStatus,
+  WorkflowActionStatus,
   
 } from "@/types/workflow";
 import api from "@/utils/api";
@@ -128,28 +130,29 @@ export async function testWorkflow(workflow: WorkflowData): Promise<boolean> {
 export function useTestWorkflowAction() {
   const notify = useNotify();
 
-  const testWorkflowAction = async (step: WorkflowStepInput): Promise<"success" | "error"> => {
-    if (!step.ref_id || step.ref_id.startsWith("temp")) {
-      notify("Missing step identifier, please save your workflow.", "error");
-      return "error";
-    }
+const testWorkflowAction = async (step: WorkflowStepInput): Promise<[WorkflowStatus, WorkflowActionStatus]> => {
+  if (!step.ref_id || step.ref_id.startsWith("temp")) {
+    notify("Missing step identifier, please save your workflow.", "error");
+    return ["error", "error"];
+  }
 
-    try {
-      const res = await api.post(`/actions/execute/${step.ref_id}`, step);
+  try {
+    const res = await api.post(`/actions/execute/${step.ref_id}`, step);
 
-      if (res.status === 200) {
-        notify("Step executed successfully.", "success");
-        return "success";
-      } else {
-        notify("An error occurred. Please check your workflow logs.", "error");
-        return "error";
-      }
-    } catch (error) {
-      console.error("Test execution error", error);
+    if (res.status === 200) {
+      notify("Step executed successfully.", "success");
+      // Exemple : res.data = { status: "running", action_status: "success" }
+      return [res.data.status, "tested"];
+    } else {
       notify("An error occurred. Please check your workflow logs.", "error");
-      return "error";
+      return ["error", "error"];
     }
-  };
+  } catch (error) {
+    console.error("Test execution error", error);
+    notify("An error occurred. Please check your workflow logs.", "error");
+    return ["error", "error"];
+  }
+};
 
   return { testWorkflowAction };
 }

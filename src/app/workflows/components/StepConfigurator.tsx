@@ -7,6 +7,7 @@ import {
   ConfigValue,
   ParameterType,
   WorkflowActionStatus,
+  WorkflowStatus,
 } from "@/types/workflow";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -16,9 +17,11 @@ import { useTestWorkflowAction } from "@/services/workflow";
 interface StepConfiguratorProps {
   step: WorkflowStepInput | null;
   onChange: (updatedStep: WorkflowStepInput) => void;
+  onWorkflowStatusChange : (workflowStatus : WorkflowStatus) => void;
+ 
 }
 
-const StepConfigurator: React.FC<StepConfiguratorProps> = ({ step, onChange }) => {
+const StepConfigurator: React.FC<StepConfiguratorProps> = ({ step, onChange, onWorkflowStatusChange }) => {
   const [localConfig, setLocalConfig] = useState<ParameterField[]>([]);
   const [activeTab, setActiveTab] = useState("configure");
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -236,14 +239,17 @@ useEffect(() => {
           <p className="text-gray-600 mb-4">Test this action’s behavior.</p>
           <button
             type="button"
-            onClick={async () => {
-              if (step) {
-                const result = await testWorkflowAction(step);
-                const newStatus: WorkflowActionStatus =
-                  result === "success" ? "tested" : "error";
-                onChange({ ...step, status: newStatus });
-              }
-            }}
+                    onClick={async () => {
+                      if (step) {
+                        const [workflowStatus, actionStatus] = await testWorkflowAction(step);
+
+                        // maj le step
+                        onChange({ ...step, status: actionStatus });
+
+                        // majle  workflow global
+                        onWorkflowStatusChange?.(workflowStatus);
+                      }
+                    }}
             className="px-5 py-2 rounded-lg bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 transition"
           >
             Run Test

@@ -651,10 +651,17 @@ const handleDeploy = async () => {
                   )
                 );
               }}
+              onWorkflowStatusChange={(newStatus) => { setWorkflowStatus(newStatus)
+                  console.log("nouveau status : " +workflowStatus)
 
+              }
+              }
 
+              
             />
           );
+
+
         })()}
       </div>
     )}
