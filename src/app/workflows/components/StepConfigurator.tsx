@@ -69,12 +69,26 @@ useEffect(() => {
     if (changed) setLocalConfig(updated);
   }, [localConfig]);
 
-  const handleInputChange = (key: string, newValue: ConfigValue) => {
-    const updated = localConfig.map((param) =>
-      param.key === key ? { ...param, value: newValue } : param
-    );
-    setLocalConfig(updated);
-  };
+
+
+
+const handleInputChange = (key: string, newValue: ConfigValue) => {
+  const updated = localConfig.map((param) =>
+    param.key === key ? { ...param, value: newValue } : param
+  );
+
+  setLocalConfig(updated);
+
+  onChange({
+    ...step!,
+    config: updated,
+    status: "draft",
+  });
+
+  setLastSaved(new Date());
+};
+
+
 
   const getInputValue = (value: ConfigValue, type: ParameterType): string | number => {
     if (value === undefined || value === null) return "";

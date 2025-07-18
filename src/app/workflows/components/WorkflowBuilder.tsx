@@ -645,6 +645,7 @@ const handleDeploy = async () => {
                           data: {
                             ...n.data,
                             step: updatedStep,
+                            
                           },
                         }
                       : n

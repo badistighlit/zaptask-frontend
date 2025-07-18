@@ -10,7 +10,7 @@ const NODE_X = 250; // position fixe verticale
 
 // Organisation et conversion des nodes 
 
-import { WorkflowData, WorkflowStepInput } from "@/types/workflow";
+import { ParameterField, WorkflowData, WorkflowStepInput } from "@/types/workflow";
 import { Edge } from "reactflow";
 
 // conversion des steps en noedus
@@ -222,3 +222,21 @@ export const initialSteps: WorkflowStepInput[] = [
     action: "",
   },
 ];
+
+
+
+
+
+// step configurator utils
+
+export const isConfigDifferent = (a: ParameterField[], b: ParameterField[]) => {
+  if (a.length !== b.length) return true;
+
+  return a.some((paramA, i) => {
+    const paramB = b[i];
+    return (
+      paramA.key !== paramB.key ||
+      paramA.value !== paramB.value
+    );
+  });
+};
