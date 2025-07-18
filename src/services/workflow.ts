@@ -32,7 +32,7 @@ async function fetchAllByService(serviceId: string): Promise<ActionOrTrigger[]> 
     const response = await api.get(`/${serviceId}/actions`);
     const service = response.data.data;
 
-    return service.actions.map((action: BackendServiceAction) =>
+    return service.serviceActions.map((action: BackendServiceAction) =>
       mapActionFromApi(action, service.identifier)
     );
   } catch (error) {

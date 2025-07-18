@@ -96,6 +96,8 @@ export interface ActionOrTrigger {
 export interface Service {
   identifier: string;         
   name?: string;
+  hasTriggers: boolean;
+  hasActions: boolean;
 }
 
 

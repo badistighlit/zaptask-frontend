@@ -6,7 +6,6 @@ import {
   WorkflowStepInput,
   ConfigValue,
   ParameterType,
-  WorkflowActionStatus,
   WorkflowStatus,
 } from "@/types/workflow";
 
