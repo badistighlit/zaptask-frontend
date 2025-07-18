@@ -220,21 +220,50 @@ useEffect(() => {
 
 const handleNodeClick = (node: Node | undefined) => {
   if (!node) return;
+  
 
   if (node.type === "customWorkflowNode") {
     const step = node.data.step;
+    const isSameNode = selectedConfigNodeId === node.id;
 
-    setModalOpen(false); 
+          if (!step || !Array.isArray(step.config)) {
+        setConfiguratorOpen(false);
+        setSelectedConfigNodeId(null);
+        setModalOpen(false);
+        return;
+}
 
-    setSelectedConfigNodeId(node.id);
-    setConfiguratorOpen(false);
 
-    setCurrentStepId(node.id);
-    setCurrentStepType(step.type);
+    setModalOpen(false);
 
-    if (!step.service) {
-      setModalOpen(true); // si pas de service, ouvrir modal de sélection
+    if (isSameNode) {
+      // Toggle si même node
+      if (configuratorOpen) {
+        setConfiguratorOpen(false);
+        setSelectedConfigNodeId(null);
+      } else {
+        setConfiguratorOpen(true);
+      }
+      return;
     }
+// ferme si nouveau node
+    setConfiguratorOpen(false);
+    setSelectedConfigNodeId(null);
+
+    // timout attente de maj
+    setTimeout(() => {
+      setSelectedConfigNodeId(node.id);
+      setCurrentStepId(node.id);
+      setCurrentStepType(step.type);
+
+      if (!step.service) {
+        setModalOpen(true);
+        setConfiguratorOpen(false);
+      } else {
+        setModalOpen(false);
+        setConfiguratorOpen(true);
+      }
+    }, 50); 
   }
 
   if (node.type === "insertButton") {
@@ -242,6 +271,8 @@ const handleNodeClick = (node: Node | undefined) => {
     addActionBetween(from, to);
   }
 };
+
+
 
 useEffect(() => {
   if (!selectedConfigNodeId) {
@@ -256,7 +287,7 @@ useEffect(() => {
   }
 
   if (node.data.step.service) {
-    // délai min pour forcer le rendu après fermeture
+   //force le rendu
     const timeout = setTimeout(() => {
       setConfiguratorOpen(true);
     }, 50);
@@ -519,7 +550,7 @@ const handleDeploy = async () => {
       alert("Workflow ID is required to deploy.");
       return;
     }
-    handleSave();
+  //  handleSave();
 
     const data = await deployWorkflow(initialWorkflow.id);
 

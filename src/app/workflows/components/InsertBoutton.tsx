@@ -6,7 +6,6 @@ export default function InsertButton({ data }: NodeProps) {
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    //  CustomEvent avec les IDs entre lesquels insérer une action
     const customEvent = new CustomEvent("addActionBetween", {
       detail: {
         from: data.between[0],

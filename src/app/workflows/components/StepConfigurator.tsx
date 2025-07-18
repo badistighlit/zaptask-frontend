@@ -26,19 +26,28 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({ step, onChange }) =
 
   const debouncedConfig = useDebounce(localConfig, 600);
 
-  useEffect(() => {
-    if (step?.config && Array.isArray(step.config)) {
-      setLocalConfig(step.config);
-    } else {
-      setLocalConfig([]);
-    }
-  }, [step?.ref_id]);
+useEffect(() => {
+  if (!step) return;
+
+  if (!Array.isArray(step.config)) return;
+
+  if (step.config.length === 0) {
+    return;
+  }
+
+  setLocalConfig(step.config);
+}, [step]);
+
+
+
 
   useEffect(() => {
     if (!step) return;
     onChange({ ...step, config: debouncedConfig });
     setLastSaved(new Date());
   }, [debouncedConfig]);
+
+
 
   useEffect(() => {
     const updated = localConfig.map((param) => {
@@ -77,6 +86,16 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({ step, onChange }) =
 
     const baseInput =
       "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm";
+
+  if (!step || !Array.isArray(step.config)) {
+    return (
+      <div className="p-4 text-sm text-gray-500 italic">
+        Loading configuration...
+      </div>
+    );
+  }
+
+
 
     if (param.type === "textarea" || param.type === "multiline") {
       return (
@@ -192,23 +211,26 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({ step, onChange }) =
           <TabsTrigger value="test">Test</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="configure">
-          {localConfig.length === 0 ? (
-            <p className="text-gray-500 italic mt-2">No parameters to configure.</p>
-          ) : (
-            localConfig.map((param) => (
-              <div key={param.key} className="space-y-1 mb-4">
-                <label htmlFor={`param-${param.key}`} className="font-medium block">
-                  {param.name} {param.required && <span className="text-red-500">*</span>}
-                </label>
-                {renderField(param)}
-                {param.description && (
-                  <p className="text-sm text-gray-500">{param.description}</p>
-                )}
-              </div>
-            ))
-          )}
-        </TabsContent>
+<TabsContent value="configure">
+  {!step?.config ? (
+    <p className="text-gray-400 italic mt-2">Loading parameters…</p>
+  ) : localConfig.length === 0 ? (
+    <p className="text-gray-500 italic mt-2">No parameters to configure.</p>
+  ) : (
+    localConfig.map((param) => (
+      <div key={param.key} className="space-y-1 mb-4">
+        <label htmlFor={`param-${param.key}`} className="font-medium block">
+          {param.name} {param.required && <span className="text-red-500">*</span>}
+        </label>
+        {renderField(param)}
+        {param.description && (
+          <p className="text-sm text-gray-500">{param.description}</p>
+        )}
+      </div>
+    ))
+  )}
+</TabsContent>
+
 
         <TabsContent value="test" className="pt-4">
           <p className="text-gray-600 mb-4">Test this action’s behavior.</p>
