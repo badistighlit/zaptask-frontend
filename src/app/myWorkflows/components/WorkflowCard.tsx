@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { WorkflowData } from "@/types/workflow";
-import { BadgeCheck, Edit, Workflow, Captions, Trash2 } from "lucide-react";
+import { BadgeCheck, Edit, Workflow, Captions, Trash2, FlaskConical, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import { useDeleteWorkflow } from "@/services/workflow";
@@ -16,8 +16,6 @@ interface Props {
 export default function WorkflowCard({ workflow, onDelete }: Props) {
   const notify = useNotify();
   const router = useRouter();
-
-  const isDeployed = workflow.status === "deployed";
   const [modalOpen, setModalOpen] = useState(false);
   const deleteWorkflow = useDeleteWorkflow();
 
@@ -42,13 +40,49 @@ export default function WorkflowCard({ workflow, onDelete }: Props) {
       setModalOpen(false);
       onDelete?.(workflow.id);
     } catch (e) {
-      console.error("Failed to delete workflow unknown error:", e);
+      console.error("Failed to delete workflow:", e);
       notify("Erreur lors de la suppression.", "error");
     }
   };
 
   const handleCardClick = () => {
     router.push(`/workflows/${workflow.id}`);
+  };
+
+  const renderStatusBadge = () => {
+    switch (workflow.status) {
+      case "deployed":
+        return (
+          <span className="flex items-center text-green-600 font-semibold">
+            <BadgeCheck className="w-5 h-5 mr-1" />
+            Deployed
+          </span>
+        );
+      case "tested":
+        return (
+          <span className="flex items-center text-blue-600 font-semibold">
+            <FlaskConical className="w-5 h-5 mr-1" />
+            Tested
+          </span>
+        );
+      case "draft":
+        return (
+          <span className="text-gray-500 font-semibold italic">Draft</span>
+        );
+      case "error":
+        return (
+          <span className="text-red-600 font-semibold flex items-center gap-1">
+            <XCircle className="w-5 h-5" />
+            Error
+          </span>
+        );
+      default:
+        return (
+          <span className="text-yellow-600 font-semibold italic">
+            Unknown
+          </span>
+        );
+    }
   };
 
   return (
@@ -77,32 +111,7 @@ export default function WorkflowCard({ workflow, onDelete }: Props) {
             <h3 className="text-xl font-semibold text-gray-900">{workflow.name}</h3>
 
             <div className="flex items-center gap-3 text-sm mt-1">
-              {isDeployed ? (
-                <span className="flex items-center text-green-600 font-semibold">
-                  <BadgeCheck className="w-5 h-5 mr-1" />
-                  Deployed
-                </span>
-              ) : workflow.status === "draft" ? (
-                <span className="text-gray-500 font-semibold italic">Draft</span>
-              ) : (
-                <span className="text-red-600 font-semibold flex items-center gap-1">
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="15" y1="9" x2="9" y2="15" />
-                    <line x1="9" y1="9" x2="15" y2="15" />
-                  </svg>
-                  Error
-                </span>
-              )}
+              {renderStatusBadge()}
             </div>
 
             <div className="mt-2 text-xs text-gray-600">

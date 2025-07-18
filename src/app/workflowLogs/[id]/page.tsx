@@ -5,6 +5,8 @@ import { useParams } from "next/navigation";
 import { getWorkflowLogs } from "@/services/workflow";
 import { WorkflowLogs } from "@/types/logs";
 import WorkflowLogView from "../components/WorkflowLogView";
+import { Edit } from "lucide-react";
+import router from "next/router";
 
 export default function LogsDetailPage() {
   const params = useParams();
@@ -27,13 +29,34 @@ export default function LogsDetailPage() {
 
   return (
     <div className="max-w-6xl mx-auto py-8 px-6">
-      <header className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900">Workflow Logs</h1>
-        <div className="mt-3 inline-block bg-blue-100 text-blue-800 font-semibold px-4 py-2 rounded-lg shadow-sm select-none">
-          {data.name}
-        </div>
-        <hr className="mt-6 border-gray-200" />
-      </header>
+<header className="mb-8 flex justify-between items-start">
+  <div>
+    <h1 className="text-4xl font-bold text-gray-900">Workflow Logs</h1>
+    <div className="mt-3 inline-block bg-blue-100 text-blue-800 font-semibold px-4 py-2 rounded-lg shadow-sm select-none">
+      {data.name}
+    </div>
+  </div>
+
+  <button
+    onClick={(e) => {
+      e.stopPropagation();
+      router.push(`/workflows/${workflowId}`);
+    }}
+    className="
+      flex items-center gap-2 px-4 py-2 rounded-2xl
+      bg-indigo-50 text-indigo-700
+      font-semibold
+      hover:bg-indigo-100
+      focus:outline-none focus:ring-2 focus:ring-indigo-400
+      shadow-sm
+      transition
+    "
+    aria-label={`Edit workflow`}
+  >
+    <Edit className="w-5 h-5" />
+    Edit
+  </button>
+</header>
 
       <WorkflowLogView logs={data.logs} />
     </div>

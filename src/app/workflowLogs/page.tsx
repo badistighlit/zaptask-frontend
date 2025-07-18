@@ -13,6 +13,7 @@ const statuses: (WorkflowStatus | "all")[] = [
   "draft",
   "deployed",
   "error",
+  "tested"
 ];
 
 export default function LogsPage() {

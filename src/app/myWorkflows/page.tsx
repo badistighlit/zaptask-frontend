@@ -21,6 +21,7 @@ const statuses: (WorkflowStatus | "all")[] = [
   "all",
   "draft",
   "deployed",
+  "tested",
   "error",
 ];
 

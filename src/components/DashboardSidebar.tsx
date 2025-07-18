@@ -31,20 +31,21 @@ export default function DashboardSidebar() {
 
   function handleLogout() {
     deleteUserInfo();
-      window.location.href = "/";
+    window.location.href = "/";
   }
 
   return (
     <aside
       className={clsx(
-        "h-screen bg-white border-r border-gray-200 flex flex-col justify-between fixed top-0 left-0 z-40 shadow-sm transition-all duration-300",
-        collapsed ? "w-20" : "w-64"
+        "h-screen fixed top-0 left-0 z-40 flex flex-col justify-between transition-all duration-300",
+        collapsed ? "w-20" : "w-64",
+        "bg-slate-200 border-r border-gray-300 shadow-lg"
       )}
     >
       {/* Top: Logo + Nav */}
       <div className="p-5">
         {/* Logo */}
-        <div className="flex justify-center mb-10">
+        <div className="flex justify-center mb-8">
           <Image
             src={collapsed ? "/z-logo.png" : "/logo-transparent.png"}
             alt="Logo"
@@ -62,20 +63,20 @@ export default function DashboardSidebar() {
               key={href}
               href={href}
               className={clsx(
-                "flex items-center gap-3 p-2 rounded-md text-gray-700 hover:bg-blue-100 hover:text-blue-700 transition-colors",
+                "flex items-center gap-3 p-3 rounded-lg text-slate-800 hover:bg-slate-300 hover:text-indigo-700 hover:scale-[1.01] transform transition-all",
                 collapsed && "justify-center"
               )}
             >
-              <Icon size={20} className="text-blue-500" />
+              <Icon size={20} className="text-indigo-600" />
               {!collapsed && <span className="text-sm font-medium">{name}</span>}
             </Link>
           ))}
 
-          {/* Bouton Déconnexion */}
+          {/* Logout */}
           <button
             onClick={handleLogout}
             className={clsx(
-              "mt-4 flex items-center gap-3 p-2 rounded-md text-red-600 hover:bg-red-100 hover:text-red-700 transition-colors w-full",
+              "mt-4 flex items-center gap-3 p-3 rounded-lg text-red-500 hover:bg-red-100 hover:text-red-600 hover:scale-[1.01] transition-all w-full",
               collapsed && "justify-center"
             )}
           >
@@ -85,14 +86,14 @@ export default function DashboardSidebar() {
         </nav>
       </div>
 
-      {/* Bottom: Toggle Button */}
-      <div className="p-4 border-t border-gray-200">
+      {/* Bottom: Collapse Button */}
+      <div className="p-4 border-t border-gray-300">
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="flex items-center justify-center w-full p-2 hover:bg-blue-100 rounded-md text-gray-600 transition-colors"
+          className="flex items-center justify-center w-full p-2 hover:bg-slate-300 rounded-md text-indigo-700 transition"
         >
           {collapsed ? <ChevronsRight size={20} /> : <ChevronsLeft size={20} />}
-          {!collapsed && <span className="ml-2 text-sm">Réduire</span>}
+          {!collapsed && <span className="ml-2 text-sm font-medium">Réduire</span>}
         </button>
       </div>
     </aside>

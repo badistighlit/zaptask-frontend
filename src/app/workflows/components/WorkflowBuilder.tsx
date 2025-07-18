@@ -181,7 +181,7 @@ const { undeployWorkflow } = useUndeployWorkflow();
 
 
 // verification si le workflow est tested : 
-const [workflowStatus,setWorkflowStatus] = useState(initialWorkflow.status);
+const [workflowStatus,setWorkflowStatus] = useState(workflow.status);
 const steps = extractStepsFromNodes(nodes); 
 const allStepsTested = isWorkflowTested(steps);
 const isDeployableStatus = ["draft", "tested", "error"].includes(workflowStatus);
