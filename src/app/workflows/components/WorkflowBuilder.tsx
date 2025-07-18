@@ -20,7 +20,7 @@ import StepConfigurator from "./StepConfigurator";
 import {  CirclePause, FileText, Rocket, Save, X } from "lucide-react";
 import {useUndeployWorkflow, deployWorkflow, updateWorkflow} from "@/services/workflow";
 import { useNotify } from "@/components/NotificationProvider";
-import { convertStepsToEdges, convertStepsToNodes, extractStepsFromNodes, getLocalNodeIdentifier,  initialWorkflowNode, isStepIncomplete, isWorkflowTested, reorderAndReposition } from "../utils/WorkflowUtils";
+import { convertStepsToEdges, convertStepsToNodes, extractStepsFromNodes, getLocalNodeIdentifier,  initialSteps,   isStepIncomplete, isWorkflowTested, reorderAndReposition } from "../utils/WorkflowUtils";
 
 
 
@@ -61,19 +61,7 @@ const NODE_X = 250; // position fixe verticale
 
 
 
-const initialNodes: Node[] = [
-  initialWorkflowNode("trigger-node", 50, "trigger", "Choose a Trigger"),
-  initialWorkflowNode("action-node", 50 + NODE_HEIGHT + VERTICAL_GAP, "action", "Choose an Action"),
-  {
-    id: "insert-0",
-    type: "insertButton",
-    position: {
-      x: NODE_X,
-      y: 50 + NODE_HEIGHT + VERTICAL_GAP / 2,
-    },
-    data: { between: ["trigger-node", "action-node"] },
-  },
-];
+
 
 const initialEdges: Edge[] = [
   { id: "edge-1", source: "trigger-node", target: "insert-0" },
@@ -91,6 +79,7 @@ const initialEdges: Edge[] = [
 export default function WorkflowBuilder({ initialWorkflow }: WorkflowBuilderProps) {
 
    const notify = useNotify();
+
 
 
    const injectNodeHandlers = (nodesToUpdate: Node[]): Node[] => {
@@ -113,67 +102,66 @@ export default function WorkflowBuilder({ initialWorkflow }: WorkflowBuilderProp
 
 
 
-const canDeleteNode = (nodeId: string): boolean => {
-   const node = nodes.find(n => (n.id) === nodeId) || nodes.find(n => n.data.step?.ref_id === nodeId);
-  if (!node || node.type !== "customWorkflowNode") return true;
+const canDeleteNode = (idToDelete: string): boolean => {
+  const nodesAfterDeletion = nodes.filter(
+    node =>
+      node.type === "customWorkflowNode" &&
+      node.data.step.type === "action" &&
+      node.id !== idToDelete // simulate deletion
+  );
 
-  const isAction = node.data.step.type === "action";
-  if (!isAction) return true;
-
-  const actionCount = nodes.filter(
-    n =>
-      n.type === "customWorkflowNode" &&
-      n.data.step.type === "action"
-  ).length;
-
-  return actionCount > 1;
+  return nodesAfterDeletion.length >= 1;
 };
+
 
 
 
 
 const handleDeleteNode = (nodeId: string) => {
-  if (!canDeleteNode(nodeId)) {
-    notify("A workflow must have at least one action.", "error");
-    return;
-  }
+  setNodes(prevNodes => {
+    const filteredNodes = prevNodes.filter(n => getLocalNodeIdentifier(n) !== nodeId && 
+      !(n.type === "insertButton" && n.data?.between?.includes(nodeId)));
 
-  setNodes((nds) => {
-    return nds.filter((n) => {
-      const currentId = getLocalNodeIdentifier(n);
-      const isInsertNodeLinked = n.type === "insertButton" && n.data?.between?.includes(nodeId);
-      return currentId !== nodeId && !isInsertNodeLinked;
-    });
+    const reordered = reorderAndReposition(filteredNodes);
+    return reordered;
   });
 
-  setEdges((eds) => {
-    return eds.filter((e) => {
-      return e.source !== nodeId && e.target !== nodeId &&
-             !e.source.startsWith(`insert-${nodeId}`) &&
-             !e.target.startsWith(`insert-${nodeId}`);
-    });
+  setEdges(prevEdges => {
+    return prevEdges.filter(e =>
+      e.source !== nodeId &&
+      e.target !== nodeId &&
+      !e.source.includes(`insert-${nodeId}`) &&
+      !e.target.includes(`insert-${nodeId}`)
+    );
   });
-
-  setNodes((nds) => reorderAndReposition(nds));
 };
+
+  const initialNodes = convertStepsToNodes(initialSteps, handleDeleteNode, canDeleteNode);
+
+  const [workflow, setWorkflow] = useState(initialWorkflow); 
+
 
 
 
 
   // si on a des steps convertit, sinon on garde les nodes initiaux
-  const [nodes, setNodes, onNodesChange] = useNodesState(
-        initialWorkflow.steps && initialWorkflow.steps.length > 0
-          ? convertStepsToNodes(initialWorkflow.steps, handleDeleteNode)
-          : initialNodes.map(node => ({
-              ...node,
-              data: {
-                ...node.data,
-                onDeleteNode: handleDeleteNode,
-                canDeleteNode: canDeleteNode,
-              }
-            }))
-      );
-  const [workflowName, setWorkflowName] = useState(initialWorkflow.name || "");
+const [nodes, setNodes, onNodesChange] = useNodesState(
+  workflow.steps && workflow.steps.length > 0
+    ? convertStepsToNodes(workflow.steps, handleDeleteNode, canDeleteNode)
+    : initialNodes.map(node => ({
+        ...node,
+        data: {
+          ...node.data,
+          onDeleteNode: handleDeleteNode,
+          canDeleteNode: canDeleteNode,
+        }
+      }))
+);
+  const [workflowName, setWorkflowName] = useState(workflow.name || "");
+
+
+
+
 
 
   const [edges, setEdges, onEdgesChange] = useEdgesState(
@@ -201,7 +189,25 @@ const canDeploy = isDeployableStatus && allStepsTested;
 
 
 
+
+
+
  
+
+useEffect(() => {
+  if (!workflow.steps || workflow.steps.length === 0) {
+    return;
+  }
+
+  const updatedNodes = injectNodeHandlers(
+    convertStepsToNodes(workflow.steps, handleDeleteNode, canDeleteNode)
+  );
+  const updatedEdges = convertStepsToEdges(workflow.steps);
+
+  setNodes(reorderAndReposition(updatedNodes));
+  setEdges(updatedEdges);
+}, [workflow.steps]);
+
 
 
 
@@ -441,7 +447,7 @@ const addActionBetween = (fromId: string, toId: string | null) => {
 const handleSave = async () => {
   const incompleteSteps = nodes
     .filter((n) => n.type === "customWorkflowNode")
-    .filter((node) => isStepIncomplete(node.data.step)); // ici on utilise ta fonction
+    .filter((node) => isStepIncomplete(node.data.step));
 
   if (incompleteSteps.length > 0) {
     notify("Please configure all steps before saving.", "error");
@@ -457,17 +463,22 @@ const handleSave = async () => {
     }));
 
   const updatedWorkflow: WorkflowData = {
-    ...initialWorkflow,
+    ...workflow, 
     name: workflowName,
     steps: workflowSteps,
   };
 
   try {
     const savedWorkflow = await updateWorkflow(updatedWorkflow);
+
+   
+    setWorkflow(savedWorkflow);
+
     notify("Workflow saved successfully!", "success");
 
+  
     const updatedNodes = injectNodeHandlers(
-      convertStepsToNodes(savedWorkflow.steps, handleDeleteNode)
+      convertStepsToNodes(savedWorkflow.steps, handleDeleteNode, canDeleteNode)
     );
     const updatedEdges = convertStepsToEdges(savedWorkflow.steps);
 
@@ -478,6 +489,7 @@ const handleSave = async () => {
     console.error(error);
   }
 };
+
 
 
 const handleUndeploy = async () => {

@@ -14,13 +14,16 @@ import { WorkflowData, WorkflowStepInput } from "@/types/workflow";
 import { Edge } from "reactflow";
 
 // conversion des steps en noedus
-export function convertStepsToNodes(steps: WorkflowData["steps"],  onDeleteNode?: (id: string) => void
-): Node[] {
+export function convertStepsToNodes(
+  steps: WorkflowData["steps"],
+  onDeleteNode?: (id: string) => void,
+  canDeleteNode?: (id: string) => boolean
+  ): Node[] {
   const nodes: Node[] = steps.map((step, index) => ({
     id: step.ref_id,
     type: "customWorkflowNode",
     position: { x: NODE_X, y: 50 + index * (NODE_HEIGHT + VERTICAL_GAP) },
-    data: { step, onDeleteNode },
+    data: { step, onDeleteNode,canDeleteNode  },
   }));
 
   const insertButtons: Node[] = [];
@@ -188,3 +191,34 @@ export const extractStepsFromNodes = (nodes: Node[]): WorkflowStepInput[] => {
     .map((node) => node.data?.step)
     .filter(Boolean); 
 };
+
+
+
+export const initialSteps: WorkflowStepInput[] = [
+  {
+    ref_id: "temp-trigger",
+    name: "Choose a Trigger",
+    type: "trigger",
+    service: "",
+    workflow_id: "",
+    status: "draft",
+    serviceActionId: "",
+    order: 0,
+    config: [],
+    trigger: "",
+    action: "",
+  },
+  {
+    ref_id: "temp-action",
+    name: "Choose an Action",
+    type: "action",
+    service: "",
+    workflow_id: "",
+    status: "draft",
+    serviceActionId: "",
+    order: 1,
+    config: [],
+    trigger: "",
+    action: "",
+  },
+];

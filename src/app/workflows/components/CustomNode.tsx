@@ -44,7 +44,7 @@ export default function WorkflowNode({ data }: NodeProps<NodeData>) {
     setIsConfirmOpen(true);
   };
 
-  const handleConfirmDelete = async () => {
+   const handleConfirmDelete = async () => {
     setIsConfirmOpen(false);
 
     if (data.canDeleteNode && !data.canDeleteNode(data.step.ref_id)) {
@@ -53,13 +53,13 @@ export default function WorkflowNode({ data }: NodeProps<NodeData>) {
     }
 
     if (!step.ref_id || step.ref_id.startsWith("temp-")) {
-      data.onDeleteNode?.(data.id);
+      data.onDeleteNode?.(data.step.ref_id); 
       return;
     }
 
     try {
       await deleteActionOrTrigger(step.ref_id);
-      data.onDeleteNode?.(data.id);
+      data.onDeleteNode?.(step.ref_id); 
     } catch (e) {
       console.error("Failed to delete step:", e);
       notify("Failed to delete step.", "error");
