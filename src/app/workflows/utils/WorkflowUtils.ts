@@ -226,4 +226,16 @@ export const initialSteps: WorkflowStepInput[] = [
 
 
 
+// gestion sheets 
+
+export type CellData = string | { value: string };
+export type TableData = CellData[][];
+
+export function isTableConfigured(matrix: string[][]): boolean {
+  if (!Array.isArray(matrix)) return false;
+  return matrix.some((row) => row.some((cell) => cell.trim() !== ""));
+}
+
+
+
 

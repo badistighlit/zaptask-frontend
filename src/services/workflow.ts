@@ -448,7 +448,7 @@ function buildUpdatePayload(workflowData: WorkflowData) {
       status: step.status,
       execution_order: step.order,
       parameters: step.config
-        ? step.config.reduce<Record<string, string | string []| number | boolean | null>>((acc, param) => {
+        ? step.config.reduce<Record<string, string | string []| string [][] |number | boolean | null>>((acc, param) => {
             acc[param.key] = param.value !== undefined ? param.value : null;
             return acc;
           }, {})

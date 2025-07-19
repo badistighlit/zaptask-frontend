@@ -13,8 +13,10 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useDebounce } from "../hooks/useDebounce";
 import { useTestWorkflowAction } from "@/services/workflow";
-import { CheckCircle, AlertTriangle, Settings } from "lucide-react";
+import { CheckCircle, AlertTriangle, Settings, Table } from "lucide-react";
 import TagsInput from "@/components/TagsInput";
+import SpreadsheetDialog from "./SpreedsheetDialog";
+import { isTableConfigured, TableData } from "../utils/WorkflowUtils";
 
 
 
@@ -32,6 +34,10 @@ const StepConfigurator: React.FC<StepConfiguratorProps> = ({ step, onChange, onW
   const { testWorkflowAction } = useTestWorkflowAction();
 
   const debouncedConfig = useDebounce(localConfig, 600);
+
+
+  const [showSpreadsheet, setShowSpreadsheet] = useState(false);
+
 
 useEffect(() => {
   if (!step) return;
@@ -94,7 +100,7 @@ const handleInputChange = (key: string, newValue: ConfigValue) => {
 
 
 
-  const getInputValue = (value: ConfigValue, type: ParameterType): string | number | string[] => {
+  const getInputValue = (value: ConfigValue, type: ParameterType): string | number | string[]  | string[][] => {
     if (value === undefined || value === null) return "";
     if (type === "checkbox") return "";
     if (typeof value === "boolean") return value ? "true" : "false";
@@ -117,14 +123,19 @@ const handleInputChange = (key: string, newValue: ConfigValue) => {
   }
 
 
-  if (param.type === "array") {
+if (param.type === "array") {
+  const tags = Array.isArray(param.value) && param.value.every(item => typeof item === "string")
+    ? param.value as string[]
+    : [];
+
   return (
     <TagsInput
-      value={Array.isArray(param.value) ? param.value : []}
+      value={tags}
       onChange={(newTags) => handleInputChange(param.key, newTags)}
     />
   );
 }
+
 
 
 
@@ -154,6 +165,61 @@ const handleInputChange = (key: string, newValue: ConfigValue) => {
         />
       );
     }
+
+
+// gestion feuille de calcul
+
+function isStringMatrix(value: any): value is string[][] {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (row) => Array.isArray(row) && row.every((cell) => typeof cell === "string")
+    )
+  );
+}
+
+
+
+
+const isConfigured = isStringMatrix(param.value) && isTableConfigured(param.value);
+const buttonColor = isConfigured ? "bg-blue-600 hover:bg-blue-700" : "bg-orange-500 hover:bg-orange-600";
+
+
+
+
+if (param.type === "table") {
+return (
+  <>
+    <button
+      className={`inline-flex items-center gap-2 px-4 py-2 text-white font-medium rounded-md transition-colors ${buttonColor}`}
+      onClick={() => setShowSpreadsheet(true)}
+    >
+      <Table className="w-4 h-4" />
+      {isConfigured ? "Edit Spreadsheet" : "Configure Spreadsheet"}
+    </button>
+
+    <SpreadsheetDialog
+      open={showSpreadsheet}
+      onClose={() => setShowSpreadsheet(false)}
+      data={isStringMatrix(param.value) ? param.value : [[""]]}
+      onSave={(rawTableData: TableData) => {
+        const cleanData = rawTableData.map((row) =>
+          row.map((cell) =>
+            typeof cell === "object" && cell !== null && "value" in cell
+              ? cell.value
+              : String(cell)
+          )
+        );
+        handleInputChange(param.key, cleanData);
+        setShowSpreadsheet(false);
+      }}
+    />
+  </>
+);
+}
+
+
+
 
     if (param.type === "checkbox") {
       return (

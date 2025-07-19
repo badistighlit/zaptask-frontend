@@ -3,7 +3,7 @@
 export type WorkflowStatus = "draft" | "tested" | "deployed" | "error";
 export type WorkflowActionStatus = "draft" | "tested" | "deployed" | "error";
 export type WorkflowStepType = "trigger" | "action";
-export type ConfigValue = string | number | boolean | string [] |undefined;
+export type ConfigValue = string | number | boolean | string []   | string[][]  |  undefined;
 
 export type ParameterOption = {
   label: string;
@@ -37,7 +37,8 @@ export type ParameterType =
   | "array"
   | "textarea"
   | "multiline"
-  | "select";
+  | "select"
+  | "table";
 
 
 // parameters
