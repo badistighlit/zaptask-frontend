@@ -160,7 +160,7 @@ if (param.type === "array") {
           id={inputId}
           name={param.key}
           required={param.required}
-          defaultValue={new Date(String(value)).toISOString().slice(0, 16)}
+          defaultValue={value ? new Date(String(value)).toISOString().slice(0, 16) : String(value)}
           onChange={(e) => handleInputChange(param.key, e.target.value)}
         />
       );
