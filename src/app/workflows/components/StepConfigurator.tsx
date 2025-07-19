@@ -54,6 +54,7 @@ useEffect(() => {
 
 
 
+
   useEffect(() => {
     if (!step) return;
     onChange({ ...step, config: debouncedConfig });
@@ -169,13 +170,13 @@ if (param.type === "array") {
 
 // gestion feuille de calcul
 
-function isStringMatrix(value: unknown): value is string[][] {
+function isStringMatrix(value: unknown): value is (string | null)[][] {
   return (
     Array.isArray(value) &&
     value.every(
       (row) =>
         Array.isArray(row) &&
-        row.every((cell) => typeof cell === "string")
+        row.every((cell) => typeof cell === "string" || cell === null)
     )
   );
 }
