@@ -8,7 +8,6 @@ import * as Yup from "yup";
 import { yupResolver } from '@hookform/resolvers/yup';
 import {register as registerUser} from "@/services/auth";
 import { RegisterData } from "@/types/auth";
-import { useNotify } from "@/components/NotificationProvider";
 
 
 const validationSchema = Yup.object().shape({
@@ -24,7 +23,6 @@ const validationSchema = Yup.object().shape({
 });
 
 export default function RegisterForm() {
-    const notify = useNotify();
     const {
         register,
         handleSubmit,
@@ -38,7 +36,6 @@ export default function RegisterForm() {
     async function onSubmit(data : RegisterData) {
         try {
             const response = await registerUser(data);
-            
 
             saveUserInfo(response)
             window.location.href = "/dashboard"; 
