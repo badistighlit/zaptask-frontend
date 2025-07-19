@@ -35,33 +35,18 @@ export default function RegisterForm() {
         resolver: yupResolver(validationSchema),
     });
 
-async function onSubmit(data: RegisterData) {
-    try {
-        const response = await registerUser(data);
+    async function onSubmit(data : RegisterData) {
+        try {
+            const response = await registerUser(data);
+            
 
-        if (response && response.status === 200) {
-            saveUserInfo(response.data);
-            notify("Registration successful!", "success");
-            window.location.href = "/dashboard";
-        } else {
-            notify("Registration failed. Please check your information.", "error");
-        }
-    } catch (e: unknown) {
-        if (isAxiosError(e)) {
-            const status = e.response?.status;
-            if (status && status !== 200) {
-                notify("Registration failed. Please check your information.", "error");
-            } else {
-                notify("An unexpected error occurred. Please try again later.", "error");
-            }
-            console.log(e as AxiosError);
-        } else {
-            console.error(e);
-            notify("An unexpected error occurred. Please try again later.", "error");
+            saveUserInfo(response)
+            window.location.href = "/dashboard"; 
+
+        } catch (e: unknown) {
+            console.log(isAxiosError(e) && e as AxiosError);
         }
     }
-}
-
 
     const handleErrors = (e: React.ChangeEvent<HTMLInputElement>) => {
         clearErrors(e.target.name as keyof RegisterData);
