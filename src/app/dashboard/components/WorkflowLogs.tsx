@@ -22,6 +22,7 @@ export default function WorkflowLogs({ workflows }: WorkflowLogsProps) {
 
     const sortedByDeployment = [...workflows]
       .filter((wf) => wf.deployedAt)
+      .filter((wf)=>wf.status ==="deployed")
       .sort((a, b) => new Date(b.deployedAt!).getTime() - new Date(a.deployedAt!).getTime());
 
     const latestWorkflow = sortedByDeployment[0];
