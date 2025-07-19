@@ -169,15 +169,16 @@ if (param.type === "array") {
 
 // gestion feuille de calcul
 
-function isStringMatrix(value: any): value is string[][] {
+function isStringMatrix(value: unknown): value is string[][] {
   return (
     Array.isArray(value) &&
     value.every(
-      (row) => Array.isArray(row) && row.every((cell) => typeof cell === "string")
+      (row) =>
+        Array.isArray(row) &&
+        row.every((cell) => typeof cell === "string")
     )
   );
 }
-
 
 
 
