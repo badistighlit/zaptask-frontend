@@ -118,8 +118,12 @@ const canDeleteNode = (idToDelete: string): boolean => {
 
 
 const handleDeleteNode = (nodeId: string) => {
+  if (! nodeId.startsWith("temp")) {
+    handleUndeploy();
+  }
+
   setNodes(prevNodes => {
-    const filteredNodes = prevNodes.filter(n => getLocalNodeIdentifier(n) !== nodeId && 
+    const filteredNodes = prevNodes.filter(n => getLocalNodeIdentifier(n) !== nodeId &&
       !(n.type === "insertButton" && n.data?.between?.includes(nodeId)));
 
     const reordered = reorderAndReposition(filteredNodes);
@@ -513,6 +517,7 @@ const handleSave = async () => {
     );
     const updatedEdges = convertStepsToEdges(savedWorkflow.steps);
 
+    setWorkflowStatus(savedWorkflow.status);
     setNodes(reorderAndReposition(updatedNodes));
     setEdges(updatedEdges);
   } catch (error) {
