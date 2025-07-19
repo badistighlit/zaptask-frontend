@@ -4,11 +4,15 @@ import { saveUserInfo } from "@/utils/authentication";
 import { useForm } from "react-hook-form";
 import { LoginData } from "@/types/auth";
 import { login } from "@/services/auth";
+import { useNotify } from "@/components/NotificationProvider";
+
 
 
 
 
 export default function LoginForm() {
+    const notify = useNotify();
+
 
     const {
         register,
@@ -18,21 +22,33 @@ export default function LoginForm() {
         reValidateMode: "onChange"
     });
 
-    async function onSubmit(data : LoginData) {
-        try {
-            const response = await login(data);
+async function onSubmit(data: LoginData) {
+    try {
+        const response = await login(data);
 
+        if (response.status === 200) {
             saveUserInfo(response.data);
-
-             window.location.href = "/dashboard"; 
-
-        } catch (e: unknown) {
-            if (isAxiosError(e)) {
-                console.log(e as AxiosError);
+            notify("Login successful!", "success");
+            window.location.href = "/dashboard";
+        } else {
+            notify("Login failed. Please check your credentials.", "error");
+        }
+    } catch (e: unknown) {
+        if (isAxiosError(e)) {
+            const status = e.response?.status;
+            if (status && status !== 200) {
+                notify("Login failed. Please check your credentials.", "error");
+            } else {
+                notify("An unexpected error occurred. Please try again later.", "error");
             }
+            console.log(e as AxiosError);
+        } else {
             console.error(e);
+            notify("An unexpected error occurred. Please try again later.", "error");
         }
     }
+}
+
 
     return (
         <div className="flex items-center justify-center min-h-screen border-solid bg-background">

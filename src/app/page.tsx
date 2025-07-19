@@ -93,8 +93,9 @@ export default function Home() {
               text: "Set triggers and actions in minutes. No devs required.",
             }, {
               Icon: Brain,
-              title: "AI-powered actions",
-              text: "Summarize meetings, extract data from emails, enrich your tasks with AI.",
+            title: "AI-powered actions",
+            text: "Coming soon : Summarize meetings, extract data from emails, and enrich your tasks with AI.",
+
             }].map(({ Icon, title, text }, i) => (
               <div
                 key={i}
